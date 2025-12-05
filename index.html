@@ -1297,13 +1297,15 @@
             try {
                 updateStatus('loading', '⏳ Loading AI Model...');
                 
-                // TRY TO LOAD REAL MODEL FROM CUSTOM VISION
+                let modelLoaded = false;
+                
+                // TRY TO LOAD REAL MODEL FROM GITHUB
                 try {
                     console.log('📥 Attempting to load model from GitHub...');
-                    console.log('🔗 URL:', MODEL_URL);
+                    console.log('🔗 URL:', MODEL_URL_GITHUB);
                     
-                    const modelURL = MODEL_URL + 'model.json';
-                    const metadataURL = MODEL_URL + 'labels.txt';
+                    const modelURL = MODEL_URL_GITHUB + 'model.json';
+                    const metadataURL = MODEL_URL_GITHUB + 'labels.txt';
                     
                     console.log('📄 Model JSON:', modelURL);
                     console.log('📄 Labels file:', metadataURL);
@@ -1314,10 +1316,7 @@
                     console.log('📊 model.json status:', modelTest.status, modelTest.statusText);
                     
                     if (!modelTest.ok) {
-                        // Try fallback to Vercel
-                        console.log('⚠️ GitHub failed, trying Vercel fallback...');
-                        MODEL_URL = MODEL_URL_VERCEL;
-                        throw new Error(`GitHub failed: ${modelTest.status}. Trying Vercel...`);
+                        throw new Error(`GitHub model.json HTTP ${modelTest.status}`);
                     }
                     
                     console.log('🔍 Testing labels.txt accessibility...');
@@ -1325,10 +1324,7 @@
                     console.log('📊 labels.txt status:', labelsTest.status, labelsTest.statusText);
                     
                     if (!labelsTest.ok) {
-                        // Try fallback to Vercel
-                        console.log('⚠️ labels.txt failed on GitHub, trying Vercel...');
-                        MODEL_URL = MODEL_URL_VERCEL;
-                        throw new Error(`Labels failed: ${labelsTest.status}. Trying Vercel...`);
+                        throw new Error(`GitHub labels.txt HTTP ${labelsTest.status}`);
                     }
                     
                     // Load the model using Teachable Machine library
@@ -1339,45 +1335,18 @@
                     console.log('📋 Model object:', model);
                     console.log('🎯 Model classes:', model.getClassLabels ? model.getClassLabels() : 'N/A');
                     
+                    modelLoaded = true;
                     updateStatus('ready', '✅ AI Model Siap! (Real AI - GitHub)');
                     showToast('✅ AI Model dari GitHub berhasil dimuat!');
                     
                 } catch (githubError) {
                     console.error('⚠️ GitHub failed:', githubError.message);
-                    
-                    // FALLBACK: Try loading from Vercel
-                    if (MODEL_URL === MODEL_URL_GITHUB) {
-                        try {
-                            console.log('🔄 Trying Vercel fallback...');
-                            MODEL_URL = MODEL_URL_VERCEL;
-                            
-                            const modelURL = MODEL_URL + 'model.json';
-                            const metadataURL = MODEL_URL + 'labels.txt';
-                            
-                            console.log('📄 Vercel Model JSON:', modelURL);
-                            console.log('📄 Vercel Labels:', metadataURL);
-                            
-                            model = await tmImage.load(modelURL, metadataURL);
-                            
-                            console.log('✅ Real AI model loaded from Vercel!');
-                            updateStatus('ready', '✅ AI Model Siap! (Real AI - Vercel)');
-                            showToast('✅ AI Model dari Vercel berhasil dimuat!');
-                            
-                        } catch (vercelError) {
-                            console.error('❌ Vercel also failed:', vercelError.message);
-                            throw new Error('Both GitHub and Vercel failed');
-                        }
-                    } else {
-                        throw githubError;
-                    }
-                }
-                    
-                } catch (modelError) {
-                    console.error('⚠️ Failed to load real model:', modelError);
-                    console.error('Error details:', modelError.message);
-                    
-                    // FALLBACK TO DEMO MODE
                     console.log('🔄 Falling back to demo mode...');
+                }
+                
+                // If GitHub failed, use demo mode
+                if (!modelLoaded) {
+                    console.log('📝 Creating demo model...');
                     
                     model = {
                         predict: function(image) {
@@ -1390,22 +1359,22 @@
                             if (random > 0.5) {
                                 predictions = [
                                     {
-                                        className: 'KBHSFBNR00010811',
+                                        className: 'KBHEFIND00030711',
                                         probability: 0.87 + (Math.random() * 0.1)
                                     },
                                     {
-                                        className: 'KBHEFIND00030711',
+                                        className: 'KBHSFBNR00010811',
                                         probability: 0.03 + (Math.random() * 0.10)
                                     }
                                 ];
                             } else {
                                 predictions = [
                                     {
-                                        className: 'KBHEFIND00030711',
+                                        className: 'KBHSFBNR00010811',
                                         probability: 0.89 + (Math.random() * 0.09)
                                     },
                                     {
-                                        className: 'KBHSFBNR00010811',
+                                        className: 'KBHEFIND00030711',
                                         probability: 0.02 + (Math.random() * 0.09)
                                     }
                                 ];
