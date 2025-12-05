@@ -1291,56 +1291,103 @@
         // INITIALIZE MODEL
         // ==========================================
         
+        // ==========================================
+        // INITIALIZE MODEL WITH TENSORFLOW.JS DIRECT
+        // ==========================================
+        
         async function initModel() {
-            console.log('🚀 Initializing model...');
+            console.log('='.repeat(80));
+            console.log('🚀 AI PARTS SCANNER - TENSORFLOW.JS DIRECT LOADING');
+            console.log('='.repeat(80));
             
             try {
                 updateStatus('loading', '⏳ Loading AI Model...');
                 
                 let modelLoaded = false;
                 
-                // TRY TO LOAD REAL MODEL FROM GITHUB
+                // TRY TO LOAD REAL MODEL FROM GITHUB WITH TENSORFLOW.JS
                 try {
-                    console.log('📥 Attempting to load model from GitHub...');
-                    console.log('🔗 URL:', MODEL_URL_GITHUB);
+                    console.log('📥 Loading model from GitHub with TensorFlow.js...');
+                    console.log('🔗 Model URL:', MODEL_URL_GITHUB);
                     
                     const modelURL = MODEL_URL_GITHUB + 'model.json';
-                    const metadataURL = MODEL_URL_GITHUB + 'labels.txt';
+                    const labelsURL = MODEL_URL_GITHUB + 'labels.txt';
                     
-                    console.log('📄 Model JSON:', modelURL);
-                    console.log('📄 Labels file:', metadataURL);
+                    console.log('📄 Model file:', modelURL);
+                    console.log('📄 Labels file:', labelsURL);
                     
-                    // Test if URLs are accessible
-                    console.log('🔍 Testing model.json accessibility...');
-                    const modelTest = await fetch(modelURL);
-                    console.log('📊 model.json status:', modelTest.status, modelTest.statusText);
-                    
-                    if (!modelTest.ok) {
-                        throw new Error(`GitHub model.json HTTP ${modelTest.status}`);
+                    // Load labels first
+                    console.log('📋 Loading labels...');
+                    const labelsResponse = await fetch(labelsURL);
+                    if (!labelsResponse.ok) {
+                        throw new Error(`Labels HTTP ${labelsResponse.status}`);
                     }
+                    const labelsText = await labelsResponse.text();
+                    const labels = labelsText.split('\n').filter(l => l.trim());
+                    console.log('✅ Labels loaded:', labels);
                     
-                    console.log('🔍 Testing labels.txt accessibility...');
-                    const labelsTest = await fetch(metadataURL);
-                    console.log('📊 labels.txt status:', labelsTest.status, labelsTest.statusText);
+                    // Load model with TensorFlow.js directly
+                    console.log('⏳ Loading model with tf.loadLayersModel...');
+                    const tfModel = await tf.loadLayersModel(modelURL);
+                    console.log('✅ REAL AI MODEL LOADED SUCCESSFULLY!');
+                    console.log('📋 Model:', tfModel);
+                    console.log('🎯 Input shape:', tfModel.inputs[0].shape);
+                    console.log('🎯 Output shape:', tfModel.outputs[0].shape);
                     
-                    if (!labelsTest.ok) {
-                        throw new Error(`GitHub labels.txt HTTP ${labelsTest.status}`);
-                    }
-                    
-                    // Load the model using Teachable Machine library
-                    console.log('⏳ Loading model with tmImage.load...');
-                    model = await tmImage.load(modelURL, metadataURL);
-                    
-                    console.log('✅ Real AI model loaded successfully from GitHub!');
-                    console.log('📋 Model object:', model);
-                    console.log('🎯 Model classes:', model.getClassLabels ? model.getClassLabels() : 'N/A');
+                    // Wrap model with prediction interface
+                    model = {
+                        tfModel: tfModel,
+                        labels: labels,
+                        predict: async function(imageElement) {
+                            console.log('🤖 Predicting with REAL AI model...');
+                            
+                            // Preprocess image
+                            let tensor = tf.browser.fromPixels(imageElement);
+                            
+                            // Get model input size
+                            const inputShape = this.tfModel.inputs[0].shape;
+                            const height = inputShape[1] || 224;
+                            const width = inputShape[2] || 224;
+                            
+                            // Resize
+                            tensor = tf.image.resizeBilinear(tensor, [height, width]);
+                            
+                            // Normalize
+                            tensor = tensor.div(255.0);
+                            
+                            // Add batch dimension
+                            tensor = tensor.expandDims(0);
+                            
+                            console.log('📊 Input tensor shape:', tensor.shape);
+                            
+                            // Predict
+                            const output = this.tfModel.predict(tensor);
+                            const probabilities = await output.data();
+                            
+                            console.log('📊 Raw probabilities:', Array.from(probabilities));
+                            
+                            // Format predictions
+                            const predictions = this.labels.map((label, i) => ({
+                                className: label,
+                                probability: probabilities[i]
+                            }));
+                            
+                            // Cleanup tensors
+                            tensor.dispose();
+                            output.dispose();
+                            
+                            console.log('✅ Predictions:', predictions);
+                            
+                            return predictions;
+                        }
+                    };
                     
                     modelLoaded = true;
-                    updateStatus('ready', '✅ AI Model Siap! (Real AI - GitHub)');
-                    showToast('✅ AI Model dari GitHub berhasil dimuat!');
+                    updateStatus('ready', '✅ AI Model Siap! (Real AI - TensorFlow.js)');
+                    showToast('✅ AI Model TensorFlow.js berhasil dimuat!');
                     
                 } catch (githubError) {
-                    console.error('⚠️ GitHub failed:', githubError.message);
+                    console.error('⚠️ GitHub loading failed:', githubError.message);
                     console.log('🔄 Falling back to demo mode...');
                 }
                 
@@ -1381,7 +1428,7 @@
                             }
                             
                             console.log('⚠️ Demo predictions (fallback):', predictions);
-                            return predictions;
+                            return Promise.resolve(predictions);
                         }
                     };
                     
@@ -1391,6 +1438,7 @@
                 
                 enableButtons();
                 console.log('✅ Model initialization complete!');
+                console.log('='.repeat(80));
                 
             } catch (error) {
                 console.error('❌ Critical error during initialization:', error);
