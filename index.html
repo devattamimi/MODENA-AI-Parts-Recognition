@@ -1,0 +1,2848 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MODENA Spare Parts Scanner</title>
+    
+    <!-- TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --black: #000000;
+            --dark-gray: #1a1a1a;
+            --gray: #666666;
+            --light-gray: #cccccc;
+            --white: #ffffff;
+            --off-white: #f5f5f5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--white);
+            min-height: 100vh;
+            padding: 16px;
+            color: var(--black);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--white);
+            border: 2px solid var(--black);
+            border-radius: 20px;
+            padding: 32px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .title {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--black);
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: var(--gray);
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 12px;
+        }
+        
+        .status-loading {
+            background: var(--warning);
+            color: var(--white);
+        }
+        
+        .status-ready {
+            background: var(--success);
+            color: var(--white);
+        }
+        
+        .status-error {
+            background: var(--error);
+            color: var(--white);
+        }
+        
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 16px;
+            background: var(--off-white);
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .tab:hover {
+            border-color: var(--black);
+        }
+        
+        .tab.active {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+        
+        /* Content */
+        .content {
+            background: var(--white);
+            border: 2px solid var(--black);
+            border-radius: 20px;
+            padding: 32px 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Scanner Section */
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 24px;
+            color: var(--black);
+        }
+        
+        .upload-area {
+            border: 3px dashed var(--light-gray);
+            border-radius: 16px;
+            padding: 48px 24px;
+            text-align: center;
+            margin-bottom: 24px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area.active {
+            border-color: var(--black);
+            background: var(--off-white);
+        }
+        
+        .upload-placeholder {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        #previewImage, #canvas, #webcam {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        /* Buttons */
+        .buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border: 2px solid var(--black);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--white);
+            color: var(--black);
+        }
+        
+        .btn:hover {
+            background: var(--black);
+            color: var(--white);
+        }
+        
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: var(--light-gray);
+            border-color: var(--light-gray);
+        }
+        
+        .btn:disabled:hover {
+            background: var(--light-gray);
+            color: var(--black);
+        }
+        
+        .btn-primary {
+            background: var(--black);
+            color: var(--white);
+        }
+        
+        .btn-primary:hover {
+            background: var(--dark-gray);
+        }
+        
+        /* Results Box */
+        .results-box {
+            display: none;
+            margin-top: 32px;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+        
+        .results-box.show {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Prediction Cards */
+        .predictions-grid {
+            display: grid;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .prediction-card {
+            background: var(--off-white);
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .prediction-card.top {
+            background: var(--black);
+            border-color: var(--black);
+            color: var(--white);
+        }
+        
+        .prediction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .part-code-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        
+        .part-code {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .copy-btn {
+            background: var(--light-gray);
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+        }
+        
+        .copy-btn:hover {
+            background: var(--gray);
+            transform: scale(1.1);
+        }
+        
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .prediction-card.top .copy-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .prediction-card.top .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .confidence-badge {
+            font-size: 24px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        
+        .prediction-card.top .confidence-badge {
+            color: var(--white);
+        }
+        
+        .part-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .prediction-card.top .part-name {
+            color: var(--white);
+        }
+        
+        .part-details {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+        
+        .prediction-card.top .part-details {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .models-link {
+            color: var(--black);
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .models-link:hover {
+            color: var(--gray);
+        }
+        
+        .prediction-card.top .models-link {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .prediction-card.top .models-link:hover {
+            color: var(--white);
+        }
+        
+        .confidence-bar-container {
+            background: rgba(0, 0, 0, 0.1);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+        
+        .prediction-card.top .confidence-bar-container {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .confidence-bar {
+            background: var(--success);
+            height: 100%;
+            transition: width 0.5s ease;
+            border-radius: 3px;
+        }
+        
+        .prediction-card.top .confidence-bar {
+            background: var(--white);
+        }
+        
+        /* Parts Catalog */
+        .catalog-header {
+            margin-bottom: 24px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--black);
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--light-gray);
+            background: var(--white);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .filter-btn:hover {
+            border-color: var(--black);
+        }
+        
+        .filter-btn.active {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+        
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--white);
+            border: 2px solid var(--black);
+            border-radius: 8px;
+            margin-top: 4px;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--off-white);
+        }
+        
+        .dropdown-item:first-child {
+            border-radius: 6px 6px 0 0;
+        }
+        
+        .dropdown-item:last-child {
+            border-radius: 0 0 6px 6px;
+        }
+        
+        /* Parts Grid */
+        .parts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+        
+        .part-card {
+            background: var(--white);
+            border: 2px solid var(--light-gray);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .part-card:hover {
+            border-color: var(--black);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .part-image-container {
+            width: 100%;
+            height: 200px;
+            background: var(--off-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .part-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .part-card-body {
+            padding: 16px;
+        }
+        
+        .part-code-catalog {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: var(--gray);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .copy-btn-small {
+            background: var(--light-gray);
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .copy-btn-small:hover {
+            background: var(--gray);
+            transform: scale(1.1);
+        }
+        
+        .part-name-catalog {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 12px;
+            min-height: 40px;
+        }
+        
+        .part-info-row {
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray);
+        }
+        
+        .part-info-label {
+            font-weight: 600;
+            color: var(--black);
+        }
+        
+        .part-price {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--black);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 2px solid var(--off-white);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            border: 2px solid var(--black);
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 2px solid var(--off-white);
+            position: relative;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            padding-right: 40px;
+        }
+        
+        .modal-subtitle {
+            font-size: 14px;
+            color: var(--gray);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.3s ease;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            color: var(--black);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-section {
+            margin-bottom: 20px;
+        }
+        
+        .modal-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--black);
+        }
+        
+        .models-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .models-list li {
+            padding: 8px 12px;
+            background: var(--off-white);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .models-list li:before {
+            content: "• ";
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--black);
+            color: var(--white);
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 3000;
+            font-weight: 600;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background: var(--success);
+        }
+        
+        .toast.error {
+            background: var(--error);
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid var(--off-white);
+            border-top: 4px solid var(--black);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .loading-subtext {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 24px;
+            }
+            
+            .subtitle {
+                font-size: 14px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .parts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-buttons {
+                flex-direction: column;
+            }
+            
+            .filter-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">MODENA SPARE PARTS SCANNER</h1>
+            <p class="subtitle">Established per 11 January 2026</p>
+            <p class="subtitle">Created by Deva</p>
+            <div class="status-badge status-loading" id="statusBadge">
+                ⏳ Loading AI Model...
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('scanner')">📷 SCANNER</button>
+            <button class="tab" onclick="switchTab('catalog')">📚 PARTS CATALOG</button>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <!-- Scanner Tab -->
+            <div id="scannerTab" class="tab-content active">
+                <h2 class="section-title">📸 SCAN PART DENGAN AI</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div id="uploadPlaceholder">
+                        <div class="upload-placeholder">📷</div>
+                        <h3>Upload Foto Part</h3>
+                        <p style="color: var(--gray); margin-top: 8px;">Atau ambil foto menggunakan kamera</p>
+                    </div>
+                    <img id="previewImage">
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="canvas"></canvas>
+                </div>
+                
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                
+                <div class="buttons">
+                    <button class="btn" id="uploadBtn" onclick="document.getElementById('fileInput').click()" disabled>
+                        📁 UPLOAD FOTO
+                    </button>
+                    <button class="btn" id="cameraBtn" onclick="startCamera()" disabled>
+                        📸 BUKA KAMERA
+                    </button>
+                    <button class="btn btn-primary" id="analyzeBtn" onclick="analyzePart()" style="display: none;">
+                        🔍 ANALISIS PART
+                    </button>
+                </div>
+                
+                <div class="results-box" id="resultsBox"></div>
+            </div>
+            
+            <!-- Catalog Tab -->
+            <div id="catalogTab" class="tab-content">
+                <div class="catalog-header">
+                    <h2 class="section-title">📚 PARTS CATALOG</h2>
+                    <input type="text" class="search-box" id="searchBox" placeholder="🔍 Cari part code, nama, atau model..." oninput="searchParts()">
+                    
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterCategory('ALL')">ALL</button>
+                        <button class="filter-btn" onclick="filterCategory('Built in Hob')">BUILT-IN HOB</button>
+                        <button class="filter-btn" onclick="filterCategory('Water Dispenser')">WATER DISPENSER</button>
+                        <div class="dropdown-container">
+                            <button class="filter-btn" onclick="toggleDropdown()">OTHERS ▼</button>
+                            <div class="dropdown-menu" id="dropdownMenu">
+                                <div class="dropdown-item" onclick="filterCategory('Cooker Hood')">Cooker Hood (5)</div>
+                                <div class="dropdown-item" onclick="filterCategory('Water Purifier')">Water Purifier (2)</div>
+                                <div class="dropdown-item" onclick="filterCategory('Chest Freezer')">Chest Freezer (1)</div>
+                                <div class="dropdown-item" onclick="filterCategory('Freestanding Cooker')">Freestanding Cooker (1)</div>
+                                <div class="dropdown-item" onclick="filterCategory('Built-in Induction')">Built-in Induction (1)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="parts-grid" id="partsGrid"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Compatible Models Modal -->
+    <div class="modal" id="modelsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closeModal('modelsModal')">&times;</button>
+                <h2 class="modal-title" id="modelsModalTitle">Compatible Models</h2>
+                <div class="modal-subtitle">
+                    <span id="modelsModalPartCode"></span>
+                    <button class="copy-btn-small" onclick="copyFromModal()">📋</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <p class="modal-section-title" id="modelsModalPartName"></p>
+                    <p style="color: var(--gray); margin-bottom: 16px;">This part is compatible with:</p>
+                    <ul class="models-list" id="modelsModalList"></ul>
+                    <p style="font-weight: 700; margin-top: 16px; color: var(--gray);">
+                        Total: <span id="modelsModalCount"></span> compatible models
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Not Found Modal -->
+    <div class="modal" id="notFoundModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-close" onclick="closeModal('notFoundModal')">&times;</button>
+                <h2 class="modal-title">⚠️ PART TIDAK DITEMUKAN</h2>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 16px; font-size: 16px;">
+                    Part yang Anda scan tidak ditemukan di katalog spare parts.
+                </p>
+                <p style="margin-bottom: 8px; font-weight: 700;">Silakan:</p>
+                <ul style="margin-left: 20px; margin-bottom: 24px; color: var(--gray);">
+                    <li>Foto ulang dengan lebih jelas</li>
+                    <li>Cek Parts Catalog</li>
+                    <li>Hubungi support</li>
+                </ul>
+                <div class="modal-buttons">
+                    <button class="btn btn-primary" onclick="retakePhoto()">📸 FOTO ULANG</button>
+                    <button class="btn" onclick="viewCatalog()">📚 LIHAT CATALOG</button>
+                    <button class="btn" onclick="closeModal('notFoundModal')">❌ CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        console.log('================================================================================');
+        console.log('🚀 AI PARTS SCANNER - TENSORFLOW.JS DIRECT LOADING');
+        console.log('================================================================================');
+        
+        // Parts Database (50 parts from Excel)
+        const PARTS_DATABASE = {
+            "LRW401KMGY": {
+                        "partNumber": "LRW401KMGY",
+                        "name": "MODENA RODENT WIRE MESH - LT 0001",
+                        "productCategory": "Freestanding Cooker",
+                        "compatibleModels": [
+                                    "All FC model"
+                        ],
+                        "price": 286000,
+                        "image": "https://csms.sap.modena.com/photos/part/23082404032764e71cdfe1b0f.png"
+            },
+            "LRG102KRBK": {
+                        "partNumber": "LRG102KRBK",
+                        "name": "MODENA BRAVAREG REGULATOR SET - LR 0001 L",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "All BH model"
+                        ],
+                        "price": 307000,
+                        "image": "https://csms.sap.modena.com/photos/part/25120504025869329fc2ef899.jpg"
+            },
+            "LMDSFFLT00010618": {
+                        "partNumber": "LMDSFFLT00010618",
+                        "name": "FILTER DRIER",
+                        "productCategory": "Chest Freezer",
+                        "compatibleModels": [
+                                    "DF 0100 MAWH",
+                                    "DF 0120",
+                                    "DF 0200 MAWH",
+                                    "MD 0106 W",
+                                    "MD 0107",
+                                    "MD 0110 MLWH",
+                                    "MD 0156 W",
+                                    "MD 0200 W",
+                                    "MD 0210 MLWH",
+                                    "MD 0303 S",
+                                    "MD 10",
+                                    "MD 10 W",
+                                    "MD 15",
+                                    "MD 15 WH",
+                                    "MD 20 A",
+                                    "MD 20 W",
+                                    "MD 30",
+                                    "RF 2250 TGDS",
+                                    "RF 2650 TGDS",
+                                    "RF 3651 TDDS",
+                                    "RF 3652 TDDS",
+                                    "RF 4310 MABG",
+                                    "RF 4310 MABK",
+                                    "RF 4311 MADS",
+                                    "RF 4670 SABK",
+                                    "RF 4671 SADS",
+                                    "RF 6460 SABK"
+                        ],
+                        "price": 122000,
+                        "image": "https://csms.sap.modena.com/photos/part/240710115538668e144a93306.jpg"
+            },
+            "LHF201KPWH": {
+                        "partNumber": "LHF201KPWH",
+                        "name": "MODENA HOSE RO (METERS) 1/4",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "All DD Model"
+                        ],
+                        "price": 30000,
+                        "image": "https://csms.sap.modena.com/photos/part/220419033334625e73de2318a.jpg"
+            },
+            "LFP304LPWH": {
+                        "partNumber": "LFP304LPWH",
+                        "name": "(C2) - FL 4120",
+                        "productCategory": "Water Purifier",
+                        "compatibleModels": [
+                                    "RO 8101",
+                                    "RO 8115",
+                                    "RO 9115"
+                        ],
+                        "price": 219000,
+                        "image": "https://csms.sap.modena.com/photos/part/221122084949637c2abd0acae.jpg"
+            },
+            "LFP303LPWH": {
+                        "partNumber": "LFP303LPWH",
+                        "name": "(RO) - FL 3180",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "RO 8101",
+                                    "RO 8115",
+                                    "RO 9115"
+                        ],
+                        "price": 966000,
+                        "image": "https://csms.sap.modena.com/photos/part/221122084800637c2a505f5e2.jpg"
+            },
+            "LFL202LPWH": {
+                        "partNumber": "LFL202LPWH",
+                        "name": "JOINT L-TYPE (BIG) 1/4'-3/8'",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 66 G",
+                                    "DD 66 L",
+                                    "DD 66 V",
+                                    "DD 67 S",
+                                    "DD 68 L",
+                                    "DD 7106 L",
+                                    "DD 7107 LUV",
+                                    "DD 7181 L",
+                                    "DD 7181 L (UAE)",
+                                    "DD 7302 L",
+                                    "DD 75 L",
+                                    "WE 1310 BGWH"
+                        ],
+                        "price": 46000,
+                        "image": "https://csms.sap.modena.com/photos/part/230620033044649163b478c8c.jpg"
+            },
+            "LFH316KCYE": {
+                        "partNumber": "LFH316KCYE",
+                        "name": "CARBON FILTER VIT C - LF 2012",
+                        "productCategory": "Cooker Hood",
+                        "compatibleModels": [
+                                    "SX 6501 S",
+                                    "SX 6501 V",
+                                    "SX 9501 V",
+                                    "SX 9502 S",
+                                    "SX 9502 V"
+                        ],
+                        "price": 295000,
+                        "image": "https://csms.sap.modena.com/photos/part/241202012043674d51bb4fb62.jpg"
+            },
+            "LFH309KCYE": {
+                        "partNumber": "LFH309KCYE",
+                        "name": "CARBON FILTER VIT C-LF 2006",
+                        "productCategory": "Cooker Hood",
+                        "compatibleModels": [
+                                    "CX 6150",
+                                    "CX 6300",
+                                    "CX 6330",
+                                    "CX 7915 GXBK",
+                                    "CX 9150",
+                                    "CX 9300",
+                                    "CX 9303",
+                                    "CX 9330",
+                                    "CX 9703",
+                                    "CX 9753"
+                        ],
+                        "price": 195000,
+                        "image": "https://csms.sap.modena.com/photos/part/241107083552672c1978dbb4f.jpg"
+            },
+            "LFH304KCYE": {
+                        "partNumber": "LFH304KCYE",
+                        "name": "CARBON FILTER VIT C - LF 2001",
+                        "productCategory": "Cooker Hood",
+                        "compatibleModels": [
+                                    "CX 6301",
+                                    "CX 9106",
+                                    "CX 9301",
+                                    "CX 9306",
+                                    "DC 2701",
+                                    "DC 2901",
+                                    "IX 9106",
+                                    "IX 9306"
+                        ],
+                        "price": 281000,
+                        "image": "https://csms.sap.modena.com/photos/part/241107083103672c1857a08fc.jpg"
+            },
+            "KCHEFLED00010816": {
+                        "partNumber": "KCHEFLED00010816",
+                        "name": "9 BALL LED LAMP",
+                        "productCategory": "Cooker Hood",
+                        "compatibleModels": [
+                                    "CX 7712 L",
+                                    "CX 7712 L (UAE)",
+                                    "RX 7632",
+                                    "RX 9632"
+                        ],
+                        "price": 169000,
+                        "image": "https://csms.sap.modena.com/photos/part/220922012242632bff32b7873.jpg"
+            },
+            "KBIEFPWB00020119": {
+                        "partNumber": "KBIEFPWB00020119",
+                        "name": "POWER BOARD",
+                        "productCategory": "Built-in Induction",
+                        "compatibleModels": [
+                                    "BI 0321 L",
+                                    "BI 0322 LBR",
+                                    "BI 0642 LBR",
+                                    "BI 1325",
+                                    "BI 1625 F"
+                        ],
+                        "price": 515000,
+                        "image": "https://csms.sap.modena.com/photos/part/5f6d53649eb0e.jpg"
+            },
+            "KBHSFWPT00150711": {
+                        "partNumber": "KBHSFWPT00150711",
+                        "name": "WATERPROOF TRAY 120#",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 1725",
+                                    "BH 1725 ABBK",
+                                    "BH 1725 ACBK",
+                                    "BH 1725 LA CECINA",
+                                    "BH 1725 LA FIRENZE",
+                                    "BH 1725 LA MASSA",
+                                    "BH 1725 LA PISTOIA",
+                                    "BH 1725 LA SIENA",
+                                    "BH 1725 LAT",
+                                    "BH 1725 LB",
+                                    "BH 1725 LBT",
+                                    "BH 1725 MIMA",
+                                    "BH 1725 W",
+                                    "BH 1735",
+                                    "BH 1935",
+                                    "BH 1935 ABBK",
+                                    "BH 1935 LB",
+                                    "BH 1935 W",
+                                    "BH 1945",
+                                    "BH 1945 W",
+                                    "BH 2725",
+                                    "BH 2935",
+                                    "BH 2958 LBM (UAE)"
+                        ],
+                        "price": 92000,
+                        "image": "https://csms.sap.modena.com/photos/part/23072105215764ba5c4587b40.jpg"
+            },
+            "KBHSFVLV00270821": {
+                        "partNumber": "KBHSFVLV00270821",
+                        "name": "VALVE",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "PC 0721 BDBK",
+                                    "PC 0721 BEBK",
+                                    "PC 2721 L",
+                                    "PC 2721 LD",
+                                    "PC 2721 LM",
+                                    "PC 2721 ZMCA"
+                        ],
+                        "price": 139000,
+                        "image": "https://csms.sap.modena.com/photos/part/220606022853629dacb518f38.jpg"
+            },
+            "KBHSFVLV00070811": {
+                        "partNumber": "KBHSFVLV00070811",
+                        "name": "VALVE (#120, 0.7)",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 1325",
+                                    "BH 1325 (UAE)",
+                                    "BH 1325 ABBK",
+                                    "BH 1325 ACBK",
+                                    "BH 1325 LA",
+                                    "BH 1326",
+                                    "BH 1645",
+                                    "BH 1645 LA",
+                                    "BH 1646",
+                                    "BH 1725",
+                                    "BH 1725 ABBK",
+                                    "BH 1725 ACBK",
+                                    "BH 1725 BCL",
+                                    "BH 1725 LA",
+                                    "BH 1725 LA CECINA",
+                                    "BH 1725 LA FIRENZE",
+                                    "BH 1725 LA GROSSETO",
+                                    "BH 1725 LA MASSA",
+                                    "BH 1725 LA PISTOIA",
+                                    "BH 1725 LA PRATO",
+                                    "BH 1725 LA SIENA",
+                                    "BH 1725 LAT",
+                                    "BH 1725 LB",
+                                    "BH 1725 LBT",
+                                    "BH 1725 MC",
+                                    "BH 1725 MIMA",
+                                    "BH 1725 W",
+                                    "BH 1727",
+                                    "BH 1728",
+                                    "BH 1728 BBBK",
+                                    "BH 1728 CBBK",
+                                    "BH 1728 LA",
+                                    "BH 1728 LB",
+                                    "BH 1735",
+                                    "BH 1735 LA",
+                                    "BH 1737",
+                                    "BH 1935",
+                                    "BH 1935 ABBK",
+                                    "BH 1935 LA",
+                                    "BH 1935 LB",
+                                    "BH 1935 W",
+                                    "BH 1936",
+                                    "BH 1937",
+                                    "BH 1945",
+                                    "BH 1945 LA",
+                                    "BH 1945 W",
+                                    "BH 2324",
+                                    "BH 2644",
+                                    "BH 2648 LBM (UAE)",
+                                    "BH 2724",
+                                    "BH 2725",
+                                    "BH 2727",
+                                    "BH 2734",
+                                    "BH 2934",
+                                    "BH 2935",
+                                    "BH 2937",
+                                    "BH 2944",
+                                    "BH 2958 LBM (UAE)",
+                                    "BH 3644",
+                                    "BH 3649 STM",
+                                    "BH 3734",
+                                    "BH 3930",
+                                    "BH 3934",
+                                    "BH 3940",
+                                    "BH 3944"
+                        ],
+                        "price": 350000,
+                        "image": "https://csms.sap.modena.com/photos/part/24052511372866516b08810ac.jpg"
+            },
+            "KBHSFINP00020711": {
+                        "partNumber": "KBHSFINP00020711",
+                        "name": "IGNITION PIN #100 (REGULAR MODEL, CABLE 55 CM)",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 0325",
+                                    "BH 0735",
+                                    "BH 0935",
+                                    "BH 1321",
+                                    "BH 1325",
+                                    "BH 1325 (UAE)",
+                                    "BH 1325 ABBK",
+                                    "BH 1325 ACBK",
+                                    "BH 1325 LA",
+                                    "BH 1326",
+                                    "BH 1645",
+                                    "BH 1645 LA",
+                                    "BH 1735",
+                                    "BH 1735 LA",
+                                    "BH 1737",
+                                    "BH 1935",
+                                    "BH 1935 ABBK",
+                                    "BH 1935 LB",
+                                    "BH 1935 W",
+                                    "BH 1937",
+                                    "BH 1945",
+                                    "BH 1945 LA",
+                                    "BH 1945 W",
+                                    "BH 2324",
+                                    "BH 2644",
+                                    "BH 2734",
+                                    "BH 2934",
+                                    "BH 2935",
+                                    "BH 2944",
+                                    "BH 3324",
+                                    "BH 3324 (UAE)",
+                                    "BH 3325",
+                                    "BH 3644",
+                                    "BH 3724",
+                                    "BH 3734",
+                                    "BH 3930",
+                                    "BH 3934",
+                                    "BH 3935",
+                                    "BH 3940",
+                                    "BH 3944"
+                        ],
+                        "price": 50000,
+                        "image": "https://csms.sap.modena.com/photos/part/5ee97fb26591a.jpg"
+            },
+            "KBHSFINP00010711": {
+                        "partNumber": "KBHSFINP00010711",
+                        "name": "IGNITION PIN #120 (CABLE LENGTH 55CM)",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 0325",
+                                    "BH 0725",
+                                    "BH 0725 ADBK",
+                                    "BH 0735",
+                                    "BH 0935",
+                                    "BH 1315",
+                                    "BH 1321",
+                                    "BH 1325",
+                                    "BH 1325 (UAE)",
+                                    "BH 1325 ABBK",
+                                    "BH 1325 ACBK",
+                                    "BH 1325 LA",
+                                    "BH 1326",
+                                    "BH 1645",
+                                    "BH 1645 LA",
+                                    "BH 1725",
+                                    "BH 1725 ABBK",
+                                    "BH 1725 ACBK",
+                                    "BH 1725 BCL",
+                                    "BH 1725 LA",
+                                    "BH 1725 LA CECINA",
+                                    "BH 1725 LA FIRENZE",
+                                    "BH 1725 LA GROSSETO",
+                                    "BH 1725 LA MASSA",
+                                    "BH 1725 LA PISTOIA",
+                                    "BH 1725 LA PRATO",
+                                    "BH 1725 LA SIENA",
+                                    "BH 1725 LAT",
+                                    "BH 1725 LB",
+                                    "BH 1725 LBT",
+                                    "BH 1725 MC",
+                                    "BH 1725 MIMA",
+                                    "BH 1725 W",
+                                    "BH 1727",
+                                    "BH 1728",
+                                    "BH 1728 BBBK",
+                                    "BH 1728 CBBK",
+                                    "BH 1728 LA",
+                                    "BH 1728 LB",
+                                    "BH 1735",
+                                    "BH 1735 LA",
+                                    "BH 1737",
+                                    "BH 1935",
+                                    "BH 1935 ABBK",
+                                    "BH 1935 LA",
+                                    "BH 1935 LB",
+                                    "BH 1935 W",
+                                    "BH 1937",
+                                    "BH 1945",
+                                    "BH 1945 LA",
+                                    "BH 1945 W",
+                                    "BH 2324",
+                                    "BH 2644",
+                                    "BH 2724",
+                                    "BH 2725",
+                                    "BH 2734",
+                                    "BH 2934",
+                                    "BH 2935",
+                                    "BH 2944",
+                                    "BH 3324",
+                                    "BH 3324 (UAE)",
+                                    "BH 3325",
+                                    "BH 3644",
+                                    "BH 3725",
+                                    "BH 3734",
+                                    "BH 3930",
+                                    "BH 3934",
+                                    "BH 3935",
+                                    "BH 3940",
+                                    "BH 3944"
+                        ],
+                        "price": 50000,
+                        "image": "https://csms.sap.modena.com/photos/part/25012804090567989eb1ac962.jpg"
+            },
+            "KBHSFBNR00171116": {
+                        "partNumber": "KBHSFBNR00171116",
+                        "name": "BURNER 120# (ALUMUNIUM + BRASS)",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 1325 LA",
+                                    "BH 1645 LA",
+                                    "BH 1725 LA",
+                                    "BH 1725 LA CECINA",
+                                    "BH 1725 LA FIRENZE",
+                                    "BH 1725 LA GROSSETO",
+                                    "BH 1725 LA MASSA",
+                                    "BH 1725 LA PISTOIA",
+                                    "BH 1725 LA PRATO",
+                                    "BH 1725 LA SIENA",
+                                    "BH 1725 LAT",
+                                    "BH 1725 MC",
+                                    "BH 1728 BBBK",
+                                    "BH 1728 LA",
+                                    "BH 1735 LA",
+                                    "BH 1935 LA",
+                                    "BH 1945 LA"
+                        ],
+                        "price": 563000,
+                        "image": "https://csms.sap.modena.com/photos/part/24081405265166bc866b4f002.jpg"
+            },
+            "KBHSFBNR00010811": {
+                        "partNumber": "KBHSFBNR00010811",
+                        "name": "BURNER 120#",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 0325",
+                                    "BH 0725",
+                                    "BH 0725 ADBK",
+                                    "BH 0735",
+                                    "BH 0935",
+                                    "BH 1315",
+                                    "BH 1321",
+                                    "BH 1325",
+                                    "BH 1325 (UAE)",
+                                    "BH 1325 ABBK",
+                                    "BH 1325 ACBK",
+                                    "BH 1326",
+                                    "BH 1645",
+                                    "BH 1646",
+                                    "BH 1725",
+                                    "BH 1725 ABBK",
+                                    "BH 1725 ACBK",
+                                    "BH 1725 W",
+                                    "BH 1727",
+                                    "BH 1728",
+                                    "BH 1735",
+                                    "BH 1737",
+                                    "BH 1935",
+                                    "BH 1935 ABBK",
+                                    "BH 1935 W",
+                                    "BH 1936",
+                                    "BH 1937",
+                                    "BH 1941",
+                                    "BH 1945",
+                                    "BH 1945 W",
+                                    "BH 1949",
+                                    "BH 2324",
+                                    "BH 2644",
+                                    "BH 2648 LBM (UAE)",
+                                    "BH 2724",
+                                    "BH 2725",
+                                    "BH 2734",
+                                    "BH 2934",
+                                    "BH 2935",
+                                    "BH 2944",
+                                    "BH 2958 LBM (UAE)",
+                                    "BH 3324",
+                                    "BH 3324 (UAE)",
+                                    "BH 3325",
+                                    "BH 3644",
+                                    "BH 3649 STM",
+                                    "BH 3724",
+                                    "BH 3725",
+                                    "BH 3734",
+                                    "BH 3930",
+                                    "BH 3934",
+                                    "BH 3935",
+                                    "BH 3940",
+                                    "BH 3944"
+                        ],
+                        "price": 361000,
+                        "image": "https://csms.sap.modena.com/photos/part/24081405261266bc864449dc6.jpg"
+            },
+            "KBHRFKNB00010811": {
+                        "partNumber": "KBHRFKNB00010811",
+                        "name": "KNOB",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BE 1325",
+                                    "BE 1325 (UAE)",
+                                    "BE 1725",
+                                    "BH 0325",
+                                    "BH 0725",
+                                    "BH 0735",
+                                    "BH 0935",
+                                    "BH 1315",
+                                    "BH 1325",
+                                    "BH 1325 (UAE)",
+                                    "BH 1325 LA",
+                                    "BH 1645",
+                                    "BH 1645 LA",
+                                    "BH 1725",
+                                    "BH 1725 BCL",
+                                    "BH 1725 LA",
+                                    "BH 1725 LA CECINA",
+                                    "BH 1725 LA FIRENZE",
+                                    "BH 1725 LA GROSSETO",
+                                    "BH 1725 LA MASSA",
+                                    "BH 1725 LA PISTOIA",
+                                    "BH 1725 LA PRATO",
+                                    "BH 1725 LA SIENA",
+                                    "BH 1725 LAT",
+                                    "BH 1725 MC",
+                                    "BH 1725 W",
+                                    "BH 1735",
+                                    "BH 1735 LA",
+                                    "BH 1935",
+                                    "BH 1935 LA",
+                                    "BH 1935 W",
+                                    "BH 1945",
+                                    "BH 1945 LA",
+                                    "BH 1945 W",
+                                    "BH 2648 LBM (UAE)",
+                                    "BH 3644",
+                                    "BH 3734",
+                                    "BH 3944",
+                                    "BO 2633",
+                                    "BO 2633 BCL",
+                                    "BO 2663",
+                                    "BO 2663 BCL",
+                                    "BO 2733"
+                        ],
+                        "price": 103000,
+                        "image": "https://csms.sap.modena.com/photos/part/220408012300624fd4c4b320d.jpg"
+            },
+            "KBHRFCPB00090811": {
+                        "partNumber": "KBHRFCPB00090811",
+                        "name": "CAP BURNER EXTERNAL 120# (CAST IRON)",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 1315",
+                                    "BH 1321",
+                                    "BH 1325",
+                                    "BH 1325 (UAE)",
+                                    "BH 1325 ABBK",
+                                    "BH 1325 ACBK",
+                                    "BH 1325 LA",
+                                    "BH 1326",
+                                    "BH 1645",
+                                    "BH 1645 LA",
+                                    "BH 1646",
+                                    "BH 1725",
+                                    "BH 1725 ABBK",
+                                    "BH 1725 ACBK",
+                                    "BH 1725 BCL",
+                                    "BH 1725 LA",
+                                    "BH 1725 LA CECINA",
+                                    "BH 1725 LA FIRENZE",
+                                    "BH 1725 LA GROSSETO",
+                                    "BH 1725 LA MASSA",
+                                    "BH 1725 LA PISTOIA",
+                                    "BH 1725 LA SIENA",
+                                    "BH 1725 LAT",
+                                    "BH 1725 LB",
+                                    "BH 1725 LBT",
+                                    "BH 1725 MIMA",
+                                    "BH 1725 W",
+                                    "BH 1727",
+                                    "BH 1728",
+                                    "BH 1728 BBBK",
+                                    "BH 1728 CBBK",
+                                    "BH 1728 LA",
+                                    "BH 1728 LB",
+                                    "BH 1735",
+                                    "BH 1735 LA",
+                                    "BH 1935",
+                                    "BH 1935 ABBK",
+                                    "BH 1935 LA",
+                                    "BH 1935 LB",
+                                    "BH 1935 W",
+                                    "BH 1936",
+                                    "BH 1937",
+                                    "BH 1945",
+                                    "BH 1945 LA",
+                                    "BH 1945 W",
+                                    "BH 1949",
+                                    "BH 2724",
+                                    "BH 2725",
+                                    "BH 2934",
+                                    "BH 2958 LBM (UAE)",
+                                    "BH 3324",
+                                    "BH 3724",
+                                    "BH 3725",
+                                    "BH 3934",
+                                    "BH 3935"
+                        ],
+                        "price": 228000,
+                        "image": "https://csms.sap.modena.com/photos/part/22111502250863733ed473aa9.jpg"
+            },
+            "KBHRFCPB00030718": {
+                        "partNumber": "KBHRFCPB00030718",
+                        "name": "CAP BURNER EXTERNAL #120",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 2723 LL",
+                                    "BH 2733 LL",
+                                    "BH 2933 LL",
+                                    "BH 7723 LLD"
+                        ],
+                        "price": 217000,
+                        "image": "https://csms.sap.modena.com/photos/part/5fac97bcabd12.jpg"
+            },
+            "KBHGFSRW00010512": {
+                        "partNumber": "KBHGFSRW00010512",
+                        "name": "SEALING RING FOR WATERPROOF TRAY (#120)",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 0725",
+                                    "BH 0725 ADBK",
+                                    "BH 0735",
+                                    "BH 0935",
+                                    "BH 1645",
+                                    "BH 1645 LA",
+                                    "BH 1725",
+                                    "BH 1725 ABBK",
+                                    "BH 1725 ACBK",
+                                    "BH 1725 BCL",
+                                    "BH 1725 LA",
+                                    "BH 1725 LA CECINA",
+                                    "BH 1725 LA FIRENZE",
+                                    "BH 1725 LA GROSSETO",
+                                    "BH 1725 LA MASSA",
+                                    "BH 1725 LA PISTOIA",
+                                    "BH 1725 LA SIENA",
+                                    "BH 1725 LAT",
+                                    "BH 1725 LB",
+                                    "BH 1725 LBT",
+                                    "BH 1725 MIMA",
+                                    "BH 1725 W",
+                                    "BH 1735",
+                                    "BH 1735 LA",
+                                    "BH 1935",
+                                    "BH 1935 ABBK",
+                                    "BH 1935 LA",
+                                    "BH 1935 LB",
+                                    "BH 1935 W",
+                                    "BH 1937",
+                                    "BH 1945",
+                                    "BH 1945 LA",
+                                    "BH 1945 W",
+                                    "BH 1949",
+                                    "BH 2725",
+                                    "BH 2935"
+                        ],
+                        "price": 68000,
+                        "image": "https://csms.sap.modena.com/photos/part/2206031033496299811d7dbe8.jpg"
+            },
+            "KBHEFIND00030711": {
+                        "partNumber": "KBHEFIND00030711",
+                        "name": "IGNITION DEVICE (2 BURNERS)",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 0325",
+                                    "BH 0725",
+                                    "BH 0725 ADBK",
+                                    "BH 1321",
+                                    "BH 1325",
+                                    "BH 1325 (UAE)",
+                                    "BH 1325 ABBK",
+                                    "BH 1325 ACBK",
+                                    "BH 1325 LA",
+                                    "BH 1326",
+                                    "BH 1725",
+                                    "BH 1725 ABBK",
+                                    "BH 1725 ACBK",
+                                    "BH 1725 BCL",
+                                    "BH 1725 LA",
+                                    "BH 1725 LA CECINA",
+                                    "BH 1725 LA FIRENZE",
+                                    "BH 1725 LA GROSSETO",
+                                    "BH 1725 LA MASSA",
+                                    "BH 1725 LA PISTOIA",
+                                    "BH 1725 LA PRATO",
+                                    "BH 1725 LA SIENA",
+                                    "BH 1725 LB",
+                                    "BH 1725 MC",
+                                    "BH 1725 MIMA",
+                                    "BH 1725 W",
+                                    "BH 1727",
+                                    "BH 1728",
+                                    "BH 1728 LA",
+                                    "BH 1728 LB",
+                                    "BH 2324",
+                                    "BH 2724",
+                                    "BH 2725",
+                                    "BH 2727",
+                                    "BH 3324",
+                                    "BH 3324 (UAE)",
+                                    "BH 3325",
+                                    "BH 3725",
+                                    "BH 4724",
+                                    "BH 6725 LF"
+                        ],
+                        "price": 347000,
+                        "image": "https://csms.sap.modena.com/photos/part/24092003045866ed2caaac1a5.jpg"
+            },
+            "KBHATBNB00010811": {
+                        "partNumber": "KBHATBNB00010811",
+                        "name": "BURNER BASEMENT 120#",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 0325",
+                                    "BH 0725",
+                                    "BH 0725 ADBK",
+                                    "BH 0735",
+                                    "BH 0935",
+                                    "BH 1321",
+                                    "BH 1325",
+                                    "BH 1325 (UAE)",
+                                    "BH 1325 ABBK",
+                                    "BH 1325 ACBK",
+                                    "BH 1325 LA",
+                                    "BH 1326",
+                                    "BH 1645",
+                                    "BH 1645 LA",
+                                    "BH 1646",
+                                    "BH 1725",
+                                    "BH 1725 ABBK",
+                                    "BH 1725 ACBK",
+                                    "BH 1725 BCL",
+                                    "BH 1725 LA",
+                                    "BH 1725 LA CECINA",
+                                    "BH 1725 LA FIRENZE",
+                                    "BH 1725 LA GROSSETO",
+                                    "BH 1725 LA MASSA",
+                                    "BH 1725 LA PISTOIA",
+                                    "BH 1725 LA PRATO",
+                                    "BH 1725 LA SIENA",
+                                    "BH 1725 LAT",
+                                    "BH 1725 LB",
+                                    "BH 1725 LBT",
+                                    "BH 1725 MC",
+                                    "BH 1725 MIMA",
+                                    "BH 1725 W",
+                                    "BH 1727",
+                                    "BH 1728",
+                                    "BH 1728 BBBK",
+                                    "BH 1728 CBBK",
+                                    "BH 1728 LA",
+                                    "BH 1728 LB",
+                                    "BH 1735",
+                                    "BH 1735 LA",
+                                    "BH 1737",
+                                    "BH 1935",
+                                    "BH 1935 ABBK",
+                                    "BH 1935 LA",
+                                    "BH 1935 LB",
+                                    "BH 1935 W",
+                                    "BH 1936",
+                                    "BH 1937",
+                                    "BH 1941",
+                                    "BH 1945",
+                                    "BH 1945 LA",
+                                    "BH 1945 W",
+                                    "BH 2324",
+                                    "BH 2644",
+                                    "BH 2648 LBM (UAE)",
+                                    "BH 2724",
+                                    "BH 2725",
+                                    "BH 2734",
+                                    "BH 2934",
+                                    "BH 2935",
+                                    "BH 2944",
+                                    "BH 2958 LBM (UAE)",
+                                    "BH 3324",
+                                    "BH 3324 (UAE)",
+                                    "BH 3325",
+                                    "BH 3644",
+                                    "BH 3649 STM",
+                                    "BH 3734",
+                                    "BH 3930",
+                                    "BH 3935",
+                                    "BH 3940",
+                                    "BH 3944",
+                                    "BH 3958 SAM (UAE)"
+                        ],
+                        "price": 169000,
+                        "image": "https://csms.sap.modena.com/photos/part/25031403585867d3efd22ef0b.jpg"
+            },
+            "CDDSFFTD00040117": {
+                        "partNumber": "CDDSFFTD00040117",
+                        "name": "FILTER DRIER",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 03",
+                                    "DD 0310",
+                                    "DD 0310 (UAE)",
+                                    "DD 0370",
+                                    "DD 06",
+                                    "DD 07 W",
+                                    "DD 1111 BAWH",
+                                    "DD 1312 BABK",
+                                    "DD 1314 BABK",
+                                    "DD 1380",
+                                    "DD 16",
+                                    "DD 3110 BIWH",
+                                    "DD 4117 BNBK",
+                                    "DD 65 L",
+                                    "DD 65 L (UAE)",
+                                    "DD 66 G",
+                                    "DD 66 L",
+                                    "DD 66 V",
+                                    "DD 67 S",
+                                    "DD 67 SUV",
+                                    "DD 7106 L",
+                                    "DD 7107 LUV",
+                                    "DD 7181 L",
+                                    "DD 7181 L (UAE)",
+                                    "DD 7301 L",
+                                    "DD 7302 L",
+                                    "DD 7315 L",
+                                    "DD 7315 W",
+                                    "DD 75 L",
+                                    "PD F30A S",
+                                    "RO 67 SUV",
+                                    "RO 8101",
+                                    "WE 1310 BGWH"
+                        ],
+                        "price": 54000,
+                        "image": "https://csms.sap.modena.com/photos/part/240710022138668e368230a9a.jpg"
+            },
+            "CDDMFTWA00040616": {
+                        "partNumber": "CDDMFTWA00040616",
+                        "name": "TAP WATER ASSEMBLY",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 03",
+                                    "DD 0370",
+                                    "DD 1111 BAWH",
+                                    "DD 67 S",
+                                    "DD 67 SUV",
+                                    "DD 7106 L",
+                                    "DD 7107 LUV",
+                                    "DD 7181 L",
+                                    "DD 7181 L (UAE)",
+                                    "DD 7302 L",
+                                    "RO 67 SUV",
+                                    "WE 1310 BGWH"
+                        ],
+                        "price": 55000,
+                        "image": "https://csms.sap.modena.com/photos/part/23013101352263d8b6aa0cab7.jpeg"
+            },
+            "CDDMFTWA00031214": {
+                        "partNumber": "CDDMFTWA00031214",
+                        "name": "TAP NORMAL WATER ASSEMBLY",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 66 G",
+                                    "DD 66 L",
+                                    "DD 66 V"
+                        ],
+                        "price": 65000,
+                        "image": "https://csms.sap.modena.com/photos/part/210419013558607d24ce9042e.jpg"
+            },
+            "CDDMFTPW00031115": {
+                        "partNumber": "CDDMFTPW00031115",
+                        "name": "TAP WATER",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 65 L",
+                                    "DD 65 L (UAE)"
+                        ],
+                        "price": 25000,
+                        "image": "https://csms.sap.modena.com/photos/part/5d4b8c8db6bfe.png"
+            },
+            "CDDMFPPW00050918": {
+                        "partNumber": "CDDMFPPW00050918",
+                        "name": "PUMP WATER",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 7301 L",
+                                    "DD 7315 L",
+                                    "DD 7315 W",
+                                    "DD 75 L"
+                        ],
+                        "price": 345000,
+                        "image": "https://csms.sap.modena.com/photos/part/25022711523567bfef938ba30.jpg"
+            },
+            "CDDMFPPW00031115": {
+                        "partNumber": "CDDMFPPW00031115",
+                        "name": "PUMP WATER",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 65 L",
+                                    "DD 65 L (UAE)",
+                                    "DD 68 L",
+                                    "DD 68 W",
+                                    "PD F30A S"
+                        ],
+                        "price": 355000,
+                        "image": "https://csms.sap.modena.com/photos/part/5f573194f3b75.jpg"
+            },
+            "CDDMFPPC00010918": {
+                        "partNumber": "CDDMFPPC00010918",
+                        "name": "PUMPING COMPONENTS",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 3110 BIWH",
+                                    "DD 65 L",
+                                    "DD 65 L (UAE)",
+                                    "DD 7301 L",
+                                    "DD 7315 L",
+                                    "DD 7315 W",
+                                    "DD 75 L"
+                        ],
+                        "price": 246000,
+                        "image": "https://csms.sap.modena.com/photos/part/251106101301690c123d56799.jpg"
+            },
+            "CDDEFTMT00021214": {
+                        "partNumber": "CDDEFTMT00021214",
+                        "name": "THERMOSTAT TANK HOT WATER SENSOR",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 1314 BABK",
+                                    "DD 4117 BNBK",
+                                    "DD 4118 BOBK",
+                                    "DD 66 G",
+                                    "DD 66 L",
+                                    "DD 66 V",
+                                    "DD 67 S",
+                                    "DD 67 SUV",
+                                    "DD 7106 L",
+                                    "DD 7107 LUV",
+                                    "DD 7181 L",
+                                    "DD 7181 L (UAE)",
+                                    "DD 7302 L",
+                                    "RO 67 SUV",
+                                    "WE 1310 BGWH"
+                        ],
+                        "price": 124000,
+                        "image": "https://csms.sap.modena.com/photos/part/2211031127426363433ea4cda.jpg"
+            },
+            "CDDEFTMT00011214": {
+                        "partNumber": "CDDEFTMT00011214",
+                        "name": "THERMOSTAT TANK COLD WATER SENSOR",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 1314 BABK",
+                                    "DD 4117 BNBK",
+                                    "DD 4118 BOBK",
+                                    "DD 66 G",
+                                    "DD 66 L",
+                                    "DD 66 V",
+                                    "DD 67 S",
+                                    "DD 67 SUV",
+                                    "DD 7106 L",
+                                    "DD 7107 LUV",
+                                    "DD 7181 L",
+                                    "DD 7181 L (UAE)",
+                                    "DD 7302 L",
+                                    "RO 67 SUV",
+                                    "WE 1310 BGWH"
+                        ],
+                        "price": 149000,
+                        "image": "https://csms.sap.modena.com/photos/part/2210200906536350ad3ded1b2.jpg"
+            },
+            "CDDEFSSC00010717": {
+                        "partNumber": "CDDEFSSC00010717",
+                        "name": "SENSOR COLD",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 7301 L",
+                                    "DD 7315 L",
+                                    "DD 7315 W",
+                                    "DD 75 L",
+                                    "RO 8101",
+                                    "RO 8115",
+                                    "RO 9115"
+                        ],
+                        "price": 57000,
+                        "image": "https://csms.sap.modena.com/photos/part/5d5e17eed0aef.png"
+            },
+            "CDDEFSLL00011115": {
+                        "partNumber": "CDDEFSLL00011115",
+                        "name": "SWITCH LEVEL LIQUID",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 65 L",
+                                    "DD 65 L (UAE)"
+                        ],
+                        "price": 176000,
+                        "image": "https://csms.sap.modena.com/photos/part/5d4a9f216a96b.png"
+            },
+            "CDDEFSFA00010618": {
+                        "partNumber": "CDDEFSFA00010618",
+                        "name": "SWITCH FLOATER ASSEMBLY",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 66 G",
+                                    "DD 66 L",
+                                    "DD 66 V",
+                                    "DD 67 S",
+                                    "DD 67 SUV",
+                                    "DD 7106 L",
+                                    "DD 7107 LUV",
+                                    "DD 7181 L",
+                                    "DD 7181 L (UAE)",
+                                    "DD 7302 L",
+                                    "RO 67 SUV",
+                                    "WE 1310 BGWH"
+                        ],
+                        "price": 220000,
+                        "image": "https://csms.sap.modena.com/photos/part/5f743864a9af1.jpg"
+            },
+            "CDDEFPCB00040518": {
+                        "partNumber": "CDDEFPCB00040518",
+                        "name": "PCB",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 65 L",
+                                    "DD 65 L (UAE)"
+                        ],
+                        "price": 319000,
+                        "image": "https://csms.sap.modena.com/photos/part/5d4a889848796.png"
+            },
+            "CDDEFPCB00010316": {
+                        "partNumber": "CDDEFPCB00010316",
+                        "name": "PCB MAIN",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 66 G",
+                                    "DD 66 L",
+                                    "DD 66 V",
+                                    "DD 67 S",
+                                    "DD 7106 L",
+                                    "DD 7181 L",
+                                    "DD 7181 L (UAE)",
+                                    "DD 7302 L",
+                                    "WE 1310 BGWH"
+                        ],
+                        "price": 435000,
+                        "image": "https://csms.sap.modena.com/photos/part/2203170205476232ddcb691fe.jpg"
+            },
+            "KBIEFPWB00011018": {
+                        "partNumber": "KBIEFPWB00011018",
+                        "name": "POWER BOARD MAIN",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "BI 0721 C",
+                                    "BI 0721 L",
+                                    "BI 1725",
+                                    "BI 1935",
+                                    "BK 1635",
+                                    "BK 1725",
+                                    "BK 1725 C"
+                        ],
+                        "price": 333000,
+                        "image": "https://csms.sap.modena.com/photos/part/2012150346225fd877de10b58.jpg"
+            },
+            "LFP302LPWH": {
+                        "partNumber": "LFP302LPWH",
+                        "name": "(C1) - FL 2060",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "RO 8101",
+                                    "RO 8115",
+                                    "RO 9115"
+                        ],
+                        "price": 202000,
+                        "image": "https://csms.sap.modena.com/photos/part/221122084822637c2a664a791.jpg"
+            },
+            "KBHRFKNB00011219": {
+                        "partNumber": "KBHRFKNB00011219",
+                        "name": "KNOB (RIGHT)",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "BH 5725 LK",
+                                    "BH 5725 LO"
+                        ],
+                        "price": 60000,
+                        "image": "https://csms.sap.modena.com/photos/part/240604030938665ecbc225243.jpeg"
+            },
+            "KBHEFIND00020711": {
+                        "partNumber": "KBHEFIND00020711",
+                        "name": "IGNITION DEVICE (4 BURNERS)",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "BH 1645",
+                                    "BH 1645 LA",
+                                    "BH 1646",
+                                    "BH 1945",
+                                    "BH 1945 LA",
+                                    "BH 1945 W",
+                                    "BH 1949",
+                                    "BH 2644",
+                                    "BH 2944",
+                                    "BH 3644",
+                                    "BH 3649 STM",
+                                    "BH 3940",
+                                    "BH 3944",
+                                    "BH 6935 LF"
+                        ],
+                        "price": 450000,
+                        "image": "https://csms.sap.modena.com/photos/part/2012040803595fc98aff675cd.png"
+            },
+            "CDDMFPPW00011214": {
+                        "partNumber": "CDDMFPPW00011214",
+                        "name": "PUMP WATER",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 66 G",
+                                    "DD 66 L",
+                                    "DD 66 V",
+                                    "DD 67 S",
+                                    "DD 67 SUV",
+                                    "DD 7107 LUV",
+                                    "DD 7181 L",
+                                    "DD 7181 L (UAE)",
+                                    "DD 7302 L"
+                        ],
+                        "price": 355000,
+                        "image": "https://csms.sap.modena.com/photos/part/2306070452526480537492281.jpg"
+            },
+            "CDDMFFCW00030717": {
+                        "partNumber": "CDDMFFCW00030717",
+                        "name": "FAUCET WATER",
+                        "productCategory": "Water Dispenser",
+                        "compatibleModels": [
+                                    "DD 3110 BIWH",
+                                    "DD 7315 L",
+                                    "DD 7315 W"
+                        ],
+                        "price": 428000,
+                        "image": "https://csms.sap.modena.com/photos/part/25022711004267bfe36a89317.jpg"
+            },
+            "LFP301LPWH": {
+                        "partNumber": "LFP301LPWH",
+                        "name": "(PP) - FL 1060",
+                        "productCategory": "Water Purifier",
+                        "compatibleModels": [
+                                    "RO 8101",
+                                    "RO 8115",
+                                    "RO 9115"
+                        ],
+                        "price": 202000,
+                        "image": "https://csms.sap.modena.com/photos/part/221122084847637c2a7fed8a1.jpg"
+            },
+            "KCHEFLMP00010213": {
+                        "partNumber": "KCHEFLMP00010213",
+                        "name": "LAMP NORMAL",
+                        "productCategory": "Cooker Hood",
+                        "compatibleModels": [
+                                    "BX 6603",
+                                    "BX 6632",
+                                    "BX 9603",
+                                    "DC 2601",
+                                    "DC 2701",
+                                    "DC 2901",
+                                    "DC 3601 L",
+                                    "DC 3601 V",
+                                    "DC 3701 L",
+                                    "DC 3902 L",
+                                    "PX 6001",
+                                    "PX 6011 SS",
+                                    "PX 6011 V",
+                                    "PX 6111",
+                                    "PX 7001",
+                                    "PX 7111",
+                                    "PX 9002",
+                                    "PX 9012 SS",
+                                    "PX 9012 V",
+                                    "RX 9503 S",
+                                    "SX 6001 S (UAE)",
+                                    "SX 6501 S",
+                                    "SX 6501 V",
+                                    "SX 7511 L",
+                                    "SX 9002 S",
+                                    "SX 9002 S (UAE)",
+                                    "SX 9501 V",
+                                    "SX 9502 S",
+                                    "SX 9502 V",
+                                    "SX 9502 V (UAE)",
+                                    "SX 9512 L"
+                        ],
+                        "price": 64000,
+                        "image": "https://csms.sap.modena.com/photos/part/5d5b55fa41a8d.png"
+            },
+            "KBHRFKNB00161219": {
+                        "partNumber": "KBHRFKNB00161219",
+                        "name": "KNOB (LEFT)",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 5725 LK",
+                                    "BH 5725 LO"
+                        ],
+                        "price": 60000,
+                        "image": "https://csms.sap.modena.com/photos/part/240604030917665ecbade4f81.jpeg"
+            },
+            "KBHRFCPB00080811": {
+                        "partNumber": "KBHRFCPB00080811",
+                        "name": "CAP BURNER INTERNAL 120# (CAST IRON)",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 1315",
+                                    "BH 1321",
+                                    "BH 1325",
+                                    "BH 1325 (UAE)",
+                                    "BH 1325 ABBK",
+                                    "BH 1325 ACBK",
+                                    "BH 1325 LA",
+                                    "BH 1326",
+                                    "BH 1645",
+                                    "BH 1645 LA",
+                                    "BH 1646",
+                                    "BH 1725",
+                                    "BH 1725 ABBK",
+                                    "BH 1725 ACBK",
+                                    "BH 1725 BCL",
+                                    "BH 1725 LA",
+                                    "BH 1725 LA CECINA",
+                                    "BH 1725 LA FIRENZE",
+                                    "BH 1725 LA GROSSETO",
+                                    "BH 1725 LA MASSA",
+                                    "BH 1725 LA PISTOIA",
+                                    "BH 1725 LA SIENA",
+                                    "BH 1725 LAT",
+                                    "BH 1725 LB",
+                                    "BH 1725 LBT",
+                                    "BH 1725 MIMA",
+                                    "BH 1725 W",
+                                    "BH 1727",
+                                    "BH 1728",
+                                    "BH 1728 BBBK",
+                                    "BH 1728 CBBK",
+                                    "BH 1728 LA",
+                                    "BH 1728 LB",
+                                    "BH 1735",
+                                    "BH 1735 LA",
+                                    "BH 1935",
+                                    "BH 1935 ABBK",
+                                    "BH 1935 LA",
+                                    "BH 1935 LB",
+                                    "BH 1935 W",
+                                    "BH 1936",
+                                    "BH 1937",
+                                    "BH 1945",
+                                    "BH 1945 LA",
+                                    "BH 1945 W",
+                                    "BH 1949",
+                                    "BH 2324",
+                                    "BH 2644",
+                                    "BH 2724",
+                                    "BH 2725",
+                                    "BH 2734",
+                                    "BH 2934",
+                                    "BH 2935",
+                                    "BH 2944",
+                                    "BH 2958 LBM (UAE)",
+                                    "BH 3324",
+                                    "BH 3324 (UAE)",
+                                    "BH 3325",
+                                    "BH 3644",
+                                    "BH 3649 STM",
+                                    "BH 3724",
+                                    "BH 3725",
+                                    "BH 3734",
+                                    "BH 3930",
+                                    "BH 3934",
+                                    "BH 3935",
+                                    "BH 3940",
+                                    "BH 3944"
+                        ],
+                        "price": 151000,
+                        "image": "https://csms.sap.modena.com/photos/part/231018022405652f88152b554.jpg"
+            },
+            "KBHEFIND00010711": {
+                        "partNumber": "KBHEFIND00010711",
+                        "name": "IGNITION DEVICE (3 BURNERS)",
+                        "productCategory": "Built in Hob",
+                        "compatibleModels": [
+                                    "BH 0735",
+                                    "BH 0935",
+                                    "BH 1735",
+                                    "BH 1735 LA",
+                                    "BH 1737",
+                                    "BH 1935",
+                                    "BH 1935 ABBK",
+                                    "BH 1935 LA",
+                                    "BH 1935 LB",
+                                    "BH 1935 W",
+                                    "BH 1936",
+                                    "BH 1937",
+                                    "BH 2734",
+                                    "BH 2933 LJ",
+                                    "BH 2933 LL",
+                                    "BH 2934",
+                                    "BH 2935",
+                                    "BH 2937",
+                                    "BH 3734",
+                                    "BH 3930",
+                                    "BH 3934",
+                                    "BH 3935",
+                                    "BH 4934",
+                                    "BH 4937"
+                        ],
+                        "price": 379000,
+                        "image": "https://csms.sap.modena.com/photos/part/2012040756135fc9892d935bc.png"
+            }
+};
+        // Global variables
+        let model = null;
+        let labels = [];
+        let currentImage = null;
+        let webcamStream = null;
+        let currentFilter = 'ALL';
+        let currentModalPartCode = '';
+        
+        // Model URLs
+        const MODEL_URL = 'https://raw.githubusercontent.com/devattamimi/MODENA-AI-Parts-Recognition/main/';
+        
+        // Audio Context for sounds
+        let audioContext = null;
+        
+        // Initialize
+        window.onload = function() {
+            initAudio();
+            initModel();
+            renderPartsGrid();
+        };
+        
+        // Initialize Audio
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.warn('Web Audio API not supported');
+            }
+        }
+        
+        // Sound functions
+        function playBeep() {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.value = 600;
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.8, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+        
+        function playDingDing() {
+            if (!audioContext) return;
+            for (let i = 0; i < 2; i++) {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                const startTime = audioContext.currentTime + (i * 0.25);
+                gainNode.gain.setValueAtTime(1.0, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.15);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.15);
+            }
+        }
+        
+        function playBuzzBuzz() {
+            if (!audioContext) return;
+            for (let i = 0; i < 2; i++) {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.frequency.value = 300;
+                oscillator.type = 'sawtooth';
+                const startTime = audioContext.currentTime + (i * 0.35);
+                gainNode.gain.setValueAtTime(1.0, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + 0.25);
+                oscillator.start(startTime);
+                oscillator.stop(startTime + 0.25);
+            }
+        }
+        
+        // Initialize AI Model
+        async function initModel() {
+            console.log('📥 Loading model from GitHub with TensorFlow.js...');
+            console.log('🔗 Model URL:', MODEL_URL);
+            
+            const statusBadge = document.getElementById('statusBadge');
+            
+            try {
+                console.log('📋 Loading labels...');
+                const labelsResponse = await fetch(MODEL_URL + 'labels.txt');
+                const labelsText = await labelsResponse.text();
+                labels = labelsText.trim().split('\n');
+                console.log('✅ Labels loaded:', labels);
+                
+                console.log('⏳ Loading model with tf.loadLayersModel...');
+                const modelURL = MODEL_URL + 'model.json';
+                model = await tf.loadLayersModel(modelURL);
+                
+                console.log('✅ REAL AI MODEL LOADED SUCCESSFULLY!');
+                console.log('📋 Model:', model);
+                console.log('🎯 Input shape:', model.inputs[0].shape);
+                console.log('🎯 Output shape:', model.outputs[0].shape);
+                
+                statusBadge.textContent = '✅ AI Model Siap! (Real AI - TensorFlow.js)';
+                statusBadge.className = 'status-badge status-ready';
+                
+                enableButtons();
+                console.log('✅ Model initialization complete!');
+                console.log('================================================================================');
+                
+            } catch (error) {
+                console.error('❌ GitHub failed:', error.message);
+                console.log('🔄 Falling back to demo mode...');
+                
+                labels = Object.keys(PARTS_DATABASE).slice(0, 10);
+                
+                statusBadge.textContent = '⚠️ Demo Mode';
+                statusBadge.className = 'status-badge status-error';
+                
+                enableButtons();
+                console.log('✅ Demo model ready');
+            }
+        }
+        
+        function enableButtons() {
+            document.getElementById('uploadBtn').disabled = false;
+            document.getElementById('cameraBtn').disabled = false;
+        }
+        
+        // File input
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = document.getElementById('previewImage');
+                    img.src = event.target.result;
+                    img.style.display = 'block';
+                    currentImage = img;
+                    
+                    document.getElementById('uploadPlaceholder').style.display = 'none';
+                    document.getElementById('webcam').style.display = 'none';
+                    document.getElementById('canvas').style.display = 'none';
+                    document.getElementById('analyzeBtn').style.display = 'block';
+                    document.getElementById('uploadArea').classList.add('active');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Camera functions
+        async function startCamera() {
+            try {
+                const video = document.getElementById('webcam');
+                webcamStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                video.srcObject = webcamStream;
+                video.style.display = 'block';
+                
+                document.getElementById('uploadPlaceholder').style.display = 'none';
+                document.getElementById('previewImage').style.display = 'none';
+                document.getElementById('canvas').style.display = 'none';
+                document.getElementById('uploadArea').classList.add('active');
+                document.getElementById('cameraBtn').textContent = '📸 AMBIL FOTO';
+                document.getElementById('cameraBtn').onclick = capturePhoto;
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                showToast('❌ Tidak dapat mengakses kamera', 'error');
+            }
+        }
+        
+        function capturePhoto() {
+            const video = document.getElementById('webcam');
+            const canvas = document.getElementById('canvas');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+            }
+            
+            video.style.display = 'none';
+            canvas.style.display = 'block';
+            currentImage = canvas;
+            
+            document.getElementById('analyzeBtn').style.display = 'block';
+            document.getElementById('cameraBtn').textContent = '🔄 FOTO ULANG';
+            document.getElementById('cameraBtn').onclick = resetCamera;
+        }
+        
+        function resetCamera() {
+            document.getElementById('canvas').style.display = 'none';
+            document.getElementById('previewImage').style.display = 'none';
+            document.getElementById('webcam').style.display = 'none';
+            document.getElementById('uploadPlaceholder').style.display = 'block';
+            document.getElementById('analyzeBtn').style.display = 'none';
+            document.getElementById('cameraBtn').textContent = '📸 BUKA KAMERA';
+            document.getElementById('cameraBtn').onclick = startCamera;
+            document.getElementById('uploadArea').classList.remove('active');
+            currentImage = null;
+        }
+        
+        // Analyze part
+        async function analyzePart() {
+            if (!currentImage) return;
+            
+            playBeep();
+            
+            const resultsBox = document.getElementById('resultsBox');
+            resultsBox.classList.add('show');
+            resultsBox.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p class="loading-text">🤖 AI sedang menganalisis part...</p>
+                    <p class="loading-subtext">Mohon tunggu sebentar</p>
+                </div>
+            `;
+            
+            try {
+                let predictions;
+                
+                if (model) {
+                    let tensor = tf.browser.fromPixels(currentImage);
+                    tensor = tf.image.resizeBilinear(tensor, [224, 224]);
+                    tensor = tensor.div(255.0);
+                    tensor = tensor.expandDims(0);
+                    
+                    const output = model.predict(tensor);
+                    const probabilities = await output.data();
+                    
+                    predictions = labels.map((label, i) => ({
+                        className: label,
+                        probability: probabilities[i]
+                    }));
+                    
+                    tensor.dispose();
+                    output.dispose();
+                } else {
+                    predictions = Object.keys(PARTS_DATABASE).slice(0, 10).map(key => ({
+                        className: key,
+                        probability: Math.random()
+                    }));
+                }
+                
+                predictions.sort((a, b) => b.probability - a.probability);
+                
+                displayPredictions(predictions);
+                
+            } catch (error) {
+                console.error('❌ Prediction error:', error);
+                resultsBox.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 64px; margin-bottom: 16px;">❌</div>
+                        <h3 style="color: var(--error); margin-bottom: 12px; font-weight: 800;">Analisis Gagal</h3>
+                        <p style="color: var(--gray); font-weight: 600;">Error: ${error.message}</p>
+                    </div>
+                `;
+                playBuzzBuzz();
+            }
+        }
+        
+        // Display predictions with smart filtering
+        function displayPredictions(predictions) {
+            console.log('🎯 displayPredictions called with:', predictions);
+            
+            if (!predictions || predictions.length === 0) {
+                console.error('❌ No predictions!');
+                return;
+            }
+            
+            const topConfidence = predictions[0].probability * 100;
+            
+            // Smart filtering based on confidence
+            let resultsToShow = [];
+            
+            if (topConfidence >= 70) {
+                resultsToShow = predictions.slice(0, 1);
+                console.log('✅ High confidence (≥70%): Showing 1 result');
+            } else if (topConfidence >= 50) {
+                resultsToShow = predictions.slice(0, 3);
+                console.log('⚠️ Medium-high confidence (50-70%): Showing 3 results');
+            } else if (topConfidence >= 30) {
+                resultsToShow = predictions.slice(0, 5);
+                console.log('⚠️ Medium confidence (30-50%): Showing 5 results');
+            } else {
+                console.log('❌ Low confidence (<30%): Showing not found popup');
+                playBuzzBuzz();
+                showModal('notFoundModal');
+                document.getElementById('resultsBox').classList.remove('show');
+                return;
+            }
+            
+            playDingDing();
+            
+            const resultsBox = document.getElementById('resultsBox');
+            resultsBox.innerHTML = '<h2 class="section-title">🎯 HASIL ANALISIS AI</h2><div class="predictions-grid" id="predictions"></div>';
+            
+            const predictionsDiv = document.getElementById('predictions');
+            predictionsDiv.innerHTML = resultsToShow.map((pred, index) => {
+                const confidence = (pred.probability * 100).toFixed(1);
+                const isTop = index === 0;
+                const part = PARTS_DATABASE[pred.className];
+                
+                if (!part) {
+                    return `
+                        <div class="prediction-card ${isTop ? 'top' : ''}">
+                            <div class="prediction-header">
+                                <div class="part-code-wrapper">
+                                    <div class="part-code">${isTop ? '✅ ' : ''}${pred.className}</div>
+                                    <button class="copy-btn" onclick="copyPartNumber('${pred.className}')">📋</button>
+                                </div>
+                                <div class="confidence-badge">${confidence}%</div>
+                            </div>
+                            <div class="confidence-bar-container">
+                                <div class="confidence-bar" style="width: ${confidence}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                const modelsDisplay = formatModels(part.compatibleModels, pred.className);
+                
+                return `
+                    <div class="prediction-card ${isTop ? 'top' : ''}">
+                        <div class="prediction-header">
+                            <div class="part-code-wrapper">
+                                <div class="part-code">${isTop ? '✅ ' : ''}${pred.className}</div>
+                                <button class="copy-btn" onclick="copyPartNumber('${pred.className}')">📋</button>
+                            </div>
+                            <div class="confidence-badge">${confidence}%</div>
+                        </div>
+                        <div class="part-name">${part.name}</div>
+                        <div class="part-details">
+                            <strong>Compatible:</strong> ${modelsDisplay}
+                        </div>
+                        <div class="part-details">
+                            <strong>Price:</strong> ${formatPrice(part.price)}
+                        </div>
+                        <div class="confidence-bar-container">
+                            <div class="confidence-bar" style="width: ${confidence}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            console.log('✅ Predictions displayed successfully');
+            resultsBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Format models display
+        function formatModels(models, partCode) {
+            if (!models || models.length === 0) return 'N/A';
+            if (models.length <= 3) {
+                return models.join(', ');
+            } else {
+                const remaining = models.length - 3;
+                return models.slice(0, 3).join(', ') + 
+                       ` <span class="models-link" onclick="showCompatibleModels('${partCode}')">... +${remaining} more ⓘ</span>`;
+            }
+        }
+        
+        // Format price
+        function formatPrice(price) {
+            if (!price || price === 0) return 'Rp -';
+            return 'Rp ' + price.toLocaleString('id-ID');
+        }
+        
+        // Copy part number
+        function copyPartNumber(partCode) {
+            navigator.clipboard.writeText(partCode).then(() => {
+                showToast('✅ Part code copied: ' + partCode, 'success');
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                showToast('❌ Failed to copy', 'error');
+            });
+        }
+        
+        // Copy from modal
+        function copyFromModal() {
+            copyPartNumber(currentModalPartCode);
+        }
+        
+        // Show compatible models popup
+        function showCompatibleModels(partCode) {
+            const part = PARTS_DATABASE[partCode];
+            if (!part) return;
+            
+            currentModalPartCode = partCode;
+            document.getElementById('modelsModalTitle').textContent = 'Compatible Models';
+            document.getElementById('modelsModalPartCode').textContent = partCode;
+            document.getElementById('modelsModalPartName').textContent = part.name;
+            document.getElementById('modelsModalCount').textContent = part.compatibleModels.length;
+            
+            const list = document.getElementById('modelsModalList');
+            list.innerHTML = part.compatibleModels.map(model => `<li>${model}</li>`).join('');
+            
+            showModal('modelsModal');
+        }
+        
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            
+            // Find and activate the clicked tab
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                if (tab.textContent.includes('SCANNER') && tabName === 'scanner') {
+                    tab.classList.add('active');
+                } else if (tab.textContent.includes('CATALOG') && tabName === 'catalog') {
+                    tab.classList.add('active');
+                }
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+        
+        // Render parts grid
+        function renderPartsGrid() {
+            const grid = document.getElementById('partsGrid');
+            grid.innerHTML = '';
+            
+            Object.values(PARTS_DATABASE).forEach(part => {
+                if (currentFilter !== 'ALL' && part.productCategory !== currentFilter) return;
+                
+                const modelsDisplay = part.compatibleModels.length <= 3 
+                    ? part.compatibleModels.join(', ')
+                    : part.compatibleModels.slice(0, 3).join(', ') + ` ... +${part.compatibleModels.length - 3} more`;
+                
+                const card = document.createElement('div');
+                card.className = 'part-card';
+                card.onclick = () => showCompatibleModels(part.partNumber);
+                
+                card.innerHTML = `
+                    <div class="part-image-container">
+                        <img src="${part.image}" class="part-image" alt="${part.name}" onerror="this.style.display='none'">
+                    </div>
+                    <div class="part-card-body">
+                        <div class="part-code-catalog">
+                            ${part.partNumber}
+                            <button class="copy-btn-small" onclick="event.stopPropagation(); copyPartNumber('${part.partNumber}')">📋</button>
+                        </div>
+                        <div class="part-name-catalog">${part.name}</div>
+                        <div class="part-info-row">
+                            <span class="part-info-label">Product Category:</span>
+                            <span>${part.productCategory}</span>
+                        </div>
+                        <div class="part-info-row">
+                            <span class="part-info-label">Applied Model:</span>
+                            <span>${modelsDisplay}</span>
+                        </div>
+                        <div class="part-price">${formatPrice(part.price)}</div>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        // Filter category
+        function filterCategory(category) {
+            currentFilter = category;
+            
+            // Update active state on filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.textContent.includes('OTHERS')) return;
+                btn.classList.remove('active');
+                
+                // Add active to clicked category
+                if ((category === 'ALL' && btn.textContent === 'ALL') ||
+                    (category === 'Built in Hob' && btn.textContent.includes('BUILT-IN HOB')) ||
+                    (category === 'Water Dispenser' && btn.textContent.includes('WATER DISPENSER'))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            document.getElementById('dropdownMenu').classList.remove('show');
+            renderPartsGrid();
+        }
+        
+        // Toggle dropdown
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdownMenu');
+            dropdown.classList.toggle('show');
+        }
+        
+        // Close dropdown when clicking outside
+        window.addEventListener('click', (e) => {
+            if (!e.target.matches('.filter-btn') && !e.target.closest('.dropdown-container')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        });
+        
+        // Search parts
+        function searchParts() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const cards = document.querySelectorAll('.part-card');
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        }
+        
+        // Modal functions
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        // Modal close on outside click
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('show');
+            }
+        });
+        
+        // Modal close on ESC
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(modal => modal.classList.remove('show'));
+            }
+        });
+        
+        // Not found modal actions
+        function retakePhoto() {
+            closeModal('notFoundModal');
+            resetCamera();
+            document.getElementById('resultsBox').classList.remove('show');
+        }
+        
+        function viewCatalog() {
+            closeModal('notFoundModal');
+            
+            // Switch to catalog tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab')[1].classList.add('active'); // Second tab is catalog
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('catalogTab').classList.add('active');
+        }
+        
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show ' + type;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
