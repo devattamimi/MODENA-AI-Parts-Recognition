@@ -4849,9 +4849,10 @@ const PARTS_DATABASE = {
                     // Convert image to base64
                     const base64 = getBase64FromImage(currentImage);
                     
-                    // Call Roboflow Serverless API - request top 5 predictions
+                    // Call Roboflow Hosted API v1 - supports multiple predictions
+                    // confidence=0 = return all classes, not just top 1
                     const response = await fetch(
-                        `https://serverless.roboflow.com/${ROBOFLOW_MODEL}/${ROBOFLOW_VERSION}?api_key=${ROBOFLOW_API_KEY}&image_type=base64`,
+                        `https://classify.roboflow.com/${ROBOFLOW_MODEL}/${ROBOFLOW_VERSION}?api_key=${ROBOFLOW_API_KEY}&confidence=0`,
                         {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
