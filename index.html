@@ -4660,7 +4660,7 @@ const PARTS_DATABASE = {
                 statusBadge.className = 'status-badge status-loading';
                 
                 // Test API connection - skip test, langsung ready
-                console.log('✅ Roboflow config ready');
+
                 
                 // Any response (even 400) means API is reachable
                 roboflowModel = true; // flag that API is ready
@@ -4861,54 +4861,24 @@ const PARTS_DATABASE = {
                     );
                     
                     const data = await response.json();
-                    console.log('🎯 Roboflow full response:', JSON.stringify(data, null, 2));
-                    console.log('🎯 data.predictions:', data.predictions);
-                    console.log('🎯 data.top:', data.top);
-                    console.log('🎯 data.confidence:', data.confidence);
                     
-                    // Roboflow Classification response format:
-                    // Option A: data.predictions = array [{class, confidence}, ...]
-                    // Option B: data.top = string, data.confidence = number (single result)
-                    // Option C: data.predictions = object {className: confidence, ...}
-                    
-                    if (data && data.predictions) {
-                        if (Array.isArray(data.predictions) && data.predictions.length > 0) {
-                            // Array format
-                            console.log('📋 Format: Array predictions, count:', data.predictions.length);
-                            predictions = data.predictions
-                                .map(p => ({
-                                    className: p.class || p.className || Object.keys(p)[0],
-                                    probability: p.confidence || p.probability || Object.values(p)[0]
-                                }))
-                                .sort((a, b) => b.probability - a.probability)
-                                .slice(0, 5);
-                        } else if (typeof data.predictions === 'object') {
-                            // Object format {className: confidence}
-                            console.log('📋 Format: Object predictions');
-                            predictions = Object.entries(data.predictions)
-                                .map(([cls, conf]) => ({
-                                    className: cls,
-                                    probability: typeof conf === 'object' ? conf.confidence : conf
-                                }))
-                                .sort((a, b) => b.probability - a.probability)
-                                .slice(0, 5);
-                        }
+                    if (data && data.predictions && Array.isArray(data.predictions) && data.predictions.length > 0) {
+                        predictions = data.predictions
+                            .map(p => ({
+                                className: p.class,
+                                probability: p.confidence
+                            }))
+                            .filter(p => p.probability >= 0.20) // hanya tampil jika >= 20%
+                            .sort((a, b) => b.probability - a.probability)
+                            .slice(0, 5);
+                    } else if (data && data.top) {
+                        predictions = [{
+                            className: data.top,
+                            probability: data.confidence
+                        }];
+                    } else {
+                        predictions = [];
                     }
-                    
-                    // Fallback to single top prediction
-                    if (!predictions || predictions.length === 0) {
-                        if (data && data.top) {
-                            console.log('📋 Format: Single top prediction only');
-                            predictions = [{
-                                className: data.top,
-                                probability: data.confidence
-                            }];
-                        } else {
-                            predictions = [];
-                        }
-                    }
-                    
-                    console.log('✅ Final predictions:', predictions);
                 } else {
                     // Demo mode fallback
                     predictions = Object.keys(PARTS_DATABASE).slice(0, 10).map(key => ({
@@ -4964,7 +4934,7 @@ const PARTS_DATABASE = {
             
             let resultsToShow = predictions.slice(0, 5);
             let expandable = false;
-            console.log(`🎯 Showing top ${resultsToShow.length} predictions (top confidence: ${topConfidence.toFixed(1)}%)`);
+
             
             playDingDing();
             
