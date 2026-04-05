@@ -1378,6 +1378,7 @@
                 <div class="modal-buttons">
                     <button class="btn btn-primary" onclick="retakePhoto()">📸 FOTO ULANG</button>
                     <button class="btn" onclick="viewCatalog()">📚 LIHAT CATALOG</button>
+                    <button class="btn" onclick="contactPMT()" style="background:#25d366;color:white;border-color:#25d366;">📱 HUBUNGI PMT</button>
                     <button class="btn" onclick="closeModal('notFoundModal')">❌ CANCEL</button>
                 </div>
             </div>
@@ -4859,30 +4860,54 @@ const PARTS_DATABASE = {
                     );
                     
                     const data = await response.json();
-                    console.log('🎯 Roboflow API response:', data);
+                    console.log('🎯 Roboflow full response:', JSON.stringify(data, null, 2));
+                    console.log('🎯 data.predictions:', data.predictions);
+                    console.log('🎯 data.top:', data.top);
+                    console.log('🎯 data.confidence:', data.confidence);
                     
                     // Roboflow Classification response format:
-                    // data.predictions = array of ALL classes with confidence
-                    // data.top = top class name
-                    // data.confidence = top confidence
-                    if (data && data.predictions && data.predictions.length > 0) {
-                        // Full predictions array - sort by confidence, take top 5
-                        predictions = data.predictions
-                            .map(p => ({
-                                className: p.class,
-                                probability: p.confidence
-                            }))
-                            .sort((a, b) => b.probability - a.probability)
-                            .slice(0, 5);
-                    } else if (data && data.top) {
-                        // Fallback: single top prediction
-                        predictions = [{
-                            className: data.top,
-                            probability: data.confidence
-                        }];
-                    } else {
-                        predictions = [];
+                    // Option A: data.predictions = array [{class, confidence}, ...]
+                    // Option B: data.top = string, data.confidence = number (single result)
+                    // Option C: data.predictions = object {className: confidence, ...}
+                    
+                    if (data && data.predictions) {
+                        if (Array.isArray(data.predictions) && data.predictions.length > 0) {
+                            // Array format
+                            console.log('📋 Format: Array predictions, count:', data.predictions.length);
+                            predictions = data.predictions
+                                .map(p => ({
+                                    className: p.class || p.className || Object.keys(p)[0],
+                                    probability: p.confidence || p.probability || Object.values(p)[0]
+                                }))
+                                .sort((a, b) => b.probability - a.probability)
+                                .slice(0, 5);
+                        } else if (typeof data.predictions === 'object') {
+                            // Object format {className: confidence}
+                            console.log('📋 Format: Object predictions');
+                            predictions = Object.entries(data.predictions)
+                                .map(([cls, conf]) => ({
+                                    className: cls,
+                                    probability: typeof conf === 'object' ? conf.confidence : conf
+                                }))
+                                .sort((a, b) => b.probability - a.probability)
+                                .slice(0, 5);
+                        }
                     }
+                    
+                    // Fallback to single top prediction
+                    if (!predictions || predictions.length === 0) {
+                        if (data && data.top) {
+                            console.log('📋 Format: Single top prediction only');
+                            predictions = [{
+                                className: data.top,
+                                probability: data.confidence
+                            }];
+                        } else {
+                            predictions = [];
+                        }
+                    }
+                    
+                    console.log('✅ Final predictions:', predictions);
                 } else {
                     // Demo mode fallback
                     predictions = Object.keys(PARTS_DATABASE).slice(0, 10).map(key => ({
@@ -5770,6 +5795,33 @@ Mohon info ketersediaan stock untuk part di atas. Terima kasih! 🙏`;
             
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById('catalogTab').classList.add('active');
+        }
+        
+        function contactPMT() {
+            closeModal('notFoundModal');
+            
+            const message = `🔍 *PART TIDAK TERIDENTIFIKASI*
+
+Mohon bantuan identifikasi spare part ini.
+
+📱 *Via:* MODENA AI Parts Recognition v3.0
+🔗 *App:* https://modena-ai-parts-recognition.vercel.app/
+
+Terima kasih! 🙏`;
+            
+            const groupLink = 'https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW';
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(message).then(() => {
+                    showToast('✅ Pesan disalin! Membuka WhatsApp grup PMT...', 'success');
+                }).catch(() => {
+                    showToast('📱 Membuka WhatsApp grup PMT...', 'success');
+                });
+            }
+            
+            setTimeout(() => {
+                window.open(groupLink, '_blank');
+            }, 500);
         }
         
         // Share to WhatsApp Group PMT
