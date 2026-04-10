@@ -152,7 +152,7 @@
             display: flex;
             gap: 8px;
             margin-bottom: 8px;
-            padding: 6px 8px;
+            padding: 8px 10px;
             background: var(--off-white);
             border-radius: 8px;
             border: 1px solid var(--light-gray);
@@ -162,12 +162,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2px;
+            gap: 3px;
         }
         .stock-label {
-            font-size: 9px;
+            font-size: 10px;
             color: var(--gray);
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
@@ -176,8 +176,59 @@
             font-weight: 800;
             font-family: 'Courier New', monospace;
         }
+        .stock-value-lg {
+            font-size: 20px;
+            font-weight: 900;
+            font-family: 'Courier New', monospace;
+        }
         .stock-ok { color: #10b981; }
         .stock-zero { color: #ef4444; }
+
+        /* Stock Filter Row */
+        .stock-filter-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .stock-filter-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .stock-filter-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gray);
+            white-space: nowrap;
+        }
+        .stock-filter-toggle {
+            display: flex;
+            gap: 0;
+            border: 1.5px solid var(--light-gray);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .stf-btn {
+            padding: 5px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--white);
+            border: none;
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+        .stf-btn:not(:last-child) {
+            border-right: 1px solid var(--light-gray);
+        }
+        .stf-btn.active {
+            background: var(--black);
+            color: var(--white);
+        }
+        .stf-btn:hover:not(.active) {
+            background: var(--off-white);
+        }
 
 
         /* Search 2x2 grid */
@@ -273,6 +324,62 @@
             font-weight: 500;
         }
 
+
+
+
+        /* Image Modal Gallery */
+        .image-modal-main { position: relative; }
+        .image-modal-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 38px; height: 38px;
+            background: rgba(255,255,255,0.92);
+            border: 0.5px solid rgba(0,0,0,0.15);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 20px; color: #000;
+            z-index: 5; transition: background 0.15s; user-select: none;
+        }
+        .image-modal-arrow:hover { background: #fff; }
+        .image-modal-arrow-left { left: 10px; }
+        .image-modal-arrow-right { right: 10px; }
+        .image-modal-counter {
+            position: absolute; bottom: 10px; right: 12px;
+            font-size: 11px; background: rgba(0,0,0,0.5); color: #fff;
+            padding: 3px 9px; border-radius: 12px; font-weight: 600;
+            pointer-events: none;
+        }
+        .image-modal-thumbs {
+            display: flex; gap: 7px; padding: 8px 0 4px;
+            overflow-x: auto; scrollbar-width: none;
+            justify-content: center; flex-wrap: wrap;
+        }
+        .image-modal-thumbs::-webkit-scrollbar { display: none; }
+        .image-modal-thumb {
+            width: 58px; height: 58px; flex-shrink: 0;
+            border-radius: 7px; border: 2px solid transparent;
+            cursor: pointer; overflow: hidden;
+            background: #f0f0f0; opacity: 0.6;
+            transition: all 0.15s;
+        }
+        .image-modal-thumb:hover { opacity: 0.85; }
+        .image-modal-thumb.active { border-color: #fff; opacity: 1; }
+        .image-modal-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* Image Gallery */
+        .part-gallery { position: relative; width: 100%; background: var(--off-white); border-radius: 12px 12px 0 0; overflow: hidden; }
+        .gallery-main { position: relative; aspect-ratio: 1; overflow: hidden; cursor: pointer; }
+        .gallery-main-img { width: 100%; height: 100%; object-fit: contain; display: block; transition: opacity 0.2s; }
+        .gallery-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; background: rgba(255,255,255,0.92); border: 0.5px solid var(--light-gray); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; color: var(--black); z-index: 3; transition: background 0.15s; user-select: none; }
+        .gallery-arrow:hover { background: var(--white); }
+        .gallery-arrow-left { left: 7px; }
+        .gallery-arrow-right { right: 7px; }
+        .gallery-counter { position: absolute; bottom: 7px; right: 9px; font-size: 10px; background: rgba(0,0,0,0.45); color: #fff; padding: 2px 7px; border-radius: 10px; font-weight: 600; pointer-events: none; }
+        .gallery-thumbs { display: flex; gap: 5px; padding: 6px; background: var(--off-white); border-top: 1px solid var(--light-gray); overflow-x: auto; scrollbar-width: none; }
+        .gallery-thumbs::-webkit-scrollbar { display: none; }
+        .gallery-thumb { width: 52px; height: 52px; flex-shrink: 0; border-radius: 6px; border: 2px solid transparent; cursor: pointer; overflow: hidden; background: var(--light-gray); opacity: 0.6; transition: all 0.15s; }
+        .gallery-thumb:hover { opacity: 0.85; }
+        .gallery-thumb.active { border-color: var(--black); opacity: 1; }
+        .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
         /* Scanner Section */
         .section-title {
@@ -1107,12 +1214,20 @@
         
         .image-modal-content {
             position: relative;
-            max-width: 90%;
-            max-height: 90%;
+            width: min(90vw, 600px);
+            max-height: 92vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             animation: zoomIn 0.3s ease;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+        .image-modal-content::-webkit-scrollbar { display: none; }
+        
+        .image-modal-main {
+            position: relative;
+            width: 100%;
         }
         
         @keyframes zoomIn {
@@ -1128,10 +1243,12 @@
         
         .image-modal-img {
             max-width: 100%;
-            max-height: 70vh;
+            max-height: 55vh;
             object-fit: contain;
             border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: block;
+            width: 100%;
         }
         
         .image-modal-close {
@@ -1305,11 +1422,14 @@
             }
             
             .filter-buttons {
-                flex-direction: column;
+                flex-wrap: wrap;
             }
             
             .filter-btn {
-                width: 100%;
+                flex: 1;
+                min-width: 120px;
+                font-size: 13px;
+                padding: 8px 12px;
             }
             
             .desktop-only {
@@ -1383,7 +1503,7 @@
             <h1 class="title">MODENA AI PARTS RECOGNITION</h1>
             <p class="subtitle">Established per 11 January 2026</p>
             <p class="subtitle version-info"><strong>Version 3.0</strong> (05 April 2026): Roboflow - 50 SKU</p>
-            <p class="subtitle"></p>
+            <p class="subtitle">Created by Parts Management, Customer Care Department</p>
             <div class="status-badge status-loading" id="statusBadge">
                 ⏳ Loading AI Model...
             </div>
@@ -1391,8 +1511,8 @@
         
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('scanner')">📷 SCANNER</button>
-            <button class="tab" onclick="switchTab('catalog')">📚 PARTS CATALOG</button>
+            <button class="tab active" onclick="switchTab('scanner')">📷 AI PARTS SCANNER</button>
+            <button class="tab" onclick="switchTab('catalog')">📚 PARTS GALLERY</button>
         </div>
         
         <!-- Content -->
@@ -1432,12 +1552,30 @@
             <!-- Catalog Tab -->
             <div id="catalogTab" class="tab-content">
                 <div class="catalog-header">
-                    <h2 class="section-title">📚 PARTS CATALOG</h2>
+                    <h2 class="section-title">📚 PARTS GALLERY</h2>
                     <div class="search-grid-2x2">
                         <input type="text" class="search-box" id="searchBox" placeholder="🔍 Cari part code, nama, keywords..." oninput="searchParts()">
                         <input type="text" class="search-box" id="specSearchBox" placeholder="⚙️ Cari spesifikasi (220V, R600a)..." oninput="searchParts()">
                         <input type="text" class="search-box" id="modelSearchBox" placeholder="🏷️ Cari model (DD 65, BH 1725)..." oninput="searchParts()">
                         <input type="text" class="search-box" id="materialSearchBox" placeholder="🧱 Cari material (Stainless, Brass)..." oninput="searchParts()">
+                    </div>
+                    <div class="stock-filter-row">
+                        <div class="stock-filter-item">
+                            <span class="stock-filter-label">Stock PMT</span>
+                            <div class="stock-filter-toggle">
+                                <button class="stf-btn active" id="pmtAll" onclick="setStockFilter('pmt','all')">No Filter</button>
+                                <button class="stf-btn" id="pmtReady" onclick="setStockFilter('pmt','ready')">Ready</button>
+                                <button class="stf-btn" id="pmtNotReady" onclick="setStockFilter('pmt','notready')">Not Ready</button>
+                            </div>
+                        </div>
+                        <div class="stock-filter-item">
+                            <span class="stock-filter-label">Stock National</span>
+                            <div class="stock-filter-toggle">
+                                <button class="stf-btn active" id="natAll" onclick="setStockFilter('nat','all')">No Filter</button>
+                                <button class="stf-btn" id="natReady" onclick="setStockFilter('nat','ready')">Ready</button>
+                                <button class="stf-btn" id="natNotReady" onclick="setStockFilter('nat','notready')">Not Ready</button>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="filter-buttons">
@@ -1523,7 +1661,13 @@
     <div class="image-modal" id="imageModal" onclick="closeImageModal(event)">
         <button class="image-modal-close" onclick="closeImageModal()">&times;</button>
         <div class="image-modal-content">
-            <img id="imageModalImg" class="image-modal-img" alt="Part Image">
+            <div class="image-modal-main">
+                <img id="imageModalImg" class="image-modal-img" alt="Part Image">
+                <div class="image-modal-arrow image-modal-arrow-left" id="imgModalArrowL" onclick="event.stopPropagation(); imageModalNav(-1)">&#8249;</div>
+                <div class="image-modal-arrow image-modal-arrow-right" id="imgModalArrowR" onclick="event.stopPropagation(); imageModalNav(1)">&#8250;</div>
+                <div class="image-modal-counter" id="imgModalCounter"></div>
+            </div>
+            <div class="image-modal-thumbs" id="imgModalThumbs"></div>
             <div class="image-modal-info">
                 <div class="image-modal-code">
                     <span id="imageModalCode"></span>
@@ -1536,8 +1680,9 @@
     
     <script>
         console.log('================================================================================');
-        console.log('🚀 AI PARTS SCANNER - TENSORFLOW.JS DIRECT LOADING');
+        console.log('🚀 MODENA AI PARTS SCANNER');
         console.log('================================================================================');
+
 const PARTS_DATABASE = {
     "CDDEFPCB00010316": {
         "partNumber": "CDDEFPCB00010316",
@@ -1546,6 +1691,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 66 G", "DD 66 L", "DD 66 V", "DD 67 S", "DD 7106 L", "DD 7181 L", "DD 7181 L (UAE)", "DD 7302 L", "WE 1310 BGWH"],
         "price": 435000,
         "image": "https://csms.sap.modena.com/photos/part/2203170205476232ddcb691fe.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2203170205476232ddcb691fe.jpg", "https://csms.sap.modena.com/photos/part/5d4a889848796.png", "https://csms.sap.modena.com/photos/part/221122084822637c2a664a791.jpg"],
         "searchKeywords": "PCB, PCB main, PCB utama, board, board controller, board display, board elektronik, board filter, board inverter, brain, cddefpcb00010316, chip board, circuit board, control module, controller board, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, main module, mainboard, modul daya, modul elektronik, modul kontrol, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, papan sirkuit, pcb hijau, pcb main, power module, supply board",
         "material": "PVC",
         "specification": "Voltage: 220V/50Hz",
@@ -1562,6 +1708,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 65 L", "DD 65 L (UAE)"],
         "price": 319000,
         "image": "https://csms.sap.modena.com/photos/part/5d4a889848796.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d4a889848796.png", "https://csms.sap.modena.com/photos/part/2203170205476232ddcb691fe.jpg", "https://csms.sap.modena.com/photos/part/2012150346225fd877de10b58.jpg", "https://csms.sap.modena.com/photos/part/231018022405652f88152b554.jpg"],
         "searchKeywords": "PCB, board, board controller, board display, board elektronik, board filter, board inverter, brain, cddefpcb00040518, chip board, circuit board, control module, controller board, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, main module, mainboard, modul daya, modul elektronik, modul kontrol, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, papan sirkuit, pcb, pcb hijau, power module, supply board",
         "material": "ABS Plastic",
         "specification": "IP Rating: IPX4",
@@ -1578,6 +1725,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 66 G", "DD 66 L", "DD 66 V", "DD 67 S", "DD 67 SUV", "DD 7106 L", "DD 7107 LUV", "DD 7181 L", "DD 7181 L (UAE)", "DD 7302 L", "RO 67 SUV", "WE 1310 BGWH"],
         "price": 220000,
         "image": "https://csms.sap.modena.com/photos/part/5f743864a9af1.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/5f743864a9af1.jpg", "https://csms.sap.modena.com/photos/part/5d4a9f216a96b.png", "https://csms.sap.modena.com/photos/part/5d5e17eed0aef.png"],
         "searchKeywords": "auto switch, cddefsfa00010618, float switch, floater assembly, floater switch, level switch, limit switch, magnetic switch, micro switch, pelampung, pelampung switch, push switch, sakelar, saklar air, saklar apung, saklar batas, saklar ketinggian, saklar mikro, saklar on off, saklar otomatis, saklar pelampung, saklar pelampung air, saklar tekan, saklar toggle, sensor air, switch button, switch floater, switch floater assembly, switch pelampung, toggle switch, tombol saklar, water switch",
         "material": "Polypropylene",
         "specification": "Cooling: 5°C±2°C",
@@ -1594,6 +1742,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 65 L", "DD 65 L (UAE)"],
         "price": 176000,
         "image": "https://csms.sap.modena.com/photos/part/5d4a9f216a96b.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d4a9f216a96b.png", "https://csms.sap.modena.com/photos/part/5f743864a9af1.jpg", "https://csms.sap.modena.com/photos/part/240604030938665ecbc225243.jpeg", "https://csms.sap.modena.com/photos/part/240604030917665ecbade4f81.jpeg"],
         "searchKeywords": "auto switch, cddefsll00011115, float switch, floater switch, level liquid, level switch, limit switch, magnetic switch, micro switch, pelampung elektronik, pelampung switch, push switch, sakelar, saklar air, saklar apung, saklar batas, saklar ketinggian, saklar mikro, saklar on off, saklar otomatis, saklar pelampung air, saklar tekan, saklar toggle, sensor ketinggian air, sensor level, switch button, switch level, switch level liquid, switch pelampung, toggle switch, tombol saklar, water switch",
         "material": "ABS Plastic",
         "specification": "Cooling: 5°C±2°C",
@@ -1610,6 +1759,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 7301 L", "DD 7315 L", "DD 7315 W", "DD 75 L", "RO 8101", "RO 8115", "RO 9115"],
         "price": 57000,
         "image": "https://csms.sap.modena.com/photos/part/5d5e17eed0aef.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d5e17eed0aef.png", "https://csms.sap.modena.com/photos/part/5d4a9f216a96b.png", "https://csms.sap.modena.com/photos/part/5f743864a9af1.jpg"],
         "searchKeywords": "auto sensor, cddefssc00010717, cold detector, cold sensor, detector, electronic sensor, heat sensor, hot detector, level detector, pendeteksi, pendeteksi suhu, probe sensor, sensing probe, sensor, sensor assembly, sensor cold, sensor dingin, sensor elektronik, sensor ketinggian, sensor rakitan, sensor set, sensor suhu, suhu sensor, temp sensor, temperature probe, water level",
         "material": "ABS Plastic",
         "specification": "Capacity: 1.5L",
@@ -1626,6 +1776,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 1314 BABK", "DD 4117 BNBK", "DD 4118 BOBK", "DD 66 G", "DD 66 L", "DD 66 V", "DD 67 S", "DD 67 SUV", "DD 7106 L", "DD 7107 LUV", "DD 7181 L", "DD 7181 L (UAE)", "DD 7302 L", "RO 67 SUV", "WE 1310 BGWH"],
         "price": 149000,
         "image": "https://csms.sap.modena.com/photos/part/2210200906536350ad3ded1b2.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2210200906536350ad3ded1b2.jpg", "https://csms.sap.modena.com/photos/part/2211031127426363433ea4cda.jpg", "https://csms.sap.modena.com/photos/part/5d5e17eed0aef.png"],
         "searchKeywords": "auto temp, cddeftmt00011214, cold, cold sensor, hot sensor, pengatur panas, pengatur suhu air, sensor dingin, sensor panas, sensor panas air, sensor suhu, suhu control, suhu otomatis, tangki dingin, tank thermostat, temp control, temperature control, termo, termo air, termo tangki, termostat, thermostat, thermostat tangki, thermostat tank cold water sensor, water temp sensor, water thermostat",
         "material": "Polypropylene",
         "specification": "Voltage: 220V/50Hz",
@@ -1642,6 +1793,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 1314 BABK", "DD 4117 BNBK", "DD 4118 BOBK", "DD 66 G", "DD 66 L", "DD 66 V", "DD 67 S", "DD 67 SUV", "DD 7106 L", "DD 7107 LUV", "DD 7181 L", "DD 7181 L (UAE)", "DD 7302 L", "RO 67 SUV", "WE 1310 BGWH"],
         "price": 124000,
         "image": "https://csms.sap.modena.com/photos/part/2211031127426363433ea4cda.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2211031127426363433ea4cda.jpg", "https://csms.sap.modena.com/photos/part/2210200906536350ad3ded1b2.jpg", "https://csms.sap.modena.com/photos/part/2103050230146041de068ebff.jpg"],
         "searchKeywords": "auto temp, cddeftmt00021214, cold sensor, hot, hot sensor, pengatur panas, pengatur suhu air, sensor dingin, sensor panas, sensor panas air, sensor suhu, suhu control, suhu otomatis, tangki panas, tank thermostat, temp control, temperature control, termo, termo air, termo tangki, termostat, thermostat, thermostat tangki, thermostat tank hot water sensor, water temp sensor, water thermostat",
         "material": "Polypropylene",
         "specification": "Cooling: 5°C±2°C",
@@ -1658,6 +1810,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 3110 BIWH", "DD 7315 L", "DD 7315 W"],
         "price": 428000,
         "image": "https://csms.sap.modena.com/photos/part/25022711004267bfe36a89317.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25022711004267bfe36a89317.jpg", "https://csms.sap.modena.com/photos/part/5d4b953c5c4be.png", "https://csms.sap.modena.com/photos/part/23013101352263d8b6aa0cab7.jpeg"],
         "searchKeywords": "cddmffcw00030717, ceramic tap, cold faucet, dispenser tap, faucet, faucet set, faucet water, front tap, hot faucet, keran, keran air, kran, kran biasa, kran depan, kran dingin, kran dispenser, kran keramik, kran netral, kran normal, kran nozel, kran panas, kran plastik, kran rakitan, kran set, kran tekan, kran tuas, lever tap, neutral tap, normal tap, nozzle tap, plastic tap, push tap, regular tap, spout air, tap assembly, tap dispenser, water spout",
         "material": "Stainless Steel",
         "specification": "Voltage: 220V/50Hz",
@@ -1674,6 +1827,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 3110 BIWH", "DD 65 L", "DD 65 L (UAE)", "DD 7301 L", "DD 7315 L", "DD 7315 W", "DD 75 L"],
         "price": 246000,
         "image": "https://csms.sap.modena.com/photos/part/251106101301690c123d56799.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/251106101301690c123d56799.jpg"],
         "searchKeywords": "ac pump, aksesoris pompa, cddmfppc00010918, cold pump, dc pump, dinamo air, dispenser pump, dual pump, electric pump, hot pump, komponen pompa, mesin pompa, motor air, motor pompa air, part pompa, pompa ac, pompa celup, pompa dc, pompa dingin, pompa dispenser, pompa elektrik, pompa ganda, pompa getar, pompa panas, pompa rakitan, pompa senyap, pompa set, pump assembly, pump motor, pump set, pumping component, pumping components, silent pump, sparepart pompa, submersible pump, vibration pump, water motor, water pump motor",
         "material": "Stainless Steel",
         "specification": "Heating: 90°C±5°C",
@@ -1690,6 +1844,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 66 G", "DD 66 L", "DD 66 V", "DD 67 S", "DD 67 SUV", "DD 7107 LUV", "DD 7181 L", "DD 7181 L (UAE)", "DD 7302 L"],
         "price": 355000,
         "image": "https://csms.sap.modena.com/photos/part/2306070452526480537492281.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2306070452526480537492281.jpg", "https://csms.sap.modena.com/photos/part/5f573194f3b75.jpg", "https://csms.sap.modena.com/photos/part/25022711523567bfef938ba30.jpg"],
         "searchKeywords": "ac pump, cddmfppw00011214, cold pump, dc pump, dinamo air, dinamo pompa, dispenser pump, dual pump, electric pump, hot pump, mesin pompa, motor air, motor pompa, motor pompa air, pompa, pompa ac, pompa air, pompa celup, pompa dc, pompa dingin, pompa dispenser, pompa elektrik, pompa ganda, pompa getar, pompa panas, pompa rakitan, pompa senyap, pompa set, pump, pump assembly, pump motor, pump set, pump water, silent pump, submersible pump, vibration pump, water motor, water pump, water pump motor",
         "material": "PVC",
         "specification": "Cooling: 5°C±2°C",
@@ -1706,14 +1861,15 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 65 L", "DD 65 L (UAE)", "DD 68 L", "DD 68 W", "PD F30A S"],
         "price": 355000,
         "image": "https://csms.sap.modena.com/photos/part/5f573194f3b75.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/5f573194f3b75.jpg", "https://csms.sap.modena.com/photos/part/2306070452526480537492281.jpg", "https://csms.sap.modena.com/photos/part/25022711523567bfef938ba30.jpg"],
         "searchKeywords": "ac pump, cddmfppw00031115, cold pump, dc pump, dinamo air, dinamo pompa, dispenser pump, dual pump, electric pump, hot pump, mesin pompa, motor air, motor pompa, motor pompa air, pompa, pompa ac, pompa air, pompa celup, pompa dc, pompa dingin, pompa dispenser, pompa elektrik, pompa ganda, pompa getar, pompa panas, pompa rakitan, pompa senyap, pompa set, pump, pump assembly, pump motor, pump set, pump water, silent pump, submersible pump, vibration pump, water motor, water pump, water pump motor",
         "material": "Stainless Steel",
         "specification": "Heating: 90°C±5°C",
         "dimensionW": 173.3,
         "dimensionD": 123.1,
         "dimensionH": 26.0,
-        "stockPMT": 2,
-        "stockNational": 53
+        "stockPMT": 0,
+        "stockNational": 0
     },
     "CDDMFPPW00050918": {
         "partNumber": "CDDMFPPW00050918",
@@ -1722,6 +1878,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 7301 L", "DD 7315 L", "DD 7315 W", "DD 75 L"],
         "price": 345000,
         "image": "https://csms.sap.modena.com/photos/part/25022711523567bfef938ba30.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25022711523567bfef938ba30.jpg", "https://csms.sap.modena.com/photos/part/5f573194f3b75.jpg", "https://csms.sap.modena.com/photos/part/2306070452526480537492281.jpg"],
         "searchKeywords": "ac pump, cddmfppw00050918, cold pump, dc pump, dinamo air, dinamo pompa, dispenser pump, dual pump, electric pump, hot pump, mesin pompa, motor air, motor pompa, motor pompa air, pompa, pompa ac, pompa air, pompa celup, pompa dc, pompa dingin, pompa dispenser, pompa elektrik, pompa ganda, pompa getar, pompa panas, pompa rakitan, pompa senyap, pompa set, pump, pump assembly, pump motor, pump set, pump water, silent pump, submersible pump, vibration pump, water motor, water pump, water pump motor",
         "material": "Copper",
         "specification": "Voltage: 220V/50Hz",
@@ -1738,6 +1895,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 65 L", "DD 65 L (UAE)"],
         "price": 25000,
         "image": "https://csms.sap.modena.com/photos/part/5d4b8c8db6bfe.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d4b8c8db6bfe.png", "https://csms.sap.modena.com/photos/part/25022711004267bfe36a89317.jpg", "https://csms.sap.modena.com/photos/part/210419013558607d24ce9042e.jpg"],
         "searchKeywords": "cddmftpw00031115, ceramic tap, cold faucet, dispenser tap, faucet set, front tap, hot faucet, keran, keran air, keran biasa, keran netral, kran, kran biasa, kran depan, kran dingin, kran dispenser, kran keramik, kran netral, kran normal, kran nozel, kran panas, kran plastik, kran rakitan, kran set, kran tekan, kran tuas, lever tap, neutral tap, normal tap, nozzle tap, plastic tap, push tap, regular tap, spout air, tap, tap assembly, tap dispenser, tap water, water spout",
         "material": "EPDM Rubber",
         "specification": "Capacity: 1.5L",
@@ -1754,6 +1912,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 66 G", "DD 66 L", "DD 66 V"],
         "price": 65000,
         "image": "https://csms.sap.modena.com/photos/part/210419013558607d24ce9042e.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/210419013558607d24ce9042e.jpg", "https://csms.sap.modena.com/photos/part/23013101352263d8b6aa0cab7.jpeg", "https://csms.sap.modena.com/photos/part/5d4b8c8db6bfe.png"],
         "searchKeywords": "cddmftwa00031214, ceramic tap, cold faucet, dispenser tap, faucet set, front tap, hot faucet, keran, keran air, keran netral, keran normal, kran, kran biasa, kran depan, kran dingin, kran dispenser, kran keramik, kran netral, kran normal, kran nozel, kran panas, kran plastik, kran rakitan, kran set, kran tekan, kran tuas, lever tap, neutral tap, normal tap, nozzle tap, plastic tap, push tap, rakitan keran, regular tap, spout air, tap, tap assembly, tap dispenser, tap normal water assembly, water spout",
         "material": "EPDM Rubber",
         "specification": "IP Rating: IPX4",
@@ -1770,6 +1929,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 03", "DD 0370", "DD 1111 BAWH", "DD 67 S", "DD 67 SUV", "DD 7106 L", "DD 7107 LUV", "DD 7181 L", "DD 7181 L (UAE)", "DD 7302 L", "RO 67 SUV", "WE 1310 BGWH"],
         "price": 55000,
         "image": "https://csms.sap.modena.com/photos/part/23013101352263d8b6aa0cab7.jpeg",
+        "images": ["https://csms.sap.modena.com/photos/part/23013101352263d8b6aa0cab7.jpeg", "https://csms.sap.modena.com/photos/part/210419013558607d24ce9042e.jpg", "https://csms.sap.modena.com/photos/part/2103040509186040b1ce047cb.jpg"],
         "searchKeywords": "cddmftwa00040616, ceramic tap, cold faucet, dispenser tap, faucet set, front tap, hot faucet, keran, keran air, kran, kran biasa, kran depan, kran dingin, kran dispenser, kran keramik, kran netral, kran normal, kran nozel, kran panas, kran plastik, kran rakitan, kran set, kran tekan, kran tuas, lever tap, neutral tap, normal tap, nozzle tap, plastic tap, push tap, rakitan keran, regular tap, spout air, tap, tap assembly, tap dispenser, tap water assembly, water spout, water tap",
         "material": "ABS Plastic",
         "specification": "Voltage: 220V/50Hz",
@@ -1786,6 +1946,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 03", "DD 0310", "DD 0310 (UAE)", "DD 0370", "DD 06", "DD 07 W", "DD 1111 BAWH", "DD 1312 BABK", "DD 1314 BABK", "DD 1380", "DD 16", "DD 3110 BIWH", "DD 4117 BNBK", "DD 65 L", "DD 65 L (UAE)", "DD 66 G", "DD 66 L", "DD 66 V", "DD 67 S", "DD 67 SUV", "DD 7106 L", "DD 7107 LUV", "DD 7181 L", "DD 7181 L (UAE)", "DD 7301 L", "DD 7302 L", "DD 7315 L", "DD 7315 W", "DD 75 L", "PD F30A S", "RO 67 SUV", "RO 8101", "WE 1310 BGWH"],
         "price": 54000,
         "image": "https://csms.sap.modena.com/photos/part/240710022138668e368230a9a.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/240710022138668e368230a9a.jpg"],
         "searchKeywords": "cddsfftd00040117, copper drier, drier, drier kulkas, dryer kulkas, dryer tembaga, filter, filter drier, filter freezer, filter kelembaban, filter kulkas, filter pengering, filter pengering freon, filter pipa cair, filter refrigeran, filter tembaga, inline filter, liquid line filter, moisture filter, molecular sieve, pengering, refrigerant filter, saringan, saringan freezer, saringan kulkas, saringan molekul",
         "material": "EPDM Rubber",
         "specification": "IP Rating: IPX4",
@@ -1802,6 +1963,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0325", "BH 0725", "BH 0725 ADBK", "BH 0735", "BH 0935", "BH 1321", "BH 1325", "BH 1325 (UAE)", "BH 1325 ABBK", "BH 1325 ACBK", "BH 1325 LA", "BH 1326", "BH 1645", "BH 1645 LA", "BH 1646", "BH 1725", "BH 1725 ABBK", "BH 1725 ACBK", "BH 1725 BCL", "BH 1725 LA", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA GROSSETO", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA PRATO", "BH 1725 LA SIENA", "BH 1725 LAT", "BH 1725 LB", "BH 1725 LBT", "BH 1725 MC", "BH 1725 MIMA", "BH 1725 W", "BH 1727", "BH 1728", "BH 1728 BBBK", "BH 1728 CBBK", "BH 1728 LA", "BH 1728 LB", "BH 1735", "BH 1735 LA", "BH 1737", "BH 1935", "BH 1935 ABBK", "BH 1935 LA", "BH 1935 LB", "BH 1935 W", "BH 1936", "BH 1937", "BH 1941", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 2324", "BH 2644", "BH 2648 LBM (UAE)", "BH 2724", "BH 2725", "BH 2734", "BH 2934", "BH 2935", "BH 2944", "BH 2958 LBM (UAE)", "BH 3324", "BH 3324 (UAE)", "BH 3325", "BH 3644", "BH 3649 STM", "BH 3734", "BH 3930", "BH 3935", "BH 3940", "BH 3944", "BH 3958 SAM (UAE)"],
         "price": 169000,
         "image": "https://csms.sap.modena.com/photos/part/25031403585867d3efd22ef0b.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25031403585867d3efd22ef0b.jpg"],
         "searchKeywords": "alas, alas burner, base burner, base ring, basement, bottom burner, burner basement 120#, burner bottom, burner platform, dasar api, dasar kompor, dudukan burner, dudukan dasar, kbhatbnb00010811, platform burner, tatakan burner",
         "material": "Stainless Steel",
         "specification": "Valve Type: Safety",
@@ -1818,6 +1980,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0735", "BH 0935", "BH 1735", "BH 1735 LA", "BH 1737", "BH 1935", "BH 1935 ABBK", "BH 1935 LA", "BH 1935 LB", "BH 1935 W", "BH 1936", "BH 1937", "BH 2734", "BH 2933 LJ", "BH 2933 LL", "BH 2934", "BH 2935", "BH 2937", "BH 3734", "BH 3930", "BH 3934", "BH 3935", "BH 4934", "BH 4937"],
         "price": 379000,
         "image": "https://csms.sap.modena.com/photos/part/2012040756135fc9892d935bc.png",
+        "images": ["https://csms.sap.modena.com/photos/part/2012040756135fc9892d935bc.png", "https://csms.sap.modena.com/photos/part/2012040803595fc98aff675cd.png", "https://csms.sap.modena.com/photos/part/24092003045866ed2caaac1a5.jpg"],
         "searchKeywords": "3 burner, alat pemantik, alat pemicu api, auto spark, burner igniter, igniter box, ignition, ignition device (3 burners), impulse, kbhefind00010711, kompor auto, korek api otomatis, korek kompor otomatis, modul ignition, nyala otomatis, pemantik, pemantik elektronik, pemantik otomatis, piezo igniter, pulse ignition, sistem korek api, sistem pemantik, sistem pengapian, spark system, starter",
         "material": "Aluminum",
         "specification": "Max Load: 5kW",
@@ -1834,6 +1997,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 1645", "BH 1645 LA", "BH 1646", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 1949", "BH 2644", "BH 2944", "BH 3644", "BH 3649 STM", "BH 3940", "BH 3944", "BH 6935 LF"],
         "price": 450000,
         "image": "https://csms.sap.modena.com/photos/part/2012040803595fc98aff675cd.png",
+        "images": ["https://csms.sap.modena.com/photos/part/2012040803595fc98aff675cd.png", "https://csms.sap.modena.com/photos/part/2012040756135fc9892d935bc.png", "https://csms.sap.modena.com/photos/part/23021705220463ef554c0b1eb.jpg"],
         "searchKeywords": "4 burner, alat pemantik, alat pemicu api, auto spark, burner igniter, igniter box, ignition, ignition device (4 burners), impulse, kbhefind00020711, kompor auto, korek api otomatis, korek kompor otomatis, modul ignition, nyala otomatis, pemantik, pemantik elektronik, pemantik otomatis, piezo igniter, pulse ignition, sistem korek api, sistem pemantik, sistem pengapian, spark system, starter",
         "material": "Stainless Steel",
         "specification": "Ignition: Auto",
@@ -1850,6 +2014,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0325", "BH 0725", "BH 0725 ADBK", "BH 1321", "BH 1325", "BH 1325 (UAE)", "BH 1325 ABBK", "BH 1325 ACBK", "BH 1325 LA", "BH 1326", "BH 1725", "BH 1725 ABBK", "BH 1725 ACBK", "BH 1725 BCL", "BH 1725 LA", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA GROSSETO", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA PRATO", "BH 1725 LA SIENA", "BH 1725 LB", "BH 1725 MC", "BH 1725 MIMA", "BH 1725 W", "BH 1727", "BH 1728", "BH 1728 LA", "BH 1728 LB", "BH 2324", "BH 2724", "BH 2725", "BH 2727", "BH 3324", "BH 3324 (UAE)", "BH 3325", "BH 3725", "BH 4724", "BH 6725 LF"],
         "price": 347000,
         "image": "https://csms.sap.modena.com/photos/part/24092003045866ed2caaac1a5.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/24092003045866ed2caaac1a5.jpg", "https://csms.sap.modena.com/photos/part/2012040756135fc9892d935bc.png", "https://csms.sap.modena.com/photos/part/22080204134762e8eacb5e743.jpg"],
         "searchKeywords": "2 burner, alat pemantik, alat pemicu api, auto spark, burner igniter, igniter box, ignition, ignition device (2 burners), impulse, kbhefind00030711, kompor auto, korek api otomatis, korek kompor otomatis, modul ignition, nyala otomatis, pemantik, pemantik elektronik, pemantik otomatis, piezo igniter, pulse ignition, sistem korek api, sistem pemantik, sistem pengapian, spark system, starter",
         "material": "Copper",
         "specification": "Max Load: 5kW",
@@ -1866,6 +2031,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0725", "BH 0725 ADBK", "BH 0735", "BH 0935", "BH 1645", "BH 1645 LA", "BH 1725", "BH 1725 ABBK", "BH 1725 ACBK", "BH 1725 BCL", "BH 1725 LA", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA GROSSETO", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA SIENA", "BH 1725 LAT", "BH 1725 LB", "BH 1725 LBT", "BH 1725 MIMA", "BH 1725 W", "BH 1735", "BH 1735 LA", "BH 1935", "BH 1935 ABBK", "BH 1935 LA", "BH 1935 LB", "BH 1935 W", "BH 1937", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 1949", "BH 2725", "BH 2935"],
         "price": 68000,
         "image": "https://csms.sap.modena.com/photos/part/2206031033496299811d7dbe8.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2206031033496299811d7dbe8.jpg", "https://csms.sap.modena.com/photos/part/23021411162963eb0b1d782db.jpg", "https://csms.sap.modena.com/photos/part/5ca5c38acde0f.png"],
         "searchKeywords": "120, anti leak tray, bak air, bak bocoran, baki penampung, catching tray, drip catcher, drip pan, gasket, karet seal, karet tray, kbhgfsrw00010512, leak tray, nampan anti bocor, penampung bocoran, penampung rembes, penampung tetesan, ring karet, seal, sealed tray, sealing ring, sealing ring for waterproof tray (#120), tatakan tahan air, tray anti air, tray seal, water tray, waterproof pan",
         "material": "Stainless Steel",
         "specification": "Gas Type: LPG/NG",
@@ -1882,14 +2048,15 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 2723 LL", "BH 2733 LL", "BH 2933 LL", "BH 7723 LLD"],
         "price": 217000,
         "image": "https://csms.sap.modena.com/photos/part/5fac97bcabd12.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/5fac97bcabd12.jpg", "https://csms.sap.modena.com/photos/part/231018022405652f88152b554.jpg", "https://csms.sap.modena.com/photos/part/5cad75dde4356.png"],
         "searchKeywords": "120, besi cor, brass cap, brass crown, burner cover, cap api, cap besi, cap burner, cap burner external #120, cap dalam, cap eksternal, cap luar, cast iron cap, crown, crown burner, enamel cap, external, external cap, inner cap, internal cap, iron cap, kbhrfcpb00030718, mahkota, mahkota api, outer cap, painted cap, penutup api, penutup lubang api, ring cap, top burner, topi burner, tutup api, tutup besi, tutup burner, tutup dalam, tutup kuningan, tutup luar",
         "material": "Copper",
         "specification": "Gas Type: LPG/NG",
         "dimensionW": 27.7,
         "dimensionD": 48.5,
         "dimensionH": 32.0,
-        "stockPMT": 16,
-        "stockNational": 124
+        "stockPMT": 0,
+        "stockNational": 0
     },
     "KBHRFCPB00080811": {
         "partNumber": "KBHRFCPB00080811",
@@ -1898,14 +2065,15 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 1315", "BH 1321", "BH 1325", "BH 1325 (UAE)", "BH 1325 ABBK", "BH 1325 ACBK", "BH 1325 LA", "BH 1326", "BH 1645", "BH 1645 LA", "BH 1646", "BH 1725", "BH 1725 ABBK", "BH 1725 ACBK", "BH 1725 BCL", "BH 1725 LA", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA GROSSETO", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA SIENA", "BH 1725 LAT", "BH 1725 LB", "BH 1725 LBT", "BH 1725 MIMA", "BH 1725 W", "BH 1727", "BH 1728", "BH 1728 BBBK", "BH 1728 CBBK", "BH 1728 LA", "BH 1728 LB", "BH 1735", "BH 1735 LA", "BH 1935", "BH 1935 ABBK", "BH 1935 LA", "BH 1935 LB", "BH 1935 W", "BH 1936", "BH 1937", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 1949", "BH 2324", "BH 2644", "BH 2724", "BH 2725", "BH 2734", "BH 2934", "BH 2935", "BH 2944", "BH 2958 LBM (UAE)", "BH 3324", "BH 3324 (UAE)", "BH 3325", "BH 3644", "BH 3649 STM", "BH 3724", "BH 3725", "BH 3734", "BH 3930", "BH 3934", "BH 3935", "BH 3940", "BH 3944"],
         "price": 151000,
         "image": "https://csms.sap.modena.com/photos/part/231018022405652f88152b554.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/231018022405652f88152b554.jpg", "https://csms.sap.modena.com/photos/part/5fac97bcabd12.jpg", "https://csms.sap.modena.com/photos/part/22122703063763aaa78db2cac.png"],
         "searchKeywords": "120, besi cor, brass cap, brass crown, burner cover, cap api, cap besi, cap burner, cap burner internal 120# (cast iron), cap dalam, cap eksternal, cap luar, cast iron, cast iron cap, crown, crown burner, enamel cap, external cap, inner cap, internal, internal cap, iron cap, kbhrfcpb00080811, mahkota, mahkota api, outer cap, painted cap, penutup api, penutup lubang api, ring cap, top burner, topi burner, tutup api, tutup besi, tutup burner, tutup dalam, tutup kuningan",
         "material": "Cast Iron",
         "specification": "Valve Type: Safety",
         "dimensionW": 65.3,
         "dimensionD": 61.4,
         "dimensionH": 38.5,
-        "stockPMT": 25,
-        "stockNational": 191
+        "stockPMT": 0,
+        "stockNational": 0
     },
     "KBHRFKNB00010811": {
         "partNumber": "KBHRFKNB00010811",
@@ -1914,6 +2082,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BE 1325", "BE 1325 (UAE)", "BE 1725", "BH 0325", "BH 0725", "BH 0735", "BH 0935", "BH 1315", "BH 1325", "BH 1325 (UAE)", "BH 1325 LA", "BH 1645", "BH 1645 LA", "BH 1725", "BH 1725 BCL", "BH 1725 LA", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA GROSSETO", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA PRATO", "BH 1725 LA SIENA", "BH 1725 LAT", "BH 1725 MC", "BH 1725 W", "BH 1735", "BH 1735 LA", "BH 1935", "BH 1935 LA", "BH 1935 W", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 2648 LBM (UAE)", "BH 3644", "BH 3734", "BH 3944", "BO 2633", "BO 2633 BCL", "BO 2663", "BO 2663 BCL", "BO 2733"],
         "price": 103000,
         "image": "https://csms.sap.modena.com/photos/part/220408012300624fd4c4b320d.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220408012300624fd4c4b320d.jpg", "https://csms.sap.modena.com/photos/part/2303291010346423ac2a1a998.jpg", "https://csms.sap.modena.com/photos/part/240604030938665ecbc225243.jpeg"],
         "searchKeywords": "black knob, chrome knob, control knob, flame control, gas control, handel gas, handel kompor, kbhrfknb00010811, knob, knob hitam, knop, knop kanan, knop kiri, left knob, metal knob, pemutar, pemutar gas, pengatur api, plastic knob, push knob, push switch, puteran, regulator knob, right knob, rotary knob, stainless knob, switch gas, tekan putar, tombol, tombol kompor, tombol putar, tombol tekan, tuas, tuas putar",
         "material": "Brass",
         "specification": "Flame Failure Device: Yes",
@@ -1930,6 +2099,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 5725 LK", "BH 5725 LO"],
         "price": 60000,
         "image": "https://csms.sap.modena.com/photos/part/240604030938665ecbc225243.jpeg",
+        "images": ["https://csms.sap.modena.com/photos/part/240604030938665ecbc225243.jpeg", "https://csms.sap.modena.com/photos/part/240604030917665ecbade4f81.jpeg", "https://csms.sap.modena.com/photos/part/220408012300624fd4c4b320d.jpg"],
         "searchKeywords": "black knob, chrome knob, control knob, flame control, gas control, handel gas, handel kompor, kanan, kbhrfknb00011219, knob, knob (right), knob hitam, knop, knop kanan, knop kiri, left knob, metal knob, pemutar, pemutar gas, pengatur api, plastic knob, push knob, push switch, puteran, regulator knob, right, right knob, rotary knob, stainless knob, switch gas, tekan putar, tombol, tombol kompor, tombol putar, tombol tekan, tuas, tuas putar",
         "material": "Copper",
         "specification": "Valve Type: Safety",
@@ -1946,6 +2116,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 5725 LK", "BH 5725 LO"],
         "price": 60000,
         "image": "https://csms.sap.modena.com/photos/part/240604030917665ecbade4f81.jpeg",
+        "images": ["https://csms.sap.modena.com/photos/part/240604030917665ecbade4f81.jpeg", "https://csms.sap.modena.com/photos/part/240604030938665ecbc225243.jpeg", "https://csms.sap.modena.com/photos/part/2303291010346423ac2a1a998.jpg"],
         "searchKeywords": "black knob, chrome knob, control knob, flame control, gas control, handel gas, handel kompor, kbhrfknb00161219, kiri, knob, knob (left), knob hitam, knop, knop kanan, knop kiri, left, left knob, metal knob, pemutar, pemutar gas, pengatur api, plastic knob, push knob, push switch, puteran, regulator knob, right knob, rotary knob, stainless knob, switch gas, tekan putar, tombol, tombol kompor, tombol putar, tombol tekan, tuas, tuas putar",
         "material": "Stainless Steel",
         "specification": "Max Load: 5kW",
@@ -1962,6 +2133,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0325", "BH 0725", "BH 0725 ADBK", "BH 0735", "BH 0935", "BH 1315", "BH 1321", "BH 1325", "BH 1325 (UAE)", "BH 1325 ABBK", "BH 1325 ACBK", "BH 1326", "BH 1645", "BH 1646", "BH 1725", "BH 1725 ABBK", "BH 1725 ACBK", "BH 1725 W", "BH 1727", "BH 1728", "BH 1735", "BH 1737", "BH 1935", "BH 1935 ABBK", "BH 1935 W", "BH 1936", "BH 1937", "BH 1941", "BH 1945", "BH 1945 W", "BH 1949", "BH 2324", "BH 2644", "BH 2648 LBM (UAE)", "BH 2724", "BH 2725", "BH 2734", "BH 2934", "BH 2935", "BH 2944", "BH 2958 LBM (UAE)", "BH 3324", "BH 3324 (UAE)", "BH 3325", "BH 3644", "BH 3649 STM", "BH 3724", "BH 3725", "BH 3734", "BH 3930", "BH 3934", "BH 3935", "BH 3940", "BH 3944"],
         "price": 361000,
         "image": "https://csms.sap.modena.com/photos/part/24081405261266bc864449dc6.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/24081405261266bc864449dc6.jpg", "https://csms.sap.modena.com/photos/part/24081405265166bc866b4f002.jpg", "https://csms.sap.modena.com/photos/part/5fac998ebc085.jpg"],
         "searchKeywords": "alu burner, aluminium burner, api kompor, api ring, auxiliary burner, badan burner, big burner, body burner, brass head, burner, burner 120, burner 120#, burner besar, burner head, burner kecil, burner ring, burner tengah, burner utama, dudukan api, kbhsfbnr00010811, kepala api, kepala kompor, kompor, kompor api, kuningan burner, lingkaran api, lubang api, main burner, middle burner, rapid burner, ring api, ring kompor, semi rapid, small burner, tungku, wok burner",
         "material": "Copper",
         "specification": "Gas Type: LPG/NG",
@@ -1978,6 +2150,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 1325 LA", "BH 1645 LA", "BH 1725 LA", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA GROSSETO", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA PRATO", "BH 1725 LA SIENA", "BH 1725 LAT", "BH 1725 MC", "BH 1728 BBBK", "BH 1728 LA", "BH 1735 LA", "BH 1935 LA", "BH 1945 LA"],
         "price": 563000,
         "image": "https://csms.sap.modena.com/photos/part/24081405265166bc866b4f002.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/24081405265166bc866b4f002.jpg", "https://csms.sap.modena.com/photos/part/24081405261266bc864449dc6.jpg", "https://csms.sap.modena.com/photos/part/24081405310466bc87685ee42.png"],
         "searchKeywords": "alu burner, aluminium, aluminium burner, api kompor, api ring, auxiliary burner, badan burner, big burner, body burner, brass, brass head, burner, burner 120, burner 120# (alumunium + brass), burner besar, burner head, burner kecil, burner ring, burner tengah, burner utama, dudukan api, kbhsfbnr00171116, kepala api, kepala kompor, kompor, kompor api, kuningan, kuningan burner, lingkaran api, lubang api, main burner, middle burner, rapid burner, ring api, ring kompor, semi rapid, small burner, tungku, wok burner",
         "material": "Cast Iron",
         "specification": "Max Load: 5kW",
@@ -1994,6 +2167,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0325", "BH 0725", "BH 0725 ADBK", "BH 0735", "BH 0935", "BH 1315", "BH 1321", "BH 1325", "BH 1325 (UAE)", "BH 1325 ABBK", "BH 1325 ACBK", "BH 1325 LA", "BH 1326", "BH 1645", "BH 1645 LA", "BH 1725", "BH 1725 ABBK", "BH 1725 ACBK", "BH 1725 BCL", "BH 1725 LA", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA GROSSETO", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA PRATO", "BH 1725 LA SIENA", "BH 1725 LAT", "BH 1725 LB", "BH 1725 LBT", "BH 1725 MC", "BH 1725 MIMA", "BH 1725 W", "BH 1727", "BH 1728", "BH 1728 BBBK", "BH 1728 CBBK", "BH 1728 LA", "BH 1728 LB", "BH 1735", "BH 1735 LA", "BH 1737", "BH 1935", "BH 1935 ABBK", "BH 1935 LA", "BH 1935 LB", "BH 1935 W", "BH 1937", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 2324", "BH 2644", "BH 2724", "BH 2725", "BH 2734", "BH 2934", "BH 2935", "BH 2944", "BH 3324", "BH 3324 (UAE)", "BH 3325", "BH 3644", "BH 3725", "BH 3734", "BH 3930", "BH 3934", "BH 3935", "BH 3940", "BH 3944"],
         "price": 50000,
         "image": "https://csms.sap.modena.com/photos/part/25012804090567989eb1ac962.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25012804090567989eb1ac962.jpg", "https://csms.sap.modena.com/photos/part/5ee97fb26591a.jpg", "https://csms.sap.modena.com/photos/part/2210121208596345a32b3d4e8.jpg"],
         "searchKeywords": "busi, busi 120, electrode probe, elektroda, elektroda pemantik, elektrode api, ignition pin, ignition pin #120 (cable length 55cm), ignition probe, jarum pemantik, kabel busi, kabel elektroda, kawat busi, kbhsfinp00010711, needle ignition, pemantik jarum, pin api, pin igniter, pin nyala, pin pemantik, pin starter, probe busi, probe ignition, spark needle, spark tip, spark wire, ujung pemantik, wire electrode",
         "material": "Enamel Coated Steel",
         "specification": "Max Load: 5kW",
@@ -2010,6 +2184,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0325", "BH 0735", "BH 0935", "BH 1321", "BH 1325", "BH 1325 (UAE)", "BH 1325 ABBK", "BH 1325 ACBK", "BH 1325 LA", "BH 1326", "BH 1645", "BH 1645 LA", "BH 1735", "BH 1735 LA", "BH 1737", "BH 1935", "BH 1935 ABBK", "BH 1935 LB", "BH 1935 W", "BH 1937", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 2324", "BH 2644", "BH 2734", "BH 2934", "BH 2935", "BH 2944", "BH 3324", "BH 3324 (UAE)", "BH 3325", "BH 3644", "BH 3724", "BH 3734", "BH 3930", "BH 3934", "BH 3935", "BH 3940", "BH 3944"],
         "price": 50000,
         "image": "https://csms.sap.modena.com/photos/part/5ee97fb26591a.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/5ee97fb26591a.jpg", "https://csms.sap.modena.com/photos/part/25012804090567989eb1ac962.jpg", "https://csms.sap.modena.com/photos/part/25031404030767d3f0cb1708f.jpg"],
         "searchKeywords": "busi, busi 100, electrode probe, elektroda, elektroda pemantik, elektrode api, ignition pin, ignition pin #100 (regular model, cable 55 cm), ignition probe, jarum pemantik, kabel busi, kabel elektroda, kawat busi, kbhsfinp00020711, needle ignition, pemantik jarum, pin api, pin igniter, pin nyala, pin pemantik, pin starter, probe busi, probe ignition, spark needle, spark tip, spark wire, ujung pemantik, wire electrode",
         "material": "Cast Iron",
         "specification": "Valve Type: Safety",
@@ -2026,6 +2201,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 1325", "BH 1325 (UAE)", "BH 1325 ABBK", "BH 1325 ACBK", "BH 1325 LA", "BH 1326", "BH 1645", "BH 1645 LA", "BH 1646", "BH 1725", "BH 1725 ABBK", "BH 1725 ACBK", "BH 1725 BCL", "BH 1725 LA", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA GROSSETO", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA PRATO", "BH 1725 LA SIENA", "BH 1725 LAT", "BH 1725 LB", "BH 1725 LBT", "BH 1725 MC", "BH 1725 MIMA", "BH 1725 W", "BH 1727", "BH 1728", "BH 1728 BBBK", "BH 1728 CBBK", "BH 1728 LA", "BH 1728 LB", "BH 1735", "BH 1735 LA", "BH 1737", "BH 1935", "BH 1935 ABBK", "BH 1935 LA", "BH 1935 LB", "BH 1935 W", "BH 1936", "BH 1937", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 2324", "BH 2644", "BH 2648 LBM (UAE)", "BH 2724", "BH 2725", "BH 2727", "BH 2734", "BH 2934", "BH 2935", "BH 2937", "BH 2944", "BH 2958 LBM (UAE)", "BH 3644", "BH 3649 STM", "BH 3734", "BH 3930", "BH 3934", "BH 3940", "BH 3944"],
         "price": 350000,
         "image": "https://csms.sap.modena.com/photos/part/24052511372866516b08810ac.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/24052511372866516b08810ac.jpg", "https://csms.sap.modena.com/photos/part/220606022853629dacb518f38.jpg", "https://csms.sap.modena.com/photos/part/25031102372667cfe836252f6.jpg"],
         "searchKeywords": "0.7, 120, badan valve, control valve, core valve, flow valve, gas control valve, gas valve assembly, katup, katup kompor, katup pengaman, katup pengatur, kbhsfvlv00070811, kran gas, kran kompor, pengatur aliran, pengatur gas, regulator valve, safety valve, thermostat valve, valve, valve (#120, 0.7), valve body, valve gas, valve inti, valve kompor, valve pengatur, valve set, valve termo",
         "material": "Copper",
         "specification": "Max Load: 5kW",
@@ -2042,6 +2218,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["PC 0721 BDBK", "PC 0721 BEBK", "PC 2721 L", "PC 2721 LD", "PC 2721 LM", "PC 2721 ZMCA"],
         "price": 139000,
         "image": "https://csms.sap.modena.com/photos/part/220606022853629dacb518f38.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220606022853629dacb518f38.jpg", "https://csms.sap.modena.com/photos/part/24052511372866516b08810ac.jpg", "https://csms.sap.modena.com/photos/part/25031102372667cfe836252f6.jpg"],
         "searchKeywords": "badan valve, control valve, core valve, flow valve, gas control valve, gas valve assembly, katup, katup kompor, katup pengaman, katup pengatur, kbhsfvlv00270821, kran gas, kran kompor, pengatur aliran, pengatur gas, regulator valve, safety valve, thermostat valve, valve, valve body, valve gas, valve inti, valve kompor, valve pengatur, valve set, valve termo",
         "material": "Aluminum",
         "specification": "Flame Failure Device: Yes",
@@ -2058,6 +2235,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 1725", "BH 1725 ABBK", "BH 1725 ACBK", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA SIENA", "BH 1725 LAT", "BH 1725 LB", "BH 1725 LBT", "BH 1725 MIMA", "BH 1725 W", "BH 1735", "BH 1935", "BH 1935 ABBK", "BH 1935 LB", "BH 1935 W", "BH 1945", "BH 1945 W", "BH 2725", "BH 2935", "BH 2958 LBM (UAE)"],
         "price": 92000,
         "image": "https://csms.sap.modena.com/photos/part/23072105215764ba5c4587b40.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/23072105215764ba5c4587b40.jpg"],
         "searchKeywords": "120, anti leak tray, bak air, bak bocoran, bak penampung, baki, baki penampung, catching tray, drip catcher, drip pan, kbhsfwpt00150711, leak tray, nampan, nampan anti bocor, penampung bocoran, penampung rembes, penampung tetesan, sealed tray, tatakan anti air, tatakan tahan air, tray, tray anti air, tray seal, water tray, waterproof pan, waterproof tray, waterproof tray 120#",
         "material": "Aluminum",
         "specification": "Ignition: Auto",
@@ -2074,6 +2252,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BI 0721 C", "BI 0721 L", "BI 1725", "BI 1935", "BK 1635", "BK 1725", "BK 1725 C"],
         "price": 333000,
         "image": "https://csms.sap.modena.com/photos/part/2012150346225fd877de10b58.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2012150346225fd877de10b58.jpg", "https://csms.sap.modena.com/photos/part/5f6d53649eb0e.jpg", "https://csms.sap.modena.com/photos/part/210818090247611c6a474c493.jpg"],
         "searchKeywords": "PCB, PCB induksi, PCB power, PCB utama, board controller, board display, board elektronik, board filter, board inverter, board power, brain, chip board, circuit board, control module, controller board, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kbiefpwb00011018, kompressor board, main module, mainboard, modul daya, modul kontrol, modul listrik, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan daya, papan ic, papan induk, papan kontrol, papan layar, papan pcb, pcb hijau, power board, power board main, power module, supply board",
         "material": "Rubber",
         "specification": "IP Rating: IP44",
@@ -2090,13 +2269,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BI 0321 L", "BI 0322 LBR", "BI 0642 LBR", "BI 1325", "BI 1625 F"],
         "price": 515000,
         "image": "https://csms.sap.modena.com/photos/part/5f6d53649eb0e.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/5f6d53649eb0e.jpg", "https://csms.sap.modena.com/photos/part/2012150346225fd877de10b58.jpg", "https://csms.sap.modena.com/photos/part/2203170217256232e08540e26.jpg"],
         "searchKeywords": "PCB, PCB induksi, PCB power, board controller, board display, board elektronik, board filter, board inverter, board power, brain, chip board, circuit board, control module, controller board, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kbiefpwb00020119, kompressor board, main module, mainboard, modul daya, modul kontrol, modul listrik, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan daya, papan ic, papan induk, papan kontrol, papan layar, papan pcb, pcb hijau, power board, power module, supply board",
         "material": "Stainless Steel",
         "specification": "Standard: SNI",
         "dimensionW": 86.9,
         "dimensionD": 112.6,
         "dimensionH": 27.6,
-        "stockPMT": 33,
+        "stockPMT": 0,
         "stockNational": 36
     },
     "KCHEFLED00010816": {
@@ -2106,6 +2286,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["CX 7712 L", "CX 7712 L (UAE)", "RX 7632", "RX 9632"],
         "price": 169000,
         "image": "https://csms.sap.modena.com/photos/part/220922012242632bff32b7873.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220922012242632bff32b7873.jpg"],
         "searchKeywords": "9 ball LED, 9 ball led, 9 ball led lamp, LED, ac led, bohlam LED, bohlam led, bright led, cool white, kchefled00010816, lampu, lampu LED, lampu ac, lampu cooker hood, lampu led kecil, lampu sorot, led 2w, led 3w, led 9 bola, led bulat, led bulb, led light, led panel, led putih, led spot, led terang, panel led, round led, small led, spotlight, warm white, white led",
         "material": "Copper",
         "specification": "Voltage: 220V/50Hz",
@@ -2122,6 +2303,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BX 6603", "BX 6632", "BX 9603", "DC 2601", "DC 2701", "DC 2901", "DC 3601 L", "DC 3601 V", "DC 3701 L", "DC 3902 L", "PX 6001", "PX 6011 SS", "PX 6011 V", "PX 6111", "PX 7001", "PX 7111", "PX 9002", "PX 9012 SS", "PX 9012 V", "RX 9503 S", "SX 6001 S (UAE)", "SX 6501 S", "SX 6501 V", "SX 7511 L", "SX 9002 S", "SX 9002 S (UAE)", "SX 9501 V", "SX 9502 S", "SX 9502 V", "SX 9502 V (UAE)", "SX 9512 L"],
         "price": 64000,
         "image": "https://csms.sap.modena.com/photos/part/5d5b55fa41a8d.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d5b55fa41a8d.png"],
         "searchKeywords": "bactericidal, bohlam, bohlam biasa, bohlam halogen, disinfection lamp, filament lamp, germicidal lamp, halogen bulb, halogen light, incandescent, kcheflmp00010213, lamp, lamp normal, lampu, lampu biasa, lampu kuning, lampu normal, lampu pemurni, lampu pijar, lampu sterilisasi, lampu tabung, lampu uv, pembunuh bakteri, purification lamp, steril lamp, t5 lamp, t8 lamp, tube lamp, tungsten lamp, uv lamp, warm light, yellow light",
         "material": "Copper",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -2138,6 +2320,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["CX 6301", "CX 9106", "CX 9301", "CX 9306", "DC 2701", "DC 2901", "IX 9106", "IX 9306"],
         "price": 281000,
         "image": "https://csms.sap.modena.com/photos/part/241107083103672c1857a08fc.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/241107083103672c1857a08fc.jpg", "https://csms.sap.modena.com/photos/part/241107083552672c1978dbb4f.jpg", "https://csms.sap.modena.com/photos/part/241202012043674d51bb4fb62.jpg"],
         "searchKeywords": "LF 2001, activated carbon, arang aktif, black filter, carbon filter, carbon filter vit c - lf 2001, charcoal, chimney filter, exhaust filter, filter asap, filter bau, filter cooker, filter cooker hood, filter cuci, filter hitam, filter karbon, filter lemak karbon, filter pakai ulang, filter penghisap, filter vit c, grease filter carbon, hood filter, karbon aktif, lfh304kcye, odor filter, penyaring asap, penyaring bau, reusable filter, smoke filter, vit c, vit c filter, vitamin c filter, washable filter",
         "material": "Copper",
         "specification": "Standard: SNI",
@@ -2154,6 +2337,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["CX 6150", "CX 6300", "CX 6330", "CX 7915 GXBK", "CX 9150", "CX 9300", "CX 9303", "CX 9330", "CX 9703", "CX 9753"],
         "price": 195000,
         "image": "https://csms.sap.modena.com/photos/part/241107083552672c1978dbb4f.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/241107083552672c1978dbb4f.jpg", "https://csms.sap.modena.com/photos/part/241107083103672c1857a08fc.jpg", "https://csms.sap.modena.com/photos/part/241107090654672c20be1723a.jpg"],
         "searchKeywords": "LF 2006, activated carbon, arang aktif, black filter, carbon filter, carbon filter vit c-lf 2006, charcoal, chimney filter, exhaust filter, filter asap, filter bau, filter cooker, filter cooker hood, filter cuci, filter hitam, filter karbon, filter lemak karbon, filter pakai ulang, filter penghisap, filter vit c, grease filter carbon, hood filter, karbon aktif, lfh309kcye, odor filter, penyaring asap, penyaring bau, reusable filter, smoke filter, vit c, vit c filter, vitamin c filter, washable filter",
         "material": "ABS Plastic",
         "specification": "Standard: SNI",
@@ -2170,6 +2354,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["SX 6501 S", "SX 6501 V", "SX 9501 V", "SX 9502 S", "SX 9502 V"],
         "price": 295000,
         "image": "https://csms.sap.modena.com/photos/part/241202012043674d51bb4fb62.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/241202012043674d51bb4fb62.jpg", "https://csms.sap.modena.com/photos/part/241107083552672c1978dbb4f.jpg", "https://csms.sap.modena.com/photos/part/241107082623672c173fe5b6a.jpg"],
         "searchKeywords": "LF 2012, activated carbon, arang aktif, black filter, carbon filter, carbon filter vit c - lf 2012, charcoal, chimney filter, exhaust filter, filter asap, filter bau, filter cooker, filter cooker hood, filter cuci, filter hitam, filter karbon, filter lemak karbon, filter pakai ulang, filter penghisap, filter vit c, grease filter carbon, hood filter, karbon aktif, lfh316kcye, odor filter, penyaring asap, penyaring bau, reusable filter, smoke filter, vit c, vit c filter, vitamin c filter, washable filter",
         "material": "Stainless Steel",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -2186,6 +2371,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 66 G", "DD 66 L", "DD 66 V", "DD 67 S", "DD 68 L", "DD 7106 L", "DD 7107 LUV", "DD 7181 L", "DD 7181 L (UAE)", "DD 7302 L", "DD 75 L", "WE 1310 BGWH"],
         "price": 46000,
         "image": "https://csms.sap.modena.com/photos/part/230620033044649163b478c8c.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/230620033044649163b478c8c.jpg"],
         "searchKeywords": "1/4 3/8, brass fitting, compression fitting, coupling, elbow, jg fitting, john guest, joint L, joint l-type (big) 1/4'-3/8', koneksi L, koneksi pipa, konektor L, konektor l, konektor t, l connector, lfl202lpwh, pipe connector, pipe fitting, plastic fitting, push fit, push fitting, quick connect, sambungan, sambungan cepat, sambungan lurus, sambungan pipa, sambungan t, sambungan tekan, siku, siku pipa, straight connector, t connector, tee joint",
         "material": "Copper",
         "specification": "Cooling: 5°C±2°C",
@@ -2202,6 +2388,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RO 8101", "RO 8115", "RO 9115"],
         "price": 202000,
         "image": "https://csms.sap.modena.com/photos/part/221122084847637c2a7fed8a1.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/221122084847637c2a7fed8a1.jpg"],
         "searchKeywords": "(pp) - fl 1060, FL 1060, PP, filter, filter kasar, filter kotor, filter sedimen, lfp301lpwh, saringan, sediment filter",
         "material": "Rubber",
         "specification": "Standard: SNI",
@@ -2218,6 +2405,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RO 8101", "RO 8115", "RO 9115"],
         "price": 202000,
         "image": "https://csms.sap.modena.com/photos/part/221122084822637c2a664a791.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/221122084822637c2a664a791.jpg"],
         "searchKeywords": "(c1) - fl 2060, C1, FL 2060, carbon filter, filter, filter karbon, karbon 1, karbon aktif, lfp302lpwh",
         "material": "Rubber",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -2234,6 +2422,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RO 8101", "RO 8115", "RO 9115"],
         "price": 966000,
         "image": "https://csms.sap.modena.com/photos/part/221122084800637c2a505f5e2.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/221122084800637c2a505f5e2.jpg"],
         "searchKeywords": "(ro) - fl 3180, FL 3180, RO membrane, filter, filter RO, lfp303lpwh, membran, membrane, reverse osmosis",
         "material": "Aluminum",
         "specification": "IP Rating: IP44",
@@ -2250,6 +2439,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RO 8101", "RO 8115", "RO 9115"],
         "price": 219000,
         "image": "https://csms.sap.modena.com/photos/part/221122084949637c2abd0acae.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/221122084949637c2abd0acae.jpg"],
         "searchKeywords": "(c2) - fl 4120, C2, FL 4120, filter, filter karbon, karbon 2, karbon akhir, lfp304lpwh, post carbon",
         "material": "Aluminum",
         "specification": "Voltage: 220V/50Hz",
@@ -2266,14 +2456,15 @@ const PARTS_DATABASE = {
         "compatibleModels": ["All DD Model"],
         "price": 30000,
         "image": "https://csms.sap.modena.com/photos/part/220419033334625e73de2318a.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220419033334625e73de2318a.jpg"],
         "searchKeywords": "1/4, 1/4 inch, 3/8 inch, braided hose, flexible hose, hose, hose per meter, lhf201kpwh, modena hose ro (meters) 1/4, pe pipe, pipa, pipa air, pipa fleksibel, pipa kecil, pipa meter, pipa pe, pipe per meter, polyethylene pipe, reverse osmosis hose, ro hose, ro pipe, selang, selang RO, selang air, selang anyam, selang bening, selang fleksibel, selang kecil, selang meter, selang ro, seperempat inch, small hose, tiga per delapan, transparent hose, tube, water hose, water pipe",
         "material": "EPDM Rubber",
         "specification": "IP Rating: IPX4",
         "dimensionW": 150.0,
         "dimensionD": 97.3,
         "dimensionH": 17.8,
-        "stockPMT": 44,
-        "stockNational": 78
+        "stockPMT": 0,
+        "stockNational": 0
     },
     "LMDSFFLT00010618": {
         "partNumber": "LMDSFFLT00010618",
@@ -2282,6 +2473,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DF 0100 MAWH", "DF 0120", "DF 0200 MAWH", "MD 0106 W", "MD 0107", "MD 0110 MLWH", "MD 0156 W", "MD 0200 W", "MD 0210 MLWH", "MD 0303 S", "MD 10", "MD 10 W", "MD 15", "MD 15 WH", "MD 20 A", "MD 20 W", "MD 30", "RF 2250 TGDS", "RF 2650 TGDS", "RF 3651 TDDS", "RF 3652 TDDS", "RF 4310 MABG", "RF 4310 MABK", "RF 4311 MADS", "RF 4670 SABK", "RF 4671 SADS", "RF 6460 SABK"],
         "price": 122000,
         "image": "https://csms.sap.modena.com/photos/part/240710115538668e144a93306.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/240710115538668e144a93306.jpg"],
         "searchKeywords": "copper drier, drier, drier kulkas, dryer kulkas, dryer tembaga, filter, filter drier, filter freezer, filter kelembaban, filter kulkas, filter pengering, filter pengering freon, filter pipa cair, filter refrigeran, filter tembaga, inline filter, liquid line filter, lmdsfflt00010618, moisture filter, molecular sieve, refrigerant filter, saringan freezer, saringan kulkas, saringan molekul",
         "material": "ABS Plastic",
         "specification": "Refrigerant: R600a",
@@ -2298,6 +2490,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["All BH model"],
         "price": 307000,
         "image": "https://csms.sap.modena.com/photos/part/25120504025869329fc2ef899.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25120504025869329fc2ef899.jpg"],
         "searchKeywords": "bravareg, gas pressure, gas regulator set, hose regulator, kompor regulator, low pressure regulator, lpg reg, lrg102krbk, modena bravareg regulator set - lr 0001 l, natural gas reg, ng regulator, pengatur lpg, pengatur tekanan, pengatur tekanan gas, pressure regulator, reg gas, regulator, regulator + selang, regulator gas, regulator kompor, regulator lpg, selang regulator, set regulator, tabung gas regulator, tekanan rendah",
         "material": "Stainless Steel",
         "specification": "Ignition: Auto",
@@ -2314,6 +2507,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["All FC model"],
         "price": 286000,
         "image": "https://csms.sap.modena.com/photos/part/23082404032764e71cdfe1b0f.png",
+        "images": ["https://csms.sap.modena.com/photos/part/23082404032764e71cdfe1b0f.png"],
         "searchKeywords": "anti rodent, galvanized wire, jaring anti tikus, jaring kawat, jaring pelindung, jaring tikus, kawat anti tikus, kawat galvanis, kawat stainless, lrw401kmgy, mesh, modena rodent wire mesh - lt 0001, mouse guard, penghalang binatang, penghalang tikus, pest guard, protection mesh, rat guard, rodent wire, saringan tikus, stainless mesh, wire mesh",
         "material": "Copper",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -2330,6 +2524,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 2723 LJ", "BH 2723 LL", "BH 2733 LL", "BH 2933 LJ", "BH 2933 LL", "BH 2958 LBM (UAE)", "BH 3649 STM", "BH 3958 SAM (UAE)"],
         "price": 120000,
         "image": "https://csms.sap.modena.com/photos/part/2303291010346423ac2a1a998.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2303291010346423ac2a1a998.jpg", "https://csms.sap.modena.com/photos/part/220408012300624fd4c4b320d.jpg", "https://csms.sap.modena.com/photos/part/240604030917665ecbade4f81.jpeg"],
         "searchKeywords": "black knob, chrome knob, control knob, flame control, gas control, handel, handel gas, handel kompor, kbhrfknb00020718, knob, knob gas, knob hitam, knop, knop kanan, knop kiri, left knob, metal knob, pemutar, pemutar gas, pengatur api, plastic knob, push button, push knob, push switch, puteran, regulator knob, right knob, rotary knob, stainless knob, switch gas, tekan putar, tombol, tombol kompor, tombol putar, tombol tekan, tuas, tuas putar",
         "material": "Cast Iron",
         "specification": "Ignition: Auto",
@@ -2346,6 +2541,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DF 0330", "MD 0206 W", "MD 0331 MAWH", "MD 0420 TLWH", "MD 0530 TLWH", "MD 0640 TLWH", "MD 0750 TLWH", "MD 130 W", "MD 37 W", "MD 45", "MD 60", "MD 65 W", "MD 75", "MD 95"],
         "price": 168000,
         "image": "https://csms.sap.modena.com/photos/part/240710015805668e30fd623a8.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/240710015805668e30fd623a8.jpg"],
         "searchKeywords": "copper drier, drier, drier kulkas, dryer, dryer kulkas, dryer tembaga, filter drier, filter freezer, filter kelembaban, filter kulkas, filter pengering, filter pengering freon, filter pipa cair, filter refrigeran, filter tembaga, inline filter, liquid line filter, lmdsfflt00020618, moisture filter, molecular sieve, pengering, refrigerant filter, saringan, saringan freezer, saringan kulkas, saringan molekul",
         "material": "ABS Plastic",
         "specification": "Voltage: 220V/50Hz",
@@ -2362,13 +2558,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0735", "BH 1325", "BH 1325 (UAE)", "BH 1325 ABBK", "BH 1325 ACBK", "BH 1325 LA", "BH 1326", "BH 1735", "BH 1735 LA", "BH 1935", "BH 1935 LA", "BH 1935 LB", "BH 1935 W", "BH 1937", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 5646 ABBK"],
         "price": 198000,
         "image": "https://csms.sap.modena.com/photos/part/5ca5c38acde0f.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5ca5c38acde0f.png", "https://csms.sap.modena.com/photos/part/2206031033496299811d7dbe8.jpg", "https://csms.sap.modena.com/photos/part/23021411162963eb0b1d782db.jpg"],
         "searchKeywords": "anti leak tray, bak air, bak bocoran, bak penampung, baki penampung, catching tray, drip catcher, drip pan, drip tray, kbhgfsrw00080711, leak tray, nampan, nampan anti bocor, penampung bocoran, penampung rembes, penampung tetesan, sealed tray, sealing ring for waterproof tray 70#, tatakan anti air, tatakan tahan air, tray air, tray anti air, tray seal, water tray, waterproof pan",
         "material": "Brass",
         "specification": "Gas Type: LPG/NG",
         "dimensionW": 33.4,
         "dimensionD": 59.6,
         "dimensionH": 25.9,
-        "stockPMT": 17,
+        "stockPMT": 0,
         "stockNational": 41
     },
     "KBHRFCPB00130711": {
@@ -2378,6 +2575,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0735", "BH 1325 (UAE)", "BH 1325 LA", "BH 1645", "BH 1645 LA", "BH 1735", "BH 1735 LA", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 2324", "BH 2644", "BH 2734", "BH 2935", "BH 2944", "BH 3324", "BH 3324 (UAE)", "BH 3325", "BH 3734", "BH 3930", "BH 3940", "BH 3944"],
         "price": 322000,
         "image": "https://csms.sap.modena.com/photos/part/5cad75dde4356.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5cad75dde4356.png", "https://csms.sap.modena.com/photos/part/5cad663e3b804.png", "https://csms.sap.modena.com/photos/part/231018022405652f88152b554.jpg"],
         "searchKeywords": "besi cor, brass cap, brass crown, burner cover, cap api, cap besi, cap burner 100# (iron cap 100#), cap dalam, cap eksternal, cap kompor, cap luar, cast iron cap, crown, crown burner, enamel cap, external cap, inner cap, internal cap, iron cap, kbhrfcpb00130711, mahkota, mahkota api, outer cap, outer ring, painted cap, penutup api, penutup lubang api, ring burner, ring cap, top burner, topi burner, tutup api, tutup besi, tutup burner, tutup dalam, tutup kuningan",
         "material": "Brass",
         "specification": "Ignition: Auto",
@@ -2394,6 +2592,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["MG 2502", "MG 2516", "MG 3003", "MG 3103", "MG 3112", "MG 3116", "MG 5526 BBBK", "MG 5536 BBBK", "MK 2203", "MO 2002", "MV 3002", "MV 3116", "MV 3133", "MV 5536 CBBK"],
         "price": 53000,
         "image": "https://csms.sap.modena.com/photos/part/22061310081862a6aa22523fe.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22061310081862a6aa22523fe.jpg"],
         "searchKeywords": "bactericidal, bohlam, bohlam biasa, bohlam halogen, bulb, disinfection lamp, filament lamp, germicidal lamp, halogen bulb, halogen light, incandescent, kmgeflmp00021118, lamp, lampu, lampu kuning, lampu pemurni, lampu pijar, lampu sterilisasi, lampu tabung, lampu uv, light, pembunuh bakteri, purification lamp, steril lamp, t5 lamp, t8 lamp, tube lamp, tungsten lamp, uv lamp, warm light, yellow light",
         "material": "Stainless Steel",
         "specification": "Standard: SNI",
@@ -2410,13 +2609,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["CX 6150", "CX 6300", "CX 9150", "CX 9300", "IX 9300", "SX 7412 L", "SX 7412 S", "SX 9412 L", "SX 9412 S"],
         "price": 180000,
         "image": "https://csms.sap.modena.com/photos/part/221019023252634fa82486002.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/221019023252634fa82486002.jpg"],
         "searchKeywords": "black knob, button push, chrome knob, control knob, flame control, gas control, handel, handel gas, handel kompor, kchrfbtp00100521, knob gas, knob hitam, knop, knop kanan, knop kiri, left knob, metal knob, pemutar, pemutar gas, pengatur api, plastic knob, push button, push knob, push switch, puteran, regulator knob, right knob, rotary knob, stainless knob, switch gas, tekan putar, tombol, tombol kompor, tombol putar, tombol tekan, tuas, tuas putar",
         "material": "Aluminum",
         "specification": "Standard: SNI",
         "dimensionW": 104.2,
         "dimensionD": 148.1,
         "dimensionH": 18.1,
-        "stockPMT": 36,
+        "stockPMT": 0,
         "stockNational": 52
     },
     "LFU302KASR": {
@@ -2426,13 +2626,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["SX 9502 SSX 9501 V", "SX 9502 S", "SX 9502 V", "SX 9502 V (UAE)"],
         "price": 557000,
         "image": "https://csms.sap.modena.com/photos/part/22112908203963855e676ea1a.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22112908203963855e676ea1a.jpg", "https://csms.sap.modena.com/photos/part/22080901455162f2029f9a7e5.jpg", "https://csms.sap.modena.com/photos/part/22063011095262bd2210079a7.jpg"],
         "searchKeywords": "aluminum filter 60 cm (28.5x30.2)cm, baffle filter, cassette filter, dishwasher safe filter, filter alu, filter alu cuci, filter aluminium, filter anti karat, filter jaring, filter kaset, filter lemak, filter lemak asap, filter logam, filter minyak, filter permanen, filter stainless, grease filter, lfu302kasr, mesh filter, metal filter, oil filter, permanent filter, saringan aluminium, stainless filter, washable alu filter",
         "material": "Stainless Steel",
         "specification": "IP Rating: IP44",
         "dimensionW": 100.3,
         "dimensionD": 37.8,
         "dimensionH": 26.2,
-        "stockPMT": 46,
+        "stockPMT": 0,
         "stockNational": 234
     },
     "CROEFLBU00010321": {
@@ -2442,6 +2643,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 67 SUV", "DD 7107 LUV", "RO 67 SUV"],
         "price": 163000,
         "image": "https://csms.sap.modena.com/photos/part/22101311062663478ec2b4195.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22101311062663478ec2b4195.jpg"],
         "searchKeywords": "100 gpd, 50 gpd, 75 gpd, UV lamp, core filter, croeflbu00010321, filter inti, filter ketiga, filter membran, filter penting, filter tengah, filter utama, important filter, lampu UV, lampu pembunuh kuman, lampu steril, main filter, membran ro, membrane filter, middle filter, penyaring utama, reverse osmosis, ro membrane, selaput tipis, semi permeable, tfc membrane, thin film, third filter, uv bactericidal lamp",
         "material": "PVC",
         "specification": "Cooling: 5°C±2°C",
@@ -2458,6 +2660,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 65 L", "DD 65 L (UAE)"],
         "price": 164000,
         "image": "https://csms.sap.modena.com/photos/part/5d4a88db85edc.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d4a88db85edc.png"],
         "searchKeywords": "actuator rod, batang, batang actuator, batang dorong, batang penghubung, batang sambung, cddmfrdc00011115, connecting rod, lever rod, link rod, push rod, rod, rod connecting, stang",
         "material": "PVC",
         "specification": "Voltage: 220V/50Hz",
@@ -2474,13 +2677,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BI 0721 C", "BI 1725", "BK 1725", "BK 1725 C"],
         "price": 72000,
         "image": "https://csms.sap.modena.com/photos/part/210818090247611c6a474c493.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/210818090247611c6a474c493.jpg", "https://csms.sap.modena.com/photos/part/2103050209466041d93a46d48.jpg", "https://csms.sap.modena.com/photos/part/2012150346225fd877de10b58.jpg"],
         "searchKeywords": "PCB, adaptor board, board controller, board display, board elektronik, board filter, board inverter, board power, brain, chip board, circuit board, control module, controller board, display board, display power board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kbiefdpb00011018, kompressor board, main module, modul daya, modul kontrol, modul listrik, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, pcb hijau, power module, power supply, supply board",
         "material": "Rubber",
         "specification": "Standard: SNI",
         "dimensionW": 146.5,
         "dimensionD": 77.3,
         "dimensionH": 31.6,
-        "stockPMT": 24,
+        "stockPMT": 0,
         "stockNational": 68
     },
     "KBISFHIC00011018": {
@@ -2490,6 +2694,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BI 0721 C", "BI 0721 L", "BI 1725", "BI 1935"],
         "price": 129000,
         "image": "https://csms.sap.modena.com/photos/part/2103050157366041d660bdaa0.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2103050157366041d660bdaa0.jpg"],
         "searchKeywords": "coil assembly, copper coil, d210 coil, elemen induksi, elemen panas, elemen pemanas, heating coil, heating element, heating induction coil assembly (d210), heating spiral, induction coil, induction element, induction ring, kbisfhic00011018, koil pemanas, kumparan pemanas, kumparan tembaga, pemanas induksi, rakitan koil, ring induksi, spiral pemanas",
         "material": "Copper",
         "specification": "Standard: SNI",
@@ -2506,6 +2711,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 1314 BABK", "DD 1315 BABK"],
         "price": 60000,
         "image": "https://csms.sap.modena.com/photos/part/24120909021667564fa8d19e3.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/24120909021667564fa8d19e3.jpg", "https://csms.sap.modena.com/photos/part/5d4aa4320fa40.png", "https://csms.sap.modena.com/photos/part/22122101263863a2a71e5d924.jpeg"],
         "searchKeywords": "PCB, board, board controller, board display, board elektronik, board filter, board inverter, brain, cddefpcb00190424, chip board, circuit board, control board, control module, controller board, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, main control board, main module, mainboard, modul daya, modul elektronik, modul kontrol, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, papan sirkuit, pcb hijau, power module, supply board",
         "material": "Polypropylene",
         "specification": "IP Rating: IPX4",
@@ -2522,6 +2728,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DF 0210", "MD 0111 MAWH", "MD 0157 W", "MD 0206 W", "MD 0207 W", "MD 0211 MAWH", "MD 20 W"],
         "price": 180000,
         "image": "https://csms.sap.modena.com/photos/part/251106032957690c5c850692c.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/251106032957690c5c850692c.jpg", "https://csms.sap.modena.com/photos/part/2212010423066388727a65e88.jpg", "https://csms.sap.modena.com/photos/part/22091301072063201e18564fa.jpg"],
         "searchKeywords": "cdfsfcps00160121, compressor, compressor (r600), compressor kulkas, cooling motor, cooling system, dc compressor, hermetic compressor, inverter compressor, kompresor, kompresor dc, kompresor freezer, kompresor inverter, kompresor kulkas, kompresor r134, kompresor r600, kompresor reciprocating, kompresor rotari, kompresor sealed, mesin kulkas, mesin pendingin, motor kulkas, motor pendingin, r134 compressor, r600 compressor, reciprocating compressor, rotary compressor, sealed compressor",
         "material": "Rubber",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -2538,6 +2745,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DF 0210", "MD 0111 MAWH", "MD 0157 W", "MD 0206 W", "MD 0207 W", "MD 0211 MAWH", "MD 20 W"],
         "price": 127000,
         "image": "https://csms.sap.modena.com/photos/part/5cc0019d468c9.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5cc0019d468c9.png"],
         "searchKeywords": "brass nozzle, gas jet, gas orifice, gas spuyer, injector, injector gas, jet nozzle, kbhsfnzl00010811, lpg nozzle, lubang gas, natural gas nozzle, ng nozzle, nosel gas, nozel, nozel kuningan, nozel lpg, nozel ng, nozzle, nozzle 120# (0.91), nozzle size, orifice nozzle, penyemprot, penyemprot gas, spuit gas, spuyer, ukuran nozel",
         "material": "Cast Iron",
         "specification": "Ignition: Auto",
@@ -2554,13 +2762,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["KS 2100", "KS 2100A", "KS 2110", "KS 3100", "KS 3101", "KS 3120", "KS 3130", "KS 3131", "KS 3141", "KS 3200", "KS 4101", "KS 4151", "KS 4201", "KS 4250", "KS 4251", "KS 5100", "KS 5110", "KS 5140", "KS 5160", "KS 5260", "KS 6141", "KS 6251", "KS 7160", "KS 7160 C", "KS 7160 G", "KS 7160 S", "KS 7170", "KS 7170 C", "KS 7170 G", "KS 7170 S", "KS 7181", "KS 7270", "KS 7270 C", "KS 7270 G", "KS 7270 S", "KS 7280", "KS 8101 W", "KS 8140 L", "KS 8141", "KS 8240"],
         "price": 165000,
         "image": "https://csms.sap.modena.com/photos/part/24052801552966557fe16fb39.jpeg",
+        "images": ["https://csms.sap.modena.com/photos/part/24052801552966557fe16fb39.jpeg"],
         "searchKeywords": "nksgfsls00010719, seal strip",
         "material": "Brass",
         "specification": "IP Rating: IP44",
         "dimensionW": 180.6,
         "dimensionD": 99.1,
         "dimensionH": 60.3,
-        "stockPMT": 24,
+        "stockPMT": 0,
         "stockNational": 126
     },
     "CDDMFTPW00040117": {
@@ -2570,13 +2779,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 07 W", "DD 75 L"],
         "price": 937000,
         "image": "https://csms.sap.modena.com/photos/part/2103040509186040b1ce047cb.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2103040509186040b1ce047cb.jpg"],
         "searchKeywords": "cddmftpw00040117, ceramic tap, cold faucet, dispenser tap, faucet set, front tap, hot faucet, keran, keran air, keran biasa, kran, kran biasa, kran depan, kran dingin, kran dispenser, kran keramik, kran netral, kran normal, kran nozel, kran panas, kran plastik, kran rakitan, kran set, kran tekan, kran tuas, lever tap, neutral tap, normal tap, nozzle tap, plastic tap, push tap, regular tap, spout air, tap, tap assembly, tap dispenser, water spout, water tap",
         "material": "Stainless Steel",
         "specification": "Cooling: 5°C±2°C",
         "dimensionW": 141.5,
         "dimensionD": 30.7,
         "dimensionH": 62.6,
-        "stockPMT": 49,
+        "stockPMT": 0,
         "stockNational": 76
     },
     "CDDSFPLA00010616": {
@@ -2586,6 +2796,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 1314 BABK", "DD 67 S", "DD 7106 L", "DD 7181 L", "DD 7181 L (UAE)", "DD 7302 L", "WE 1310 BGWH"],
         "price": 140000,
         "image": "https://csms.sap.modena.com/photos/part/25031102474467cfeaa0c0247.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25031102474467cfeaa0c0247.jpg"],
         "searchKeywords": "1/4 inch, 3/8 inch, braided hose, cddsfpla00010616, flexible hose, hose, hose per meter, pe pipe, pipa, pipa air, pipa fleksibel, pipa kecil, pipa meter, pipa pe, pipe low assembly, pipe per meter, polyethylene pipe, reverse osmosis hose, ro hose, ro pipe, selang, selang air, selang anyam, selang bening, selang fleksibel, selang kecil, selang meter, selang ro, seperempat inch, small hose, tiga per delapan, transparent hose, tube, water hose, water pipe",
         "material": "Stainless Steel",
         "specification": "Cooling: 5°C±2°C",
@@ -2602,6 +2813,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DC 3601 L", "DC 3601 V", "PX 6001", "PX 6011 SS", "PX 6011 V"],
         "price": 359000,
         "image": "https://csms.sap.modena.com/photos/part/2303291039026423b2d6d1eff.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2303291039026423b2d6d1eff.jpg", "https://csms.sap.modena.com/photos/part/241107082929672c17f91e9d5.jpg", "https://csms.sap.modena.com/photos/part/24011210242965a0b0ed96c0e.jpeg"],
         "searchKeywords": "busa filter, busa putih, disposable filter, filter buang, filter busa, filter lemak, filter minyak, filter pertama, filter putih, filter spons, foam grease, grease filter, lfh329kcye, modena carbon foam filter - lf 1002, oil absorber, penyerap minyak, pre filter, primary filter, saringan minyak, single use filter, sponge filter, white filter, white foam",
         "material": "Brass",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -2618,6 +2830,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RF 2927 WAM (UAE)", "RF 2930 W"],
         "price": 44000,
         "image": "https://csms.sap.modena.com/photos/part/23072004562564b904c91394d.jpeg",
+        "images": ["https://csms.sap.modena.com/photos/part/23072004562564b904c91394d.jpeg"],
         "searchKeywords": "PCB, board, board controller, board display, board elektronik, board filter, board inverter, brain, chip board, circuit board, control board, control module, controller board, crfefmcb00011220, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, main control board, main module, mainboard, modul daya, modul elektronik, modul kontrol, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, papan sirkuit, pcb hijau, power module, supply board",
         "material": "Copper",
         "specification": "IP Rating: IP44",
@@ -2634,6 +2847,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 5725 LO"],
         "price": 184000,
         "image": "https://csms.sap.modena.com/photos/part/2210121208596345a32b3d4e8.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2210121208596345a32b3d4e8.jpg", "https://csms.sap.modena.com/photos/part/5ee97fb26591a.jpg", "https://csms.sap.modena.com/photos/part/25012804090567989eb1ac962.jpg"],
         "searchKeywords": "busi, electrode, electrode probe, elektroda, elektroda pemantik, elektrode api, ignition pin (r), ignition probe, jarum pemantik, kabel busi, kabel elektroda, kawat busi, kbhsfinp00331219, needle ignition, pemantik jarum, pin api, pin igniter, pin nyala, pin pemantik, pin starter, probe busi, probe ignition, spark electrode, spark needle, spark tip, spark wire, ujung pemantik, wire electrode",
         "material": "Brass",
         "specification": "Gas Type: LPG/NG",
@@ -2650,6 +2864,7 @@ const PARTS_DATABASE = {
         "compatibleModels": [],
         "price": 159000,
         "image": "https://csms.sap.modena.com/photos/part/2512050519516932b1c7ba824.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2512050519516932b1c7ba824.jpg"],
         "searchKeywords": "bio detergent, cleaning, detergen bubuk, detergen cair, detergent, deterjen, dishwasher detergent, eco detergent, enzyme detergent, lds302ndwh, liquid detergent, modena bravapro detergent - ld 0002, powder detergent, sabun, sabun bubuk, sabun cuci, sabun mesin cuci, washing powder",
         "material": "Aluminum",
         "specification": "IP Rating: IP44",
@@ -2666,6 +2881,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["CX 6150", "CX 9150", "CX 9300", "CX 9303"],
         "price": 217000,
         "image": "https://csms.sap.modena.com/photos/part/220606014525629da2850af14.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220606014525629da2850af14.jpg"],
         "searchKeywords": "bactericidal, bohlam biasa, bohlam halogen, disinfection lamp, filament lamp, germicidal lamp, halogen bulb, halogen light, incandescent, kcheflmh00020410, lamp halogent (set), lampu halogen, lampu kuning, lampu pemurni, lampu pijar, lampu sterilisasi, lampu tabung, lampu uv, pembunuh bakteri, purification lamp, steril lamp, t5 lamp, t8 lamp, tube lamp, tungsten lamp, uv lamp, warm light, yellow light",
         "material": "ABS Plastic",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -2682,6 +2898,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RX 7622", "RX 9622"],
         "price": 213000,
         "image": "https://csms.sap.modena.com/photos/part/241107082623672c173fe5b6a.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/241107082623672c173fe5b6a.jpg", "https://csms.sap.modena.com/photos/part/241107083103672c1857a08fc.jpg", "https://csms.sap.modena.com/photos/part/241107083552672c1978dbb4f.jpg"],
         "searchKeywords": "arang aktif, carbon filter, charcoal, charcoal filter, filter karbon, lcf601kbbk, penyaring bau",
         "material": "Aluminum",
         "specification": "IP Rating: IP44",
@@ -2698,6 +2915,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["MG 2502", "MG 2516", "MG 3003", "MG 3103", "MG 3112", "MG 3116", "MK 2203", "MO 2002", "MV 3002", "MV 3116", "MV 3133"],
         "price": 281000,
         "image": "https://csms.sap.modena.com/photos/part/210420114153607e5b918ca29.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/210420114153607e5b918ca29.jpg"],
         "searchKeywords": "dioda, dioda cepat, dioda hv, dioda microwave, dioda penyearah, dioda tegangan tinggi, diode, diode high voltage, fast diode, high voltage diode, hv diode, kmgefdhv00021118, microwave diode, mw diode, rectifier, rectifier diode, silicone diode",
         "material": "Copper",
         "specification": "IP Rating: IP44",
@@ -2714,6 +2932,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DC 2701", "DC 2901", "SX 7511 L", "SX 9512 L"],
         "price": 193000,
         "image": "https://csms.sap.modena.com/photos/part/220927115007633280ff16ca0.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220927115007633280ff16ca0.jpg"],
         "searchKeywords": "circular gasket, door seal, gasket, glass gasket left and right, glass seal, heat seal, karet anti bocor, karet bulat, karet kaca, karet lingkar, karet o, karet pelindung, karet pintu, karet silikon, karet tahan panas, karet tray, kchatgss00050513, leak seal, o ring, ring seal, round seal, rubber gasket, rubber ring, seal bulat, seal pintu, sealing rubber, silicone ring, tray seal",
         "material": "Rubber",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -2730,6 +2949,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["CX 7313 S", "CX 9300", "CX 9301", "CX 9303", "CX 9306", "CX 9313 L", "CX 9313 S", "CX 9356", "CX 9753", "IX 9300", "IX 9356"],
         "price": 528000,
         "image": "https://csms.sap.modena.com/photos/part/22080901455162f2029f9a7e5.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22080901455162f2029f9a7e5.jpg", "https://csms.sap.modena.com/photos/part/22112908203963855e676ea1a.jpg", "https://csms.sap.modena.com/photos/part/22063011055862bd2126cfd88.jpg"],
         "searchKeywords": "lfu307kasr, modena alumunium filter (23x26) cm",
         "material": "Rubber",
         "specification": "IP Rating: IP44",
@@ -2746,6 +2966,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 67 S", "DD 7315 L", "DD 7315 W", "DD 75 L"],
         "price": 67000,
         "image": "https://csms.sap.modena.com/photos/part/220902110908631181e4444b6.png",
+        "images": ["https://csms.sap.modena.com/photos/part/220902110908631181e4444b6.png"],
         "searchKeywords": "brass fitting, compression fitting, coupling, elbow, jg fitting, john guest, koneksi pipa, konektor l, konektor t, l connector, lfl201kpwh, modena fitting - l 1/4\", pipe connector, pipe fitting, plastic fitting, push fit, push fitting, quick connect, sambungan cepat, sambungan lurus, sambungan pipa, sambungan t, sambungan tekan, siku pipa, straight connector, t connector, tee joint",
         "material": "Brass",
         "specification": "Voltage: 220V/50Hz",
@@ -2762,6 +2983,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["CX 1711 DABM", "CX 6301", "CX 7110 L", "CX 7310 L", "CX 9106", "CX 9301", "CX 9306", "CX 9701 BCL", "CX 9701 L", "IX 9106", "IX 9306"],
         "price": 103000,
         "image": "https://csms.sap.modena.com/photos/part/23020310212063dc7db0cc219.jpeg",
+        "images": ["https://csms.sap.modena.com/photos/part/23020310212063dc7db0cc219.jpeg"],
         "searchKeywords": "LED light, bohlam LED, kchefldr00010617, lampu LED, lampu kecil, led round (ac 2w)",
         "material": "Brass",
         "specification": "Standard: SNI",
@@ -2778,6 +3000,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 4724", "BH 4727", "BH 4934"],
         "price": 51000,
         "image": "https://csms.sap.modena.com/photos/part/24091101415866e13bb61d0dd.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/24091101415866e13bb61d0dd.jpg"],
         "searchKeywords": "4934 model, cable 60cm), ignition  pin #120 (4724, ignition  pin #120 (4724, 4934 model, cable 60cm), kbhsfinp00040711",
         "material": "Brass",
         "specification": "Max Load: 5kW",
@@ -2794,6 +3017,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BI 0721 C", "BI 0721 L", "BI 1725", "BI 1935", "BK 1725", "BK 1725 C"],
         "price": 404000,
         "image": "https://csms.sap.modena.com/photos/part/2103050230146041de068ebff.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2103050230146041de068ebff.jpg", "https://csms.sap.modena.com/photos/part/5d5e17eed0aef.png", "https://csms.sap.modena.com/photos/part/2210200906536350ad3ded1b2.jpg"],
         "searchKeywords": "auto sensor, cold detector, detector, electronic sensor, heat sensor, hot detector, kbiefsst00011018, level detector, pendeteksi, pendeteksi suhu, probe sensor, sensing probe, sensor assembly, sensor elektronik, sensor ketinggian, sensor panas, sensor rakitan, sensor set, sensor suhu, sensor temperature assembly, suhu sensor, temp sensor, temperature probe, water level",
         "material": "Rubber",
         "specification": "Voltage: 220V/50Hz",
@@ -2810,6 +3034,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["ES 15DR", "ES 30DR"],
         "price": 775000,
         "image": "https://csms.sap.modena.com/photos/part/24090302452466d6be9434ad2.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/24090302452466d6be9434ad2.jpg"],
         "searchKeywords": "PCB, adaptor board, board controller, board display, board elektronik, board filter, board inverter, board power, brain, chip board, circuit board, control module, controller board, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, main module, modul daya, modul kontrol, modul listrik, modul mesin, modul power, modul utama, mother board, motherboard, nesefpwb00010417, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, pcb hijau, power board, power module, power supply, supply board",
         "material": "ABS Plastic",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -2826,14 +3051,15 @@ const PARTS_DATABASE = {
         "compatibleModels": ["MG 2502", "MG 2516", "MG 3003", "MG 3103", "MG 3112", "MG 3116", "MK 2203", "MO 2002", "MV 3002", "MV 3116", "MV 3133"],
         "price": 485000,
         "image": "https://csms.sap.modena.com/photos/part/25031103410867cff724a6564.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25031103410867cff724a6564.jpg"],
         "searchKeywords": "0.9 microfarad, 1 microfarad, capacitor, capacitor high voltage, condensator, elco besar, high voltage capacitor, hv capacitor, kapasitor, kapasitor besar, kapasitor hv, kapasitor microwave, kapasitor tegangan tinggi, kmgefchv00021118, kondensator, microwave capacitor, mw capacitor, power capacitor, starting capacitor",
         "material": "Aluminum",
         "specification": "Operating Temp: -10°C to 60°C",
         "dimensionW": 56.4,
         "dimensionD": 77.8,
         "dimensionH": 38.7,
-        "stockPMT": 49,
-        "stockNational": 68
+        "stockPMT": 0,
+        "stockNational": 0
     },
     "CDDMFFCW00020717": {
         "partNumber": "CDDMFFCW00020717",
@@ -2842,6 +3068,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 7301 L", "RO 8101"],
         "price": 299000,
         "image": "https://csms.sap.modena.com/photos/part/5d4b953c5c4be.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d4b953c5c4be.png", "https://csms.sap.modena.com/photos/part/25022711004267bfe36a89317.jpg", "https://csms.sap.modena.com/photos/part/5d4b8c8db6bfe.png"],
         "searchKeywords": "cddmffcw00020717, ceramic tap, cold faucet, dispenser tap, faucet, faucet cold water, faucet set, front tap, hot faucet, keran, keran air, kran, kran biasa, kran depan, kran dingin, kran dispenser, kran keramik, kran netral, kran normal, kran nozel, kran panas, kran plastik, kran rakitan, kran set, kran tekan, kran tuas, lever tap, neutral tap, normal tap, nozzle tap, plastic tap, push tap, regular tap, spout air, tap air, tap assembly, tap dispenser, water spout, water tap",
         "material": "ABS Plastic",
         "specification": "IP Rating: IPX4",
@@ -2858,6 +3085,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["MG 2502", "MG 2516", "MG 2555", "MG 3003", "MG 3103", "MG 3112", "MG 3116", "MK 2203", "MO 2002", "MV 3002", "MV 3116", "MV 3133"],
         "price": 32000,
         "image": "https://csms.sap.modena.com/photos/part/2101121116235ffd22978128b.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2101121116235ffd22978128b.jpg"],
         "searchKeywords": "china magnetron, elemen pemanas, heating element, high power magnetron, japan magnetron, kmgefmnt00021118, magnet pemanas, magnetron, magnetron 2m, magnetron korea, microwave generator, microwave tube, mw generator, mw magnetron, om75, pemanas microwave, radiation tube, tabung microwave",
         "material": "ABS Plastic",
         "specification": "Voltage: 220V/50Hz",
@@ -2874,6 +3102,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["PX 0921 DBBK", "RX 7632", "RX 9632", "RX 9632 BCL"],
         "price": 82000,
         "image": "https://csms.sap.modena.com/photos/part/241107090654672c20be1723a.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/241107090654672c20be1723a.jpg", "https://csms.sap.modena.com/photos/part/241107083103672c1857a08fc.jpg", "https://csms.sap.modena.com/photos/part/241107083339672c18f367bd1.jpg"],
         "searchKeywords": "activated carbon, arang aktif, black filter, carbon filter, carbon filter - lf 2120, charcoal, chimney filter, exhaust filter, filter asap, filter bau, filter cooker, filter cuci, filter hitam, filter karbon, filter lemak karbon, filter pakai ulang, filter penghisap, filter vit c, grease filter carbon, hood filter, karbon aktif, lfh320kcye, odor filter, penyaring asap, penyaring bau, reusable filter, smoke filter, vit c filter, vitamin c filter, washable filter",
         "material": "Copper",
         "specification": "Voltage: 220V/50Hz",
@@ -2890,6 +3119,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 03", "DD 0310", "DD 0310 (UAE)", "DD 0370", "DD 06", "DD 07 W", "DD 1111 BAWH", "DD 12", "DD 32", "DD 66 G", "DD 66 L", "DD 66 V", "DD 67 S", "DD 67 SUV", "DD 68 L", "DD 7106 L", "DD 7107 LUV", "DD 7170 S", "DD 7180", "DD 7181 L", "DD 7181 L (UAE)", "DD 7301 L", "DD 7302 L", "DD 7315 L", "DD 7315 W", "DD 75 L", "PD F30A S", "RO 67 SUV", "RO 8101", "RO 8115", "WE 1310 BGWH"],
         "price": 501000,
         "image": "https://csms.sap.modena.com/photos/part/24082704434366cd9fcfc28cd.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/24082704434366cd9fcfc28cd.jpg", "https://csms.sap.modena.com/photos/part/251106032957690c5c850692c.jpg", "https://csms.sap.modena.com/photos/part/22091301072063201e18564fa.jpg"],
         "searchKeywords": "cddsfcps00010717, compressor, compressor kulkas, cooling motor, cooling system, dc compressor, hermetic compressor, inverter compressor, kompresor, kompresor dc, kompresor freezer, kompresor inverter, kompresor kulkas, kompresor r134, kompresor r600, kompresor reciprocating, kompresor rotari, kompresor sealed, mesin kulkas, mesin pendingin, motor kulkas, motor pendingin, r134 compressor, r600 compressor, reciprocating compressor, rotary compressor, sealed compressor",
         "material": "Copper",
         "specification": "Voltage: 220V/50Hz",
@@ -2906,6 +3136,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 5725 AABK", "BH 5725 BABK"],
         "price": 281000,
         "image": "https://csms.sap.modena.com/photos/part/2404190211386622192a855bd.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2404190211386622192a855bd.jpg"],
         "searchKeywords": "besi cor, brass cap, brass crown, burner cover, cap api, cap besi, cap dalam, cap eksternal, cap kompor, cap luar, cast iron cap, crown, crown burner, enamel cap, external cap, inner cap, internal cap, iron cap, kbhrfcpb00950123, mahkota, mahkota api, outer cap, outer ring, outer ring burner cap, painted cap, penutup api, penutup lubang api, ring burner, ring cap, top burner, topi burner, tutup api, tutup besi, tutup burner, tutup dalam, tutup kuningan",
         "material": "Brass",
         "specification": "Flame Failure Device: Yes",
@@ -2922,14 +3153,15 @@ const PARTS_DATABASE = {
         "compatibleModels": ["SC 2071 L", "SC 2201 L", "SC 2691 L", "SC 2801 L"],
         "price": 569000,
         "image": "https://csms.sap.modena.com/photos/part/5d511bea32e38.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d511bea32e38.png"],
         "searchKeywords": "chrome handle, door grip, door handle, flush handle, gagang, gagang pintu, handel, handel plastik, handel stainless, handel tanam, handel tarik, handle, l handle, lscadhdl00011114, pegangan, pegangan pintu, plastic handle, pull handle, push handle, recessed handle, stainless handle, t handle, tarikan pintu",
         "material": "Copper",
         "specification": "IP Rating: IP44",
         "dimensionW": 109.0,
         "dimensionD": 129.1,
         "dimensionH": 51.5,
-        "stockPMT": 20,
-        "stockNational": 31
+        "stockPMT": 0,
+        "stockNational": 0
     },
     "KCHSTBKS00040513": {
         "partNumber": "KCHSTBKS00040513",
@@ -2938,6 +3170,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DC 2601", "DC 2701", "DC 2901", "SX 7511 L", "SX 9512 L"],
         "price": 435000,
         "image": "https://csms.sap.modena.com/photos/part/22071405363562cff1b33118a.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22071405363562cff1b33118a.jpg"],
         "searchKeywords": "axletree slot for  glass gasket lr, circular gasket, door seal, gasket, glass seal, heat seal, karet anti bocor, karet bulat, karet kaca, karet lingkar, karet o, karet pelindung, karet pintu, karet silikon, karet tahan panas, karet tray, kchstbks00040513, leak seal, o ring, ring seal, round seal, rubber gasket, rubber ring, seal bulat, seal pintu, sealing rubber, silicone ring, tray seal",
         "material": "Aluminum",
         "specification": "IP Rating: IP44",
@@ -2954,6 +3187,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["SX 6001 S", "SX 6001 S (UAE)", "SX 9002 S", "SX 9002 S (UAE)"],
         "price": 1390000,
         "image": "https://csms.sap.modena.com/photos/part/22032908384062426320111b6.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22032908384062426320111b6.jpg"],
         "searchKeywords": "burner grate, cast iron grate, continuous grate, dudukan wajan, enamel grate, grate, grate abu, grate menyambung, grey grate, grey grate locking, grid kompor, hob grate, jaring besi, kchatggl00011119, pan stand, pan support, panggangan, panggangan kompor, rak kompor, tatakan panci, trivet, trivets, wire grid, wok stand",
         "material": "Brass",
         "specification": "Standard: SNI",
@@ -2970,6 +3204,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RO 67 SUV"],
         "price": 549000,
         "image": "https://csms.sap.modena.com/photos/part/22062404383562b5861b7850b.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22062404383562b5861b7850b.jpg", "https://csms.sap.modena.com/photos/part/221122085217637c2b51500a5.jpg", "https://csms.sap.modena.com/photos/part/22062404432562b5873d4a0c1.jpg"],
         "searchKeywords": "1 micron, 5 micron, PP filter, cartridge pertama, filter awal, filter kasar, filter kotor, filter luar, filter lumpur, filter pasir, filter pertama, filter putih, filter sedimen, first cartridge, first filter, lfp305lpwh, modena filter water purifier (pp) - fl 1061, mud filter, outer filter, pp cartridge, pre filter ro, rough filter, sand filter, sedimen filter, sediment filter, spun filter, white filter, wound filter",
         "material": "Rubber",
         "specification": "Standard: SNI",
@@ -2986,6 +3221,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["WE 1310 BGWH"],
         "price": 434000,
         "image": "https://csms.sap.modena.com/photos/part/221122085217637c2b51500a5.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/221122085217637c2b51500a5.jpg", "https://csms.sap.modena.com/photos/part/22062404383562b5861b7850b.jpg", "https://csms.sap.modena.com/photos/part/241204032918675012dea12ab.jpg"],
         "searchKeywords": "C1 filter, active carbon, filter karbon 1, filter kedua, karbon aktif, lfp316lpwh, modena filter acf - fl 2062",
         "material": "Brass",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -3002,6 +3238,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0735", "BH 1735", "BH 1945", "BH 1945 LA", "BH 1945 W"],
         "price": 324000,
         "image": "https://csms.sap.modena.com/photos/part/23021411162963eb0b1d782db.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/23021411162963eb0b1d782db.jpg", "https://csms.sap.modena.com/photos/part/2206031033496299811d7dbe8.jpg", "https://csms.sap.modena.com/photos/part/5ca5c38acde0f.png"],
         "searchKeywords": "anti leak tray, bak air, bak bocoran, bak penampung, baki penampung, catching tray, drip catcher, drip pan, drip tray, kbhgfsrw00140313, leak tray, nampan, nampan anti bocor, penampung bocoran, penampung rembes, penampung tetesan, sealed tray, sealing ring for waterproof tray 100#, tatakan anti air, tatakan tahan air, tray air, tray anti air, tray seal, water tray, waterproof pan",
         "material": "Brass",
         "specification": "Gas Type: LPG/NG",
@@ -3018,6 +3255,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["FC 7400 S", "FC 7640", "FC 7641 S", "FC 7643 S", "FC 7940", "FC 7941 S", "FC 7941 W", "FC 7943 S", "FC 7943 W", "FC 7953 S"],
         "price": 849000,
         "image": "https://csms.sap.modena.com/photos/part/2205090345236278d4a353926.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2205090345236278d4a353926.jpg"],
         "searchKeywords": "besi cor, brass cap, brass crown, burner cover, cap api, cap besi, cap dalam, cap eksternal, cap kompor, cap luar, cast iron cap, crown, crown burner, enamel cap, external cap, inner cap, internal cap, iron cap, kfcrfcpb00031015, mahkota, mahkota api, medium burner cap, outer cap, outer ring, painted cap, penutup api, penutup lubang api, ring burner, ring cap, top burner, topi burner, tutup api, tutup besi, tutup burner, tutup dalam, tutup kuningan",
         "material": "Aluminum",
         "specification": "Valve Type: Safety",
@@ -3034,6 +3272,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 68 L", "DD 68 W"],
         "price": 2495000,
         "image": "https://csms.sap.modena.com/photos/part/2203170217256232e08540e26.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2203170217256232e08540e26.jpg", "https://csms.sap.modena.com/photos/part/5d4aa4320fa40.png", "https://csms.sap.modena.com/photos/part/2203170205476232ddcb691fe.jpg"],
         "searchKeywords": "PCB, board, board controller, board display, board elektronik, board filter, board inverter, brain, cddefpcb00050217, chip board, circuit board, control board, control module, controller board, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, main board-new, main module, mainboard, modul daya, modul elektronik, modul kontrol, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, papan sirkuit, pcb hijau, power module, supply board",
         "material": "PVC",
         "specification": "Cooling: 5°C±2°C",
@@ -3050,6 +3289,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 2723 JABM", "BH 2723 LL", "BH 2733 LL", "BH 2933 JABM", "BH 2933 LL", "BH 7723 LLD"],
         "price": 18000,
         "image": "https://csms.sap.modena.com/photos/part/5fac998ebc085.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/5fac998ebc085.jpg", "https://csms.sap.modena.com/photos/part/24081405261266bc864449dc6.jpg", "https://csms.sap.modena.com/photos/part/24081405265166bc866b4f002.jpg"],
         "searchKeywords": "alu burner, aluminium burner, api kompor, api ring, auxiliary burner, badan burner, big burner, body burner, brass burner, brass head, burner, burner #120 (brass), burner besar, burner head, burner kecil, burner kuningan, burner ring, burner tengah, burner utama, dudukan api, kbhsfbnr00020718, kepala api, kepala kompor, kompor, kompor api, kuningan burner, lingkaran api, lubang api, main burner, middle burner, rapid burner, ring api, ring kompor, semi rapid, small burner, tungku, wok burner",
         "material": "Cast Iron",
         "specification": "Flame Failure Device: Yes",
@@ -3066,13 +3306,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["FC 9642 S"],
         "price": 14000,
         "image": "https://csms.sap.modena.com/photos/part/22070611274462c50f40d3c34.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22070611274462c50f40d3c34.jpg"],
         "searchKeywords": "ceramic fiber, fiber glass, fiberglass, glass wool, heat barrier, insulasi, insulator, isolasi panas, kaca wool, lgw401keye, material isolasi, mineral wool, modena glass wool, penghalang panas, peredam panas, rock wool, stone wool, thermal insulation, wool insulation",
         "material": "ABS Plastic",
         "specification": "Standard: SNI",
         "dimensionW": 68.7,
         "dimensionD": 51.5,
         "dimensionH": 11.0,
-        "stockPMT": 34,
+        "stockPMT": 0,
         "stockNational": 51
     },
     "LAF401KASR": {
@@ -3082,6 +3323,7 @@ const PARTS_DATABASE = {
         "compatibleModels": [],
         "price": 112000,
         "image": "https://csms.sap.modena.com/photos/part/220419032742625e727e61254.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220419032742625e727e61254.jpg"],
         "searchKeywords": "alu foil, baking foil, cooking foil, foil aluminium, foil isolasi, foil oven, foil perak, heat reflector, insulation foil, kertas aluminium, kitchen foil, laf401kasr, modena aluminium foil, pemantul panas, reflective foil, silver foil",
         "material": "Stainless Steel",
         "specification": "Voltage: 220V/50Hz",
@@ -3098,13 +3340,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BI 0321 L", "BI 1325", "BI 1325 (UAE)"],
         "price": 10000,
         "image": "https://csms.sap.modena.com/photos/part/2103050209466041d93a46d48.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2103050209466041d93a46d48.jpg"],
         "searchKeywords": "board controller, board display, board elektronik, board filter, board inverter, brain, chip board, circuit board, control module, controller board, display board, electronic board, electronic module, emc filter, filter EMC, filter board, filter emc board, green board, ic board, induk board, inverter board, kbisffeb00010119, kompressor board, main module, modul daya, modul kontrol, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, pcb hijau, power module, supply board",
         "material": "Stainless Steel",
         "specification": "Standard: SNI",
         "dimensionW": 136.3,
         "dimensionD": 99.6,
         "dimensionH": 19.6,
-        "stockPMT": 3,
+        "stockPMT": 0,
         "stockNational": 64
     },
     "NESEFPWC00010417": {
@@ -3114,13 +3357,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DA 4015", "EI 3 L", "EI 3D L", "EI 3D V", "ES 0104 QCWH", "ES 0105 QCWH", "ES 0106 QCWH", "ES 0154 QCWH", "ES 0155 QCWH", "ES 10 CS1", "ES 100H", "ES 100HD", "ES 100V", "ES 100VD", "ES 10A", "ES 10A3", "ES 10B", "ES 10BD", "ES 10CS", "ES 10D", "ES 10DR", "ES 10IS", "ES 10V", "ES 15 CS1", "ES 15A", "ES 15A3", "ES 15B", "ES 15BD", "ES 15CS", "ES 15D", "ES 15DR", "ES 15IS", "ES 20SR", "ES 30 CS1", "ES 30 SKY", "ES 30B", "ES 30BD", "ES 30CS", "ES 30D", "ES 30DR", "ES 30HD", "ES 30VD", "ES 50HD", "ES 50V", "ES 50VD", "ES 80H", "ES 80HD", "ES 80VD", "WHS 01JIS"],
         "price": 220000,
         "image": "https://csms.sap.modena.com/photos/part/5d4d19dc9e334.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d4d19dc9e334.png"],
         "searchKeywords": "nesefpwc00010417, power cord",
         "material": "Stainless Steel",
         "specification": "Voltage: 220V/50Hz",
         "dimensionW": 98.1,
         "dimensionD": 38.9,
         "dimensionH": 54.1,
-        "stockPMT": 3,
+        "stockPMT": 0,
         "stockNational": 12
     },
     "NESSFMGR00050417": {
@@ -3130,13 +3374,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["ES 100HD", "ES 100VD", "ES 30BD", "ES 30HD", "ES 30VD", "ES 50HD", "ES 50V", "ES 50VD", "ES 80HD", "ES 80VD"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/220831021101630f09859c81f.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220831021101630f09859c81f.jpg"],
         "searchKeywords": "anoda korban, anoda magnesium, anode rod, anti karat, anti rust rod, batang anti karat, batang magnesium, batang pelindung, batang pengaman, batang zinc, cathodic protection, magnesium anode, magnesium rod, magnesium rod resistor, nessfmgr00050417, pelindung katodik, protection rod, sacrificial anode, tank rod, zinc rod",
         "material": "Copper",
         "specification": "Standard: SNI",
         "dimensionW": 44.5,
         "dimensionD": 59.8,
         "dimensionH": 49.1,
-        "stockPMT": 26,
+        "stockPMT": 0,
         "stockNational": 178
     },
     "LDS303NFCR": {
@@ -3146,6 +3391,7 @@ const PARTS_DATABASE = {
         "compatibleModels": [],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/241120025642673d963a16838.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/241120025642673d963a16838.jpg"],
         "searchKeywords": "concentrated softener, conditioner, fabric conditioner, fabric softener, lds303nfcr, liquid softener, modena bravapro softener - ld 0001, pelembut, pelembut cair, pelembut kain, pelembut pakaian, pengharum pakaian, softener",
         "material": "Copper",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -3162,6 +3408,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 1725", "BH 1725 ABBK", "BH 1725 ACBK"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/25120504015369329f8187d7d.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25120504015369329f8187d7d.jpg"],
         "searchKeywords": "gas pressure, gas regulator set, hose regulator, kompor regulator, low pressure regulator, lpg reg, lrg101krbk, modena bravareg regulator - lr 1001 l, natural gas reg, ng regulator, pengatur gas, pengatur lpg, pengatur tekanan, pengatur tekanan gas, pressure regulator, reg gas, regulator + selang, regulator LPG, regulator gas, regulator kompor, regulator lpg, selang regulator, tabung gas regulator, tekanan rendah",
         "material": "Aluminum",
         "specification": "Voltage: 220V/50Hz",
@@ -3178,6 +3425,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["CX 1711 DABM", "CX 6150", "CX 6300", "CX 6301", "CX 6330", "CX 7110 L", "CX 7310 L", "CX 7313 S", "CX 9106", "CX 9150", "CX 9156", "CX 9156 (UAE)", "CX 9300", "CX 9301", "CX 9303", "CX 9306", "CX 9313 L", "CX 9313 S", "CX 9330", "CX 9356", "CX 9753", "IX 9106", "IX 9156", "IX 9300", "IX 9306", "IX 9330", "IX 9356"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/221012041944634686b0b2e8c.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/221012041944634686b0b2e8c.jpg"],
         "searchKeywords": "baling kipas, baling-baling, baling-baling kipas, blade fan, blower impeller, centrifugal fan, cooling fan, exhaust fan, fan blade, impeller, kchmfipl00020918, kipas, kipas angin, kipas hisap, kipas pendingin, kipas sentrifugal, motor fan, propeller, turbo fan",
         "material": "Aluminum",
         "specification": "Voltage: 220V/50Hz",
@@ -3194,14 +3442,15 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DC 3601 L", "DC 3601 V", "PX 6001", "PX 6011 SS", "PX 6011 V"],
         "price": 0,
         "image": "http://csms.sap.modena.com/photos/part/22063011095262bd2210079a7.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22063011095262bd2210079a7.jpg", "https://csms.sap.modena.com/photos/part/22063011055862bd2126cfd88.jpg", "https://csms.sap.modena.com/photos/part/22080901455162f2029f9a7e5.jpg"],
         "searchKeywords": "busa filter, busa putih, disposable filter, filter buang, filter busa, filter lemak, filter minyak, filter pertama, filter putih, filter spons, foam grease, grease filter, lfg302kfwh, modena white foam filter - lf 1941, oil absorber, penyerap minyak, pre filter, primary filter, saringan minyak, single use filter, sponge filter, white filter, white foam",
         "material": "Rubber",
         "specification": "IP Rating: IP44",
         "dimensionW": 158.3,
         "dimensionD": 16.9,
         "dimensionH": 31.2,
-        "stockPMT": 44,
-        "stockNational": 53
+        "stockPMT": 0,
+        "stockNational": 0
     },
     "LFG301KFWH": {
         "partNumber": "LFG301KFWH",
@@ -3210,6 +3459,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DC 3902 L", "PX 9002", "PX 9012 SS", "PX 9012 V"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/22063011055862bd2126cfd88.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22063011055862bd2126cfd88.jpg", "https://csms.sap.modena.com/photos/part/22063011095262bd2210079a7.jpg", "https://csms.sap.modena.com/photos/part/22112908203963855e676ea1a.jpg"],
         "searchKeywords": "busa filter, busa putih, disposable filter, filter buang, filter busa, filter lemak, filter minyak, filter pertama, filter putih, filter spons, foam grease, grease filter, lfg301kfwh, modena grease foam filter - lf 1940, oil absorber, penyerap minyak, pre filter, primary filter, saringan minyak, single use filter, sponge filter, white filter, white foam",
         "material": "Rubber",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -3226,6 +3476,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DG 6406", "DG 9406", "DG 9506", "DG 9515", "DG 9516", "FC 3952 S", "FC 3955 S", "FC 5642 S", "FC 5941 L", "FC 5941 S", "FC 5942 L", "FC 5942 LR", "FC 5942 S", "FC 8640", "FC 8940 S", "FC 9642 S", "FC 9942 S"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/24081405310466bc87685ee42.png",
+        "images": ["https://csms.sap.modena.com/photos/part/24081405310466bc87685ee42.png", "https://csms.sap.modena.com/photos/part/5fac998ebc085.jpg", "https://csms.sap.modena.com/photos/part/24081405265166bc866b4f002.jpg"],
         "searchKeywords": "alu burner, aluminium burner, api kompor, api ring, auxiliary burner, badan burner, big burner, body burner, brass head, burner, burner besar, burner head, burner kecil, burner ring, burner spread 135#, burner tengah, burner utama, dasar burner, dudukan api, kepala api, kepala kompor, kfcsfbnb00080316, kompor, kompor api, kuningan burner, lingkaran api, lubang api, main burner, middle burner, rapid burner, ring api, ring kompor, semi rapid, small burner, tungku, wok burner",
         "material": "Stainless Steel",
         "specification": "Valve Type: Safety",
@@ -3242,6 +3493,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["FC 3052 S", "FC 3200", "FC 3304", "FC 3952 S", "FC 3955 S", "FC 5642 S", "FC 5941 L", "FC 5941 S", "FC 5942 L", "FC 5942 LR", "FC 5942 S"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/5d12fc9437db2.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d12fc9437db2.png"],
         "searchKeywords": "busi, cable spark, electrode cable, high voltage cable, ht cable, ignition cable, ignition lead, kabel api, kabel busi, kabel elektroda, kabel igniter, kabel pemantik, kabel tegangan tinggi, kfcefspu00010814, pemantik kabel, plug cable, plug ignition, spark lead, spark plug, spark plug+cable=1040mm, spark wire cable, wire spark",
         "material": "Cast Iron",
         "specification": "Ignition: Auto",
@@ -3258,13 +3510,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["PC 0721 BDBK", "PC 0721 BEBK", "PC 2721 L", "PC 2721 LD", "PC 2721 LM", "PC 2721 ZMCA"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/220323094243623a89239302e.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220323094243623a89239302e.jpg"],
         "searchKeywords": "besi cor, brass cap, brass crown, burner cover, cap api, cap besi, cap burner, cap dalam, cap eksternal, cap kompor, cap luar, cast iron cap, crown, crown burner, enamel cap, external cap, inner cap, internal cap, iron cap, kbhrfcpb00310821, mahkota, mahkota api, outer cap, outer ring, painted cap, penutup api, penutup lubang api, ring burner, ring cap, top burner, topi burner, tutup api, tutup besi, tutup burner, tutup dalam, tutup kuningan",
         "material": "Enamel Coated Steel",
         "specification": "Ignition: Auto",
         "dimensionW": 62.0,
         "dimensionD": 76.6,
         "dimensionH": 30.0,
-        "stockPMT": 31,
+        "stockPMT": 0,
         "stockNational": 41
     },
     "LPL401KTSR": {
@@ -3274,6 +3527,7 @@ const PARTS_DATABASE = {
         "compatibleModels": [],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/22070611224662c50e16ae452.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22070611224662c50e16ae452.jpg"],
         "searchKeywords": "black spray paint, cat enamel, cat hitam semprot, cat kompor, cat semprot, cat semprot kompor, cat tahan panas, cat touch up, enamel spray, heat resistant paint, high temp paint, lpl401ktsr, modena pilox, oven paint, pilox, spray paint, stove paint, touch up paint",
         "material": "Copper",
         "specification": "Voltage: 220V/50Hz",
@@ -3290,6 +3544,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 1321", "BH 1325", "BH 1325 ABBK", "BH 1325 ACBK", "BH 1326", "BH 1645", "BH 1645 LA", "BH 1735", "BH 1735 LA", "BH 1935", "BH 1935 ABBK", "BH 1935 LB", "BH 1935 W", "BH 1936", "BH 1941", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 2733 LL", "BH 2934", "BH 3934"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/22122703063763aaa78db2cac.png",
+        "images": ["https://csms.sap.modena.com/photos/part/22122703063763aaa78db2cac.png", "https://csms.sap.modena.com/photos/part/5cad663e3b804.png", "https://csms.sap.modena.com/photos/part/5cad75dde4356.png"],
         "searchKeywords": "besi cor, brass cap, brass crown, burner cover, cap api, cap besi, cap burner 70# (cast iron), cap dalam, cap eksternal, cap kompor, cap luar, cast iron cap, crown, crown burner, enamel cap, external cap, inner cap, internal cap, iron cap, kbhrfcpb00060811, mahkota, mahkota api, outer cap, outer ring, painted cap, penutup api, penutup lubang api, ring burner, ring cap, top burner, topi burner, tutup api, tutup besi, tutup burner, tutup dalam, tutup kuningan",
         "material": "Enamel Coated Steel",
         "specification": "Valve Type: Safety",
@@ -3306,6 +3561,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 1725 BCL", "BH 1725 LA", "BH 1725 LA GROSSETO", "BH 1725 LA PRATO", "BH 1725 MC", "BH 1735 LA", "BH 1935 LA", "BH 1945 LA"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/25021810224667b3fd06de3a5.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25021810224667b3fd06de3a5.jpg"],
         "searchKeywords": "anti leak tray, bak air, bak bocoran, bak penampung, baki penampung, catching tray, drip catcher, drip pan, drip tray, kbhsfwpt00010718, leak tray, nampan, nampan anti bocor, penampung bocoran, penampung rembes, penampung tetesan, sealed tray, tatakan anti air, tatakan tahan air, tray air, tray anti air, tray seal, water tray, waterproof pan, waterproof tray (mat finished) 120#",
         "material": "Cast Iron",
         "specification": "Flame Failure Device: Yes",
@@ -3322,6 +3578,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DC 3902 L", "PX 9002", "PX 9012 SS", "PX 9012 V"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/241107082929672c17f91e9d5.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/241107082929672c17f91e9d5.jpg", "https://csms.sap.modena.com/photos/part/2303291039026423b2d6d1eff.jpg", "https://csms.sap.modena.com/photos/part/241107082623672c173fe5b6a.jpg"],
         "searchKeywords": "busa filter, busa putih, carbon foam filter - lf 1002, disposable filter, filter buang, filter busa, filter lemak, filter minyak, filter pertama, filter putih, filter spons, foam grease, grease filter, lfh301kcye, oil absorber, penyerap minyak, pre filter, primary filter, saringan minyak, single use filter, sponge filter, white filter, white foam",
         "material": "Brass",
         "specification": "Voltage: 220V/50Hz",
@@ -3338,6 +3595,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 1645", "BH 1645 LA", "BH 1646", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 1949", "BH 2644", "BH 2648 LBM (UAE)", "BH 2734", "BH 2944", "BH 2958 LBM (UAE)", "BH 3644", "BH 3649 STM", "BH 3734", "BH 3940", "BH 3944", "BH 3958 SAM (UAE)"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/5cad663e3b804.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5cad663e3b804.png", "https://csms.sap.modena.com/photos/part/5cad75dde4356.png", "https://csms.sap.modena.com/photos/part/5fac97bcabd12.jpg"],
         "searchKeywords": "besi cor, brass cap, brass crown, burner cover, cap api, cap besi, cap burner 50#, cap dalam, cap eksternal, cap kompor, cap luar, cast iron cap, crown, crown burner, enamel cap, external cap, inner cap, internal cap, iron cap, kbhrfcpb00180314, mahkota, mahkota api, outer cap, outer ring, painted cap, penutup api, penutup lubang api, ring burner, ring cap, top burner, topi burner, tutup api, tutup besi, tutup burner, tutup dalam, tutup kuningan",
         "material": "Aluminum",
         "specification": "Flame Failure Device: Yes",
@@ -3354,6 +3612,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["AX 0921 BABK"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/25030309525567c519874085a.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25030309525567c519874085a.jpg"],
         "searchKeywords": "active carbon filter, arang aktif, black filter, blok karbon, carbon block, carbon filter, carbon granule, charcoal, chlorine filter, cto filter, filter bau air, filter hitam, filter kaporit, filter karbon, filter kedua, filter rasa, first carbon, gac filter, granular carbon, karbon butiran, karbon pertama, kchatftc00190323, odor filter, penyaring bau, second filter, taste filter",
         "material": "Stainless Steel",
         "specification": "Standard: SNI",
@@ -3370,6 +3629,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 6725 LF", "BH 6935 LF"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/241028061112671f715009269.png",
+        "images": ["https://csms.sap.modena.com/photos/part/241028061112671f715009269.png"],
         "searchKeywords": "api spreader, burner fin, diffuser, distributor api, fin burner, flame diffuser, flame spreader, kbhsfspd00040820, pembagi api, penyebar, penyebar api, sirip api, sirip burner, spreader, spreading ring",
         "material": "Copper",
         "specification": "Flame Failure Device: Yes",
@@ -3386,6 +3646,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["PC 0721 BDBK", "PC 0721 BEBK", "PC 2721 L", "PC 2721 LD", "PC 2721 LM", "PC 2721 ZMCA"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/220324024823623c2247942e5.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220324024823623c2247942e5.jpg"],
         "searchKeywords": "alas, base burner, base ring, basement burner, body burner, bottom burner, burner, burner bottom, burner platform, dasar api, dasar burner, dudukan dasar, kbhsfbnb00170821, kepala kompor, kompor, platform burner, tatakan burner, tungku",
         "material": "Stainless Steel",
         "specification": "Gas Type: LPG/NG",
@@ -3402,6 +3663,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["FC 2940 LV", "FC 2945 LV", "FC 3200", "FC 5642 S", "FC 5941 L", "FC 5941 S", "FC 5942 L", "FC 5942 LR", "FC 5942 S", "FC 7800", "FC 7942", "FC 7943 S", "FC 7943 W", "FC 8640", "FC 8940 S"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/22080204134762e8eacb5e743.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22080204134762e8eacb5e743.jpg"],
         "searchKeywords": "box ignition, generator pemantik, generator pemicu, generator spark, igniter module, ignition generator 6f, kfcefspu00020916, kotak pemantik, modul pemantik, modul pulse, pembangkit api, pulse box, pulse generator, pulse module, spark box, spark generator",
         "material": "Stainless Steel",
         "specification": "Valve Type: Safety",
@@ -3418,6 +3680,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 6725 LF", "BH 6935 LF"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/25031404030767d3f0cb1708f.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25031404030767d3f0cb1708f.jpg", "https://csms.sap.modena.com/photos/part/2210121208596345a32b3d4e8.jpg", "https://csms.sap.modena.com/photos/part/5ee97fb26591a.jpg"],
         "searchKeywords": "busi, electrode, electrode probe, elektroda, elektroda pemantik, elektrode api, ignition pin (65cm), ignition probe, jarum pemantik, kabel busi, kabel elektroda, kawat busi, kbhsfinp00360820, needle ignition, pemantik jarum, pin api, pin igniter, pin nyala, pin pemantik, pin starter, probe busi, probe ignition, spark electrode, spark needle, spark tip, spark wire, ujung pemantik, wire electrode",
         "material": "Stainless Steel",
         "specification": "Gas Type: LPG/NG",
@@ -3434,13 +3697,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["PX 6001", "PX 7001", "PX 9002"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/24011901575865aa1d769734a.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/24011901575865aa1d769734a.jpg"],
         "searchKeywords": "black knob, button push control, chrome knob, control knob, flame control, gas control, handel, handel gas, handel kompor, kchafclp00091213, knob gas, knob hitam, knop, knop kanan, knop kiri, left knob, metal knob, pemutar, pemutar gas, pengatur api, plastic knob, push button, push knob, push switch, puteran, regulator knob, right knob, rotary knob, stainless knob, switch gas, tekan putar, tombol, tombol kompor, tombol putar, tombol tekan, tuas, tuas putar",
         "material": "Brass",
         "specification": "Standard: SNI",
         "dimensionW": 116.5,
         "dimensionD": 62.8,
         "dimensionH": 68.4,
-        "stockPMT": 30,
+        "stockPMT": 0,
         "stockNational": 88
     },
     "KBHSFTMC00010811": {
@@ -3450,6 +3714,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 0725", "BH 0725 ADBK", "BH 0735", "BH 1315", "BH 1325 (UAE)", "BH 1325 ABBK", "BH 1325 ACBK", "BH 1326", "BH 1645", "BH 1645 LA", "BH 1725", "BH 1725 ABBK", "BH 1725 ACBK", "BH 1725 LA", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA GROSSETO", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA PRATO", "BH 1725 LA SIENA", "BH 1725 LAT", "BH 1725 LB", "BH 1725 LBT", "BH 1725 MC", "BH 1725 MIMA", "BH 1725 W", "BH 1728", "BH 1728 LA", "BH 1728 LB", "BH 1735", "BH 1735 LA", "BH 1737", "BH 1937", "BH 2324", "BH 2644", "BH 2648 LBM (UAE)", "BH 2724", "BH 2725", "BH 2734", "BH 2934", "BH 2935", "BH 2944", "BH 2958 LBM (UAE)", "BH 3324", "BH 3324 (UAE)", "BH 3325", "BH 3644", "BH 3646 AASS", "BH 3649 STM", "BH 3725", "BH 3734", "BH 3930", "BH 3934", "BH 3935", "BH 3940", "BH 3944", "BH 3958 SAM (UAE)", "BH 5646 ABBK"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/5cd24431c5d3b.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5cd24431c5d3b.png"],
         "searchKeywords": "api sensor, auto shut off sensor, flame detector, flame safeguard, flame sensor, flame sensor probe, gas safety, heat probe, kbhsftmc00010811, pendeteksi api, pengaman api, pengaman gas, probe api, probe panas, safety sensor, sensor api, sensor keamanan, sensor panas api, sensor pengaman, thermo couple, thermocouple, thermocouple 120#, thermokopel",
         "material": "Copper",
         "specification": "Gas Type: LPG/NG",
@@ -3466,14 +3731,15 @@ const PARTS_DATABASE = {
         "compatibleModels": ["FC 3052 S", "FC 3200", "FC 3304", "FC 3952 S", "FC 3955 S", "FC 5642 S", "FC 5941 L", "FC 5941 S", "FC 5942 L", "FC 5942 LR", "FC 5942 S"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/2204110226436253d833852a4.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2204110226436253d833852a4.jpg"],
         "searchKeywords": "busi, cable spark, electrode cable, high voltage cable, ht cable, ignition cable, ignition lead, kabel api, kabel busi, kabel elektroda, kabel igniter, kabel pemantik, kabel tegangan tinggi, kfcefspu00020814, pemantik kabel, plug cable, plug ignition, spark lead, spark plug, spark plug+cable 1200mm, spark wire cable, wire spark",
         "material": "Aluminum",
         "specification": "Ignition: Auto",
         "dimensionW": 188.8,
         "dimensionD": 90.9,
         "dimensionH": 67.4,
-        "stockPMT": 18,
-        "stockNational": 94
+        "stockPMT": 0,
+        "stockNational": 0
     },
     "KCHEFBPA00080323": {
         "partNumber": "KCHEFBPA00080323",
@@ -3482,6 +3748,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["AX 0611 BABK", "AX 0611 BASS", "AX 0711 BABK", "AX 0921 BABK"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/25030309443967c51797a6ede.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25030309443967c51797a6ede.jpg"],
         "searchKeywords": "black knob, chrome knob, control knob, flame control, gas control, handel gas, handel kompor, kchefbpa00080323, knob hitam, knop kanan, knop kiri, left knob, metal knob, pemutar gas, pengatur api, plastic knob, push button assembly (set), push knob, push switch, puteran, regulator knob, right knob, rotary knob, stainless knob, switch gas, tekan putar, tombol kompor, tombol putar, tombol tekan, tuas putar",
         "material": "Copper",
         "specification": "IP Rating: IP44",
@@ -3498,6 +3765,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["CX 9156", "CX 9156 (UAE)", "CX 9156 SABK", "CX 9356", "IX 9156", "IX 9156 SABK", "IX 9356"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/220922015512632c06d0daa7e.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/220922015512632c06d0daa7e.jpg"],
         "searchKeywords": "filter vc, lfh335kcye",
         "material": "Brass",
         "specification": "IP Rating: IP44",
@@ -3514,6 +3782,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 1315", "BH 1321", "BH 1325 (UAE)", "BH 1645", "BH 1645 LA", "BH 1725", "BH 1725 ABBK", "BH 1725 ACBK", "BH 1725 BCL", "BH 1725 LA", "BH 1725 LA CECINA", "BH 1725 LA FIRENZE", "BH 1725 LA GROSSETO", "BH 1725 LA MASSA", "BH 1725 LA PISTOIA", "BH 1725 LA PRATO", "BH 1725 LA SIENA", "BH 1725 LAT", "BH 1725 LB", "BH 1725 LBT", "BH 1725 MC", "BH 1725 MIMA", "BH 1725 W", "BH 1728", "BH 1735", "BH 1735 LA", "BH 1935", "BH 1935 ABBK", "BH 1935 LA", "BH 1935 LB", "BH 1935 W", "BH 1945", "BH 1945 LA", "BH 1945 W", "BH 2725", "BH 2935", "BH 3325", "BH 3725", "BH 3935"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/22070611320362c51043c67c6.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22070611320362c51043c67c6.jpg"],
         "searchKeywords": "adaptor wajan, cast iron wok ring, cincin wajan, dudukan wajan, enamel wok ring, lwa401krbk, modena wok adaptor (cast iron) - lw 3040, ring wajan, tatakan bulat, tatakan kuali, tatakan wajan, tatakan wok, wajan support, wok holder, wok reducer, wok ring, wok ring besi, wok ring enamel, wok trivets",
         "material": "ABS Plastic",
         "specification": "IP Rating: IP44",
@@ -3530,6 +3799,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 6725 LF", "BH 6935 LF"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/2109060437156135e14bb69f3.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2109060437156135e14bb69f3.jpg"],
         "searchKeywords": "besi cor, brass cap, brass crown, burner cover, cap api, cap besi, cap dalam, cap eksternal, cap kompor, cap luar, cast iron cap, crown, crown burner, enamel cap, external cap, inner cap, internal cap, iron cap, kbhrfcpb00290820, mahkota, mahkota api, outer cap, outer ring, outer ring burner cap, painted cap, penutup api, penutup lubang api, ring burner, ring cap, top burner, topi burner, tutup api, tutup besi, tutup burner, tutup dalam, tutup kuningan",
         "material": "Enamel Coated Steel",
         "specification": "Gas Type: LPG/NG",
@@ -3546,13 +3816,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["SX 7412 L", "SX 7412 S", "SX 9412 L", "SX 9412 S"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/240625111553667a447984c8c.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/240625111553667a447984c8c.jpg"],
         "searchKeywords": "arang aktif, carbon filter, charcoal, charcoal filter, filter karbon, kchsfccf00050521, penyaring bau",
         "material": "Brass",
         "specification": "Voltage: 220V/50Hz",
         "dimensionW": 205.2,
         "dimensionD": 23.7,
         "dimensionH": 31.7,
-        "stockPMT": 26,
+        "stockPMT": 0,
         "stockNational": 65
     },
     "KCHMFBTP00020511": {
@@ -3562,6 +3833,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DC 2601", "DC 2901", "SX 7511 L", "SX 9512 L"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/25051402494568244b1959e35.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25051402494568244b1959e35.jpg", "https://csms.sap.modena.com/photos/part/5f743864a9af1.jpg", "https://csms.sap.modena.com/photos/part/5d4a9f216a96b.png"],
         "searchKeywords": "auto switch, float switch, floater switch, kchmfbtp00020511, level switch, limit switch, magnetic switch, micro switch, pelampung, pelampung switch, push switch, sakelar, saklar, saklar air, saklar apung, saklar batas, saklar ketinggian, saklar mikro, saklar on off, saklar otomatis, saklar pelampung air, saklar tekan, saklar toggle, sensor level, switch, switch assembly, switch button, switch pelampung, toggle switch, tombol, tombol saklar, water switch",
         "material": "Stainless Steel",
         "specification": "IP Rating: IP44",
@@ -3578,6 +3850,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["SC 2127", "SC 3157"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/25040801450767f4c5f37448d.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25040801450767f4c5f37448d.jpg"],
         "searchKeywords": "c clip, cable clip, circlip, clip, clip k (medium), e clip, holder, hose clip, klip, klip dudukan, klip kabel, klip penahan, klip per, lscafclp00040221, mounting clip, penjepit, penjepit pipa, penjepit selang, pipe clamp, r clip, retaining clip, ring clip, snap ring, spring clip, wire clip",
         "material": "Aluminum",
         "specification": "IP Rating: IP44",
@@ -3594,6 +3867,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RO 8115"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/25031102372667cfe836252f6.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25031102372667cfe836252f6.jpg"],
         "searchKeywords": "auto valve, cddmfwov00021219, electric valve, flow valve, inlet valve, katup air, katup aliran, katup keluar, katup magnet, katup masuk, katup solenoid, kran otomatis, magnetic valve, outlet valve, solenoid valve, valve air, valve elektrik, valve keluar, valve magnet, valve masuk, valve otomatis, valve solenoid, water outlet valve, water valve",
         "material": "Polypropylene",
         "specification": "Voltage: 220V/50Hz",
@@ -3610,6 +3884,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RO 67 SUV"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/241204032918675012dea12ab.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/241204032918675012dea12ab.jpg", "https://csms.sap.modena.com/photos/part/221122085217637c2b51500a5.jpg", "https://csms.sap.modena.com/photos/part/22062404383562b5861b7850b.jpg"],
         "searchKeywords": "RO membrane, filter RO, filter ketiga, lfp307lpwh, membran, modena filter water purifier (ro) - fl 4121, reverse osmosis",
         "material": "Stainless Steel",
         "specification": "Voltage: 220V/50Hz",
@@ -3626,6 +3901,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RO 67 SUV"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/22062404432562b5873d4a0c1.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22062404432562b5873d4a0c1.jpg", "https://csms.sap.modena.com/photos/part/22062404383562b5861b7850b.jpg", "https://csms.sap.modena.com/photos/part/221122085217637c2b51500a5.jpg"],
         "searchKeywords": "lfp306lpwh, modena filter water purifier (cr) - fl 2061",
         "material": "Aluminum",
         "specification": "Standard: SNI",
@@ -3642,6 +3918,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RO 8101", "RO 8115"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/2210121208406345a3187db13.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2210121208406345a3187db13.jpg"],
         "searchKeywords": "bottle cover, cap cover, cddsfcas00010117, cold tank cover assembly, cover, dust cover, lamp cover, lid, metal cover, panel cover, pelindung, penutup, plastic cover, protective cover, tank cover, tutup, tutup botol, tutup debu, tutup lampu, tutup logam, tutup panel, tutup plastik, tutup tangki, tutupan",
         "material": "Stainless Steel",
         "specification": "Cooling: 5°C±2°C",
@@ -3658,6 +3935,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["PX 6001", "PX 6011 SS", "PX 6011 V", "PX 7001", "PX 9002", "PX 9012 SS", "PX 9012 V"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/5d5a636d06b58.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d5a636d06b58.png"],
         "searchKeywords": "bactericidal, bohlam, bohlam biasa, bohlam halogen, bulb, cover lamp, disinfection lamp, filament lamp, germicidal lamp, halogen bulb, halogen light, incandescent, kchatcvl00030617, lamp, lampu, lampu kuning, lampu pemurni, lampu pijar, lampu sterilisasi, lampu tabung, lampu uv, light, pembunuh bakteri, purification lamp, steril lamp, t5 lamp, t8 lamp, tube lamp, tungsten lamp, uv lamp, warm light, yellow light",
         "material": "ABS Plastic",
         "specification": "IP Rating: IP44",
@@ -3674,6 +3952,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 66 G", "DD 66 L", "DD 66 V", "DD 67 S", "DD 67 SUV", "DD 7107 LUV", "DD 7181 L", "DD 7181 L (UAE)", "DD 7302 L"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/25031101412467cfdb146f270.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25031101412467cfdb146f270.jpg"],
         "searchKeywords": "bottle cover, cap cover, cddafcbw00011214, cover, cover bottle water, dust cover, lamp cover, lid, metal cover, panel cover, pelindung, penutup, plastic cover, protective cover, tank cover, tutup, tutup botol, tutup debu, tutup lampu, tutup logam, tutup panel, tutup plastik, tutup tangki, tutupan",
         "material": "Stainless Steel",
         "specification": "Voltage: 220V/50Hz",
@@ -3690,6 +3969,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 5725 LO"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/25031102530467cfebe038c35.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/25031102530467cfebe038c35.jpg"],
         "searchKeywords": "black glass, ceramic glass, cooktop glass, eurokera, glass, glass panel, glass top, hob glass, induction glass, kaca, kaca atas, kaca ganti, kaca hitam, kaca induksi, kaca jepang, kaca keramik, kaca kompor, kaca print, kaca tempered, kbhajglp00231219, neg glass, panel kaca, printed glass, replacement glass, schott glass, tempered glass",
         "material": "Brass",
         "specification": "Flame Failure Device: Yes",
@@ -3706,14 +3986,15 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BX 6603", "BX 6632", "BX 9603", "DC 2601", "SX 7511 L", "SX 9512 L"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/241107083339672c18f367bd1.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/241107083339672c18f367bd1.jpg", "https://csms.sap.modena.com/photos/part/241107083552672c1978dbb4f.jpg", "https://csms.sap.modena.com/photos/part/241202012043674d51bb4fb62.jpg"],
         "searchKeywords": "activated carbon, arang aktif, black filter, carbon filter, charcoal, chimney filter, exhaust filter, filter asap, filter bau, filter cooker, filter cuci, filter hitam, filter karbon, filter lemak karbon, filter pakai ulang, filter penghisap, filter vit c, grease filter carbon, hood filter, karbon aktif, lfh306kcye, modena carbon filter vit c - lf 2003, odor filter, penyaring asap, penyaring bau, reusable filter, smoke filter, vit c filter, vitamin c filter, washable filter",
         "material": "Brass",
         "specification": "Standard: SNI",
         "dimensionW": 215.0,
         "dimensionD": 39.8,
         "dimensionH": 18.9,
-        "stockPMT": 42,
-        "stockNational": 77
+        "stockPMT": 0,
+        "stockNational": 0
     },
     "KBHAFGLP00760923": {
         "partNumber": "KBHAFGLP00760923",
@@ -3722,6 +4003,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 2725 GABK"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/240405085420660f59cc64221.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/240405085420660f59cc64221.jpg"],
         "searchKeywords": "black glass, ceramic glass, cooktop glass, eurokera, glass, glass panel, glass top, hob glass, induction glass, kaca, kaca atas, kaca ganti, kaca hitam, kaca induksi, kaca jepang, kaca keramik, kaca kompor, kaca print, kaca tempered, kbhafglp00760923, neg glass, panel kaca, printed glass, replacement glass, schott glass, tempered glass",
         "material": "Stainless Steel",
         "specification": "Valve Type: Safety",
@@ -3738,13 +4020,14 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 1111 BAWH", "DD 7106 L"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/22122101263863a2a71e5d924.jpeg",
+        "images": ["https://csms.sap.modena.com/photos/part/22122101263863a2a71e5d924.jpeg"],
         "searchKeywords": "PCB, board, board controller, board display, board elektronik, board filter, board inverter, brain, cddefpcb00010122, chip board, circuit board, control board, control module, controller board, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, main module, mainboard, modul daya, modul elektronik, modul kontrol, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, papan sirkuit, pcb hijau, pcb main (new), power module, supply board",
         "material": "Copper",
         "specification": "Cooling: 5°C±2°C",
         "dimensionW": 152.8,
         "dimensionD": 91.7,
         "dimensionH": 30.9,
-        "stockPMT": 39,
+        "stockPMT": 0,
         "stockNational": 56
     },
     "CRFEFPFC00010719": {
@@ -3754,6 +4037,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RF 2555 L"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/2101051152145ff3f07ee2cea.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2101051152145ff3f07ee2cea.jpg"],
         "searchKeywords": "PCB, board, board controller, board display, board elektronik, board filter, board inverter, brain, chip board, circuit board, control module, controller board, crfefpfc00010719, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, main module, modul, modul daya, modul kontrol, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, papan sirkuit, pcb for compressor, pcb hijau, power module, supply board",
         "material": "Rubber",
         "specification": "Voltage: 220V/50Hz",
@@ -3770,6 +4054,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["MD 10", "MD 15", "MD 20 A", "MD 30", "MD 45", "MD 60", "MD 75"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/210420011559607e719f9e901.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/210420011559607e719f9e901.jpg"],
         "searchKeywords": "PCB display, board controller, board display, board elektronik, board filter, board inverter, brain, chip board, circuit board, control module, controller board, display board, display module, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, lmdefpcb00010718, main module, modul daya, modul kontrol, modul layar, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, pcb display, pcb hijau, power module, supply board",
         "material": "Aluminum",
         "specification": "Operating Temp: -10°C to 60°C",
@@ -3786,6 +4071,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 7315 L", "DD 7315 W"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/5d4aa4320fa40.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5d4aa4320fa40.png", "https://csms.sap.modena.com/photos/part/5d4a889848796.png", "https://csms.sap.modena.com/photos/part/2203170205476232ddcb691fe.jpg"],
         "searchKeywords": "PCB, board, board controller, board display, board elektronik, board filter, board inverter, brain, cddefpcb00030717, chip board, circuit board, control module, controller board, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, main module, modul, modul daya, modul kontrol, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, papan sirkuit, pcb, pcb hijau, power module, supply board",
         "material": "Polypropylene",
         "specification": "Heating: 90°C±5°C",
@@ -3802,6 +4088,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["PI 0316", "PI 1316", "PI 1316 ZMCA", "PI 2316"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/5c82361c13fca.png",
+        "images": ["https://csms.sap.modena.com/photos/part/5c82361c13fca.png"],
         "searchKeywords": "PCB, board, board controller, board display, board elektronik, board filter, board inverter, board main, brain, chip board, circuit board, control board, control module, controller board, display board, electronic board, electronic module, emc filter, filter board, green board, ic board, induk board, inverter board, kompressor board, kpiefbrm00020918, main module, mainboard, modul daya, modul elektronik, modul kontrol, modul mesin, modul power, modul utama, mother board, motherboard, noise filter, otak mesin, papan chip, papan ic, papan induk, papan kontrol, papan layar, papan pcb, papan sirkuit, pcb hijau, power module, supply board",
         "material": "Rubber",
         "specification": "Standard: SNI",
@@ -3818,6 +4105,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DF 0120", "MD 0106 W", "MD 0107", "MD 10 W"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/2212010423066388727a65e88.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2212010423066388727a65e88.jpg", "https://csms.sap.modena.com/photos/part/251106032957690c5c850692c.jpg", "https://csms.sap.modena.com/photos/part/24082704434366cd9fcfc28cd.jpg"],
         "searchKeywords": "cdfsfcps00150121, compressor, compressor (r600), compressor kulkas, cooling motor, cooling system, dc compressor, hermetic compressor, inverter compressor, kompresor, kompresor dc, kompresor freezer, kompresor inverter, kompresor kulkas, kompresor r134, kompresor r600, kompresor reciprocating, kompresor rotari, kompresor sealed, mesin kulkas, mesin pendingin, motor kulkas, motor pendingin, r134 compressor, r600 compressor, reciprocating compressor, rotary compressor, sealed compressor",
         "material": "Copper",
         "specification": "Standard: SNI",
@@ -3834,6 +4122,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RF 2255 S", "RF 2335 S", "RF 2336 S", "RF 4540 S", "RF 4540 S (UAE)"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/22091301072063201e18564fa.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/22091301072063201e18564fa.jpg", "https://csms.sap.modena.com/photos/part/24082704434366cd9fcfc28cd.jpg", "https://csms.sap.modena.com/photos/part/2212010423066388727a65e88.jpg"],
         "searchKeywords": "compressor, compressor (r600 inverter), compressor kulkas, cooling motor, cooling system, crfsfcps00070519, dc compressor, hermetic compressor, inverter compressor, kompresor, kompresor dc, kompresor freezer, kompresor inverter, kompresor kulkas, kompresor r134, kompresor r600, kompresor reciprocating, kompresor rotari, kompresor sealed, mesin kulkas, mesin pendingin, motor kulkas, motor pendingin, r134 compressor, r600 compressor, reciprocating compressor, rotary compressor, sealed compressor",
         "material": "Rubber",
         "specification": "Standard: SNI",
@@ -3850,6 +4139,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["MG 2502", "MG 2516", "MG 3003", "MG 3103", "MG 3112", "MG 3116", "MK 2203", "MO 2002", "MV 3002", "MV 3116", "MV 3133"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/23091410224065027c80eafa3.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/23091410224065027c80eafa3.jpg"],
         "searchKeywords": "10a fuse, 15a fuse, 20a fuse, ceramic fuse, fuse, fuse high voltage, glass fuse, high voltage fuse, hv fuse, kmgeffhv00020711, pengaman listrik, safety fuse, sekering hv, sekering kaca, sekering keramik, sekering microwave, sekering panas, sekring, temperature fuse, thermal fuse",
         "material": "Brass",
         "specification": "Voltage: 220V/50Hz",
@@ -3866,14 +4156,15 @@ const PARTS_DATABASE = {
         "compatibleModels": ["RA 0511 AAWH", "RA 0521 AAWH", "RA 0531 AAWH", "RA 0921 AAWH", "RA 0931 AAWH", "RA 1221 AAWH"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/2510310454066904873e7b022.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2510310454066904873e7b022.jpg"],
         "searchKeywords": "ceramic tap, cold faucet, dispenser tap, duct tape, faucet set, front tap, hot faucet, isolasi, keran air, kran biasa, kran depan, kran dingin, kran dispenser, kran keramik, kran netral, kran normal, kran nozel, kran panas, kran plastik, kran rakitan, kran set, kran tekan, kran tuas, lakban, ldt201lpbn, lever tap, neutral tap, normal tap, nozzle tap, plastic tap, push tap, regular tap, spout air, tap assembly, tap dispenser, tape, water spout",
         "material": "Rubber",
         "specification": "IP Rating: IP44",
         "dimensionW": 184.6,
         "dimensionD": 66.3,
         "dimensionH": 38.6,
-        "stockPMT": 8,
-        "stockNational": 9
+        "stockPMT": 0,
+        "stockNational": 0
     },
     "CDDATHSP00010117": {
         "partNumber": "CDDATHSP00010117",
@@ -3882,6 +4173,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["DD 07 W", "DD 7301 L", "DD 75 L", "RO 8101"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/2012220513435fe1c6d722a76.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/2012220513435fe1c6d722a76.jpg"],
         "searchKeywords": "cddathsp00010117, handspike",
         "material": "Copper",
         "specification": "Capacity: 1.5L",
@@ -3898,6 +4190,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["BH 2725 GABK", "BH 2725 GBBK", "BH 2725 ZMCA", "BH 5725 LK", "BH 5725 LO", "DH 7201", "DH 7205"],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/23021705220463ef554c0b1eb.jpg",
+        "images": ["https://csms.sap.modena.com/photos/part/23021705220463ef554c0b1eb.jpg", "https://csms.sap.modena.com/photos/part/24092003045866ed2caaac1a5.jpg", "https://csms.sap.modena.com/photos/part/2012040803595fc98aff675cd.png"],
         "searchKeywords": "alat pemicu api, auto ignition, auto spark, burner igniter, igniter, igniter box, ignition device, impulse, kbhefind00041219, kompor auto, korek api otomatis, korek kompor otomatis, modul ignition, nyala otomatis, pemantik, pemantik elektronik, pemantik otomatis, piezo igniter, pulse ignition, sistem korek api, sistem pemantik, sistem pengapian, spark system, starter",
         "material": "Enamel Coated Steel",
         "specification": "Valve Type: Safety",
@@ -3914,6 +4207,7 @@ const PARTS_DATABASE = {
         "compatibleModels": ["AX 2711 CABK", "AX 2725 CASS", "AX 2921 CABK", "AX 2925 CASS."],
         "price": 0,
         "image": "https://csms.sap.modena.com/photos/part/24011210242965a0b0ed96c0e.jpeg",
+        "images": ["https://csms.sap.modena.com/photos/part/24011210242965a0b0ed96c0e.jpeg"],
         "searchKeywords": "activated carbon, arang aktif, black filter, carbon filter, charcoal, chimney filter, exhaust filter, filter asap, filter bau, filter cooker, filter cuci, filter hitam, filter karbon, filter lemak karbon, filter pakai ulang, filter penghisap, filter vit c, grease filter carbon, hood filter, karbon aktif, lfh342kcye, modena carbon filter, odor filter, penyaring asap, penyaring bau, reusable filter, smoke filter, vit c filter, vitamin c filter, washable filter",
         "material": "Brass",
         "specification": "IP Rating: IP44",
@@ -4928,9 +5222,9 @@ const PARTS_DATABASE = {
             // Find and activate the clicked tab
             const tabs = document.querySelectorAll('.tab');
             tabs.forEach(tab => {
-                if (tab.textContent.includes('SCANNER') && tabName === 'scanner') {
+                if (tab.textContent.includes('AI PARTS SCANNER') && tabName === 'scanner') {
                     tab.classList.add('active');
-                } else if (tab.textContent.includes('CATALOG') && tabName === 'catalog') {
+                } else if (tab.textContent.includes('GALLERY') && tabName === 'catalog') {
                     tab.classList.add('active');
                 }
             });
@@ -4940,6 +5234,35 @@ const PARTS_DATABASE = {
         }
         
         // Render parts grid
+
+        // Gallery state per part
+        const galleryState = {};
+
+        function gallerySelect(partCode, idx) {
+            const part = PARTS_DATABASE[partCode];
+            if (!part || !part.images) return;
+            galleryState[partCode] = idx;
+
+            const img = document.getElementById('gimg-' + partCode);
+            const cnt = document.getElementById('gcnt-' + partCode);
+            if (img) { img.style.opacity = '0'; img.src = part.images[idx]; img.onload = () => { img.style.opacity = '1'; }; img.style.display = 'block'; }
+            if (cnt) cnt.textContent = (idx + 1) + ' / ' + part.images.length;
+
+            // Update thumbnails
+            part.images.forEach((_, i) => {
+                const thumb = document.getElementById('gthumb-' + partCode + '-' + i);
+                if (thumb) thumb.classList.toggle('active', i === idx);
+            });
+        }
+
+        function galleryNav(partCode, dir) {
+            const part = PARTS_DATABASE[partCode];
+            if (!part || !part.images) return;
+            const cur = galleryState[partCode] || 0;
+            const next = (cur + dir + part.images.length) % part.images.length;
+            gallerySelect(partCode, next);
+        }
+
         function renderPartsGrid() {
             const grid = document.getElementById('partsGrid');
             grid.innerHTML = '';
@@ -4947,16 +5270,33 @@ const PARTS_DATABASE = {
             Object.values(PARTS_DATABASE).forEach(part => {
                 if (currentFilter !== 'ALL' && part.productCategory !== currentFilter) return;
                 
-                const modelsDisplay = part.compatibleModels.length <= 3 
+                const modelsDisplay = part.compatibleModels.length <= 2 
                     ? part.compatibleModels.join(', ')
-                    : part.compatibleModels.slice(0, 3).join(', ') + ` ... +${part.compatibleModels.length - 3} more`;
+                    : part.compatibleModels.slice(0, 2).join(', ') + ` ... +${part.compatibleModels.length - 2} more`;
                 
                 const card = document.createElement('div');
                 card.className = 'part-card';
                 
                 card.innerHTML = `
-                    <div class="part-image-container" onclick="showImageModal('${part.partNumber}')">
-                        <img src="${part.image}" class="part-image" alt="${part.name}" onerror="this.style.display='none'">
+                    <div class="part-gallery" id="gallery-${part.partNumber}">
+                        <div class="gallery-main">
+                            <img class="gallery-main-img" id="gimg-${part.partNumber}" src="${(part.images && part.images[0]) || part.image}" alt="${part.name}"
+                                onerror="this.style.display='none'"
+                                onclick="showImageModal('${part.partNumber}')">
+                            ${(part.images && part.images.length > 1) ? `
+                            <div class="gallery-arrow gallery-arrow-left" onclick="event.stopPropagation(); galleryNav('${part.partNumber}', -1)">&#8249;</div>
+                            <div class="gallery-arrow gallery-arrow-right" onclick="event.stopPropagation(); galleryNav('${part.partNumber}', 1)">&#8250;</div>
+                            <div class="gallery-counter" id="gcnt-${part.partNumber}">1 / ${part.images.length}</div>
+                            ` : ''}
+                        </div>
+                        ${(part.images && part.images.length > 1) ? `
+                        <div class="gallery-thumbs" id="gthumbs-${part.partNumber}">
+                            ${part.images.map((img, idx) => `
+                            <div class="gallery-thumb ${idx === 0 ? 'active' : ''}" id="gthumb-${part.partNumber}-${idx}" onclick="event.stopPropagation(); gallerySelect('${part.partNumber}', ${idx})">
+                                <img src="${img}" alt="foto ${idx+1}" onerror="this.parentElement.style.display='none'">
+                            </div>`).join('')}
+                        </div>
+                        ` : ''}
                     </div>
                     <div class="part-card-body" onclick="showCompatibleModels('${part.partNumber}')">
                         <div class="part-code-catalog">
@@ -4965,8 +5305,12 @@ const PARTS_DATABASE = {
                         </div>
                         <div class="part-name-catalog">${part.name}</div>
                         <div class="part-info-row">
-                            <span class="part-info-label">Product Category:</span>
-                            <span>${part.productCategory}</span>
+                            <span class="part-info-label">Material:</span>
+                            <span>${part.material || '-'}</span>
+                        </div>
+                        <div class="part-info-row">
+                            <span class="part-info-label">Specification:</span>
+                            <span>${part.specification || '-'}</span>
                         </div>
                         <div class="part-info-row">
                             <span class="part-info-label">Applied Model:</span>
@@ -4975,11 +5319,11 @@ const PARTS_DATABASE = {
                         <div class="stock-row">
                             <div class="stock-item">
                                 <span class="stock-label">Stock PMT</span>
-                                <span class="stock-value ${(part.stockPMT || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockPMT || 0}</span>
+                                <span class="stock-value-lg ${(part.stockPMT || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockPMT || 0}</span>
                             </div>
                             <div class="stock-item">
                                 <span class="stock-label">Stock National</span>
-                                <span class="stock-value ${(part.stockNational || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockNational || 0}</span>
+                                <span class="stock-value-lg ${(part.stockNational || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockNational || 0}</span>
                             </div>
                         </div>
                         <div class="part-price-row">
@@ -5021,6 +5365,7 @@ const PARTS_DATABASE = {
             
             document.getElementById('dropdownMenu').classList.remove('show');
             renderPartsGrid();
+            searchParts();
         }
         
         // Toggle dropdown
@@ -5037,6 +5382,25 @@ const PARTS_DATABASE = {
         });
         
         // Search parts
+        // Stock filter state
+        let stockFilterPMT = 'all';
+        let stockFilterNat = 'all';
+
+        function setStockFilter(type, val) {
+            if (type === 'pmt') {
+                stockFilterPMT = val;
+                document.getElementById('pmtAll').classList.toggle('active', val === 'all');
+                document.getElementById('pmtReady').classList.toggle('active', val === 'ready');
+                document.getElementById('pmtNotReady').classList.toggle('active', val === 'notready');
+            } else {
+                stockFilterNat = val;
+                document.getElementById('natAll').classList.toggle('active', val === 'all');
+                document.getElementById('natReady').classList.toggle('active', val === 'ready');
+                document.getElementById('natNotReady').classList.toggle('active', val === 'notready');
+            }
+            searchParts();
+        }
+
         function searchParts() {
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
             const modelTerm = document.getElementById('modelSearchBox').value.toLowerCase();
@@ -5062,8 +5426,10 @@ const PARTS_DATABASE = {
                 const matchModel = !modelTerm || modelSearchText.includes(modelTerm);
                 const matchSpec = !specTerm || specSearchText.includes(specTerm);
                 const matchMaterial = !materialTerm || materialSearchText.includes(materialTerm);
+                const matchPMT = stockFilterPMT === 'all' || (stockFilterPMT === 'ready' && (part.stockPMT || 0) > 0) || (stockFilterPMT === 'notready' && (part.stockPMT || 0) === 0);
+                const matchNat = stockFilterNat === 'all' || (stockFilterNat === 'ready' && (part.stockNational || 0) > 0) || (stockFilterNat === 'notready' && (part.stockNational || 0) === 0);
                 
-                card.style.display = (matchGeneral && matchModel && matchSpec && matchMaterial) ? 'block' : 'none';
+                card.style.display = (matchGeneral && matchModel && matchSpec && matchMaterial && matchPMT && matchNat) ? 'block' : 'none';
             });
         }
         
@@ -5244,26 +5610,70 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
         }
         
         // Image Modal Functions
-        function showImageModal(partCode) {
+        let imageModalPartCode = null;
+        let imageModalIdx = 0;
+
+        function showImageModal(partCode, startIdx) {
             const part = PARTS_DATABASE[partCode];
             if (!part) return;
             
-            // Store part code for copy function
             currentModalPartCode = partCode;
-            
-            const modal = document.getElementById('imageModal');
-            const img = document.getElementById('imageModalImg');
-            const code = document.getElementById('imageModalCode');
-            const name = document.getElementById('imageModalName');
-            
-            img.src = part.image;
-            code.textContent = part.partNumber;
-            name.textContent = part.name;
-            
-            modal.classList.add('show');
-            
-            // Prevent body scroll when modal is open
+            imageModalPartCode = partCode;
+            imageModalIdx = startIdx || (galleryState[partCode] || 0);
+
+            document.getElementById('imageModalCode').textContent = part.partNumber;
+            document.getElementById('imageModalName').textContent = part.name;
+
+            imageModalRender();
+            document.getElementById('imageModal').classList.add('show');
             document.body.style.overflow = 'hidden';
+        }
+
+        function imageModalRender() {
+            const part = PARTS_DATABASE[imageModalPartCode];
+            if (!part) return;
+            const images = (part.images && part.images.length > 0) ? part.images : [part.image];
+            const idx = imageModalIdx;
+
+            const img = document.getElementById('imageModalImg');
+            img.style.opacity = '0';
+            img.src = images[idx];
+            img.onload = () => { img.style.opacity = '1'; };
+            img.style.display = 'block';
+
+            // Counter
+            const cnt = document.getElementById('imgModalCounter');
+            cnt.textContent = images.length > 1 ? (idx + 1) + ' / ' + images.length : '';
+            cnt.style.display = images.length > 1 ? 'block' : 'none';
+
+            // Arrows
+            const showArrows = images.length > 1;
+            document.getElementById('imgModalArrowL').style.display = showArrows ? 'flex' : 'none';
+            document.getElementById('imgModalArrowR').style.display = showArrows ? 'flex' : 'none';
+
+            // Thumbnails
+            const thumbsEl = document.getElementById('imgModalThumbs');
+            if (images.length > 1) {
+                thumbsEl.innerHTML = images.map((url, i) => `
+                    <div class="image-modal-thumb ${i === idx ? 'active' : ''}" onclick="event.stopPropagation(); imageModalSelectThumb(${i})">
+                        <img src="${url}" onerror="this.parentElement.style.display='none'">
+                    </div>`).join('');
+            } else {
+                thumbsEl.innerHTML = '';
+            }
+        }
+
+        function imageModalNav(dir) {
+            const part = PARTS_DATABASE[imageModalPartCode];
+            if (!part) return;
+            const images = (part.images && part.images.length > 0) ? part.images : [part.image];
+            imageModalIdx = (imageModalIdx + dir + images.length) % images.length;
+            imageModalRender();
+        }
+
+        function imageModalSelectThumb(idx) {
+            imageModalIdx = idx;
+            imageModalRender();
         }
         
         function closeImageModal(event) {
