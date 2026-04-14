@@ -5974,15 +5974,24 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
         }
 
         function qaGoGallery(codes) {
+            // Switch to catalog tab
             switchTab('catalog');
-            // Pre-fill search with first code
-            const firstCode = codes.split(',')[0];
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.value = firstCode;
-                searchInput.dispatchEvent(new Event('input'));
-            }
-            showToast('✅ Menampilkan di Parts Gallery');
+            // Small delay to allow tab to render
+            setTimeout(() => {
+                const codeList = codes.split(',').map(c => c.trim()).filter(Boolean);
+                const firstCode = codeList[0];
+                if (!firstCode) return;
+                // Use the correct search box ID
+                const searchBox = document.getElementById('searchBox');
+                if (searchBox) {
+                    searchBox.value = firstCode;
+                    searchParts(); // trigger filter directly
+                }
+                showToast('✅ Menampilkan part di Parts Gallery');
+                // Scroll to top of catalog
+                const catalogTab = document.getElementById('catalogTab');
+                if (catalogTab) catalogTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 250);
         }
 
         function qaFormatRp(num) {
@@ -5997,15 +6006,19 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
                 const price = p.price ? qaFormatRp(p.price) : '-';
                 const img = p.image || p.img || '';
                 const partCode = p.partNumber || p.code;
-                return `<div class="qa-part-card" onclick="showImageModal('${partCode}')" style="cursor:pointer">
-                    <img src="${img}" alt="${p.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2250%22 height=%2250%22%3E%3Crect width=%2250%22 height=%2250%22 fill=%22%23f0f0f0%22/%3E%3Ctext x=%2225%22 y=%2232%22 text-anchor=%22middle%22 font-size=%2218%22%3E📦%3C/text%3E%3C/svg%3E'">
-                    <div class="qpc-info">
+                return `<div class="qa-part-card">
+                    <img src="${img}" alt="${p.name}"
+                        style="cursor:zoom-in"
+                        onclick="event.stopPropagation(); showImageModal('${partCode}')"
+                        title="Klik untuk lihat foto"
+                        onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2250%22 height=%2250%22%3E%3Crect width=%2250%22 height=%2250%22 fill=%22%23f0f0f0%22/%3E%3Ctext x=%2225%22 y=%2232%22 text-anchor=%22middle%22 font-size=%2218%22%3E📦%3C/text%3E%3C/svg%3E'">
+                    <div class="qpc-info" style="cursor:pointer" onclick="event.stopPropagation(); showCompatibleModels('${partCode}')" title="Klik untuk lihat detail">
                         <div class="qpc-code">${partCode}<button class="qa-copy-btn" onclick="event.stopPropagation(); qaCopyCode('${partCode}', this)">📋 Copy</button></div>
                         <div class="qpc-name">${p.name}</div>
                         <div class="qpc-meta">${p.productCategory || p.cat || ''} | ${modelStr}</div>
                         <div class="qpc-price">${price}</div>
                     </div>
-                    <div style="font-size:18px;color:#ccc;flex-shrink:0">&#8250;</div>
+                    <div style="font-size:18px;color:#ccc;flex-shrink:0;cursor:pointer" onclick="event.stopPropagation(); showCompatibleModels('${partCode}')">&#8250;</div>
                 </div>`;
             }).join('');
 
