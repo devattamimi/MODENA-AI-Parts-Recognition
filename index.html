@@ -6047,11 +6047,18 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
 
             const thinkEl = qaAddThinking();
 
-            // Build parts context from PARTS_DATABASE — include ALL compatible models
+            // Build parts context from PARTS_DATABASE — include ALL fields
             const partsContext = Object.values(PARTS_DATABASE).map(p => {
                 const models = (p.compatibleModels || []).join(', ');
                 const price = p.price ? qaFormatRp(p.price) : '-';
-                return `[${p.partNumber}] ${p.name} | ${p.productCategory} | Model: ${models} | Harga: ${price}`;
+                const material = p.material || '-';
+                const spec = p.specification || '-';
+                const dimW = p.dimensionW || '-';
+                const dimD = p.dimensionD || '-';
+                const dimH = p.dimensionH || '-';
+                const stockPMT = p.stockPMT !== undefined ? p.stockPMT + ' pcs' : '-';
+                const stockNat = p.stockNational !== undefined ? p.stockNational + ' pcs' : '-';
+                return `[${p.partNumber}] ${p.name} | Kategori: ${p.productCategory} | Material: ${material} | Spesifikasi: ${spec} | Dimensi: W${dimW}xD${dimD}xH${dimH}mm | Stok PMT: ${stockPMT} | Stok Nasional: ${stockNat} | Model: ${models} | Harga: ${price}`;
             }).join('\n');
 
             const systemPrompt = `Kamu adalah Asisten AI MODENA Parts untuk teknisi lapangan MODENA Indonesia.
