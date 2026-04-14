@@ -6101,8 +6101,14 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
             const avatarClass = role === 'user' ? 'qa-avatar qa-user' : 'qa-avatar ai';
 
             // Copy button for AI bubbles
+            // Store rawText in a global map keyed by unique id
+            const bubbleId = 'qa-bubble-' + Date.now();
+            if (role === 'ai' && rawText) {
+                window._qaBubbleTexts = window._qaBubbleTexts || {};
+                window._qaBubbleTexts[bubbleId] = rawText;
+            }
             const copyBtn = role === 'ai' && rawText ?
-                '<button class="qa-copy-bubble-btn" onclick="qaCopyBubble(this, ' + JSON.stringify(rawText || '') + ')">📋 Copy jawaban</button>' : '';
+                '<button class="qa-copy-bubble-btn" data-bid="' + bubbleId + '" onclick="qaCopyBubble(this)">📋 Copy jawaban</button>' : '';
 
             // Timestamp
             const ts = '<div class="qa-timestamp">' + qaGetTime() + '</div>';
@@ -6132,13 +6138,22 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
             return wrap;
         }
 
-        function qaCopyBubble(btn, text) {
-            const clean = text.replace(/PARTS_CODES:\[[^\]]+\]/g, '').replace(/SUGGESTED:\[\[[^\]]+\]\]/g, '').trim();
+        function qaCopyBubble(btn, bubbleId) {
+            const bid = bubbleId || btn.getAttribute('data-bid');
+            const texts = window._qaBubbleTexts || {};
+            const raw = texts[bid] || btn.closest('.qa-bubble').innerText || '';
+            const clean = raw
+                .replace(/PARTS_CODES:\[[^\]]+\]/g, '')
+                .replace(/---\s*SUGGESTED:[\s\S]*/g, '')
+                .replace(/SUGGESTED:[\s\S]*/g, '')
+                .trim();
             navigator.clipboard.writeText(clean).then(() => {
                 btn.textContent = '✓ Tersalin!';
                 btn.classList.add('copied');
                 showToast('✅ Jawaban AI tersalin!');
                 setTimeout(() => { btn.textContent = '📋 Copy jawaban'; btn.classList.remove('copied'); }, 2000);
+            }).catch(() => {
+                showToast('❌ Gagal menyalin');
             });
         }
 
@@ -6310,22 +6325,38 @@ ATURAN PENTING:
                 if (sugMatch) {
                     try {
                         const parsed = JSON.parse('[' + sugMatch[1] + ']');
-                        suggestions = parsed.filter(s => typeof s === 'string' && s.trim());
+                        suggestions = parsed.filter(s => typeof s === 'string' && s.trim().length > 3);
                     } catch(e) {
                         suggestions = sugMatch[1].split(',')
                             .map(s => s.replace(/['"\s]/g,'').trim())
                             .filter(s => s.length > 5);
                     }
                 }
-                // Strip SUGGESTED from display text
+                // Also strip from cleanText using rawText-based match
+                if (sugMatch) {
+                    cleanText = cleanText
+                        .replace(/---\s*SUGGESTED:[\s\S]*/g, '')
+                        .replace(/SUGGESTED:[\s\S]*/g, '')
+                        .trim();
+                }
+                // Strip SUGGESTED + any prefix dashes from display text
                 cleanText = cleanText
+                    .replace(/---\s*SUGGESTED:\s*\[\s*\[[\s\S]*?\]\s*\]/g, '')
                     .replace(/SUGGESTED:\s*\[\s*\[[\s\S]*?\]\s*\]/g, '')
+                    .replace(/\n---\s*$/, '')
                     .trim();
 
                 // Check if PMT contact requested
                 const hasPMTLink = cleanText.includes('chat.whatsapp.com') || cleanText.includes('wa.me');
                 cleanText = cleanText.replace(/https:\/\/chat\.whatsapp\.com\/\S+/g, '').replace(/https:\/\/wa\.me\/\S+/g, '').trim();
 
+                // Final aggressive SUGGESTED strip before render
+                cleanText = cleanText
+                    .replace(/---\s*SUGGESTED[\s\S]*/gi, '')
+                    .replace(/SUGGESTED[\s\S]*/gi, '')
+                    .replace(/\n---\s*$/m, '')
+                    .trim();
+                formattedText = mdToHtml(cleanText);
                 let html = '<div style="margin:0;line-height:1.5;font-size:14px">' + formattedText + '</div>';
                 if (foundParts.length > 0) html += qaBuildPartCards(foundParts);
 
@@ -6554,6 +6585,9 @@ ATURAN PENTING:
                 .replace(/`([^`]+)`/g, '<code style="background:#f5f5f5;padding:2px 5px;border-radius:3px;font-size:12px">$1</code>')
                 .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+                .replace(/---\s*SUGGESTED:[\s\S]*/g, '')
+                .replace(/SUGGESTED:[\s\S]*/g, '')
+                .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" style="color:#1e3a8a;text-decoration:underline">$1</a>')
                 .replace(/\n\n+/g, '<br>')
                 .replace(/\n/g, '<br>');
         }
