@@ -5613,7 +5613,9 @@ const PARTS_DATABASE = {
             searchParts();
         }
 
-        function searchParts() {
+        function searchParts(fromQA) {
+            // If user types manually, clear Q&A filter
+            if (!fromQA) qaActiveCodes = [];
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
             const modelTerm = document.getElementById('modelSearchBox').value.toLowerCase();
             const specTerm = document.getElementById('specSearchBox') ? document.getElementById('specSearchBox').value.toLowerCase() : '';
@@ -5641,7 +5643,8 @@ const PARTS_DATABASE = {
                 const matchPMT = stockFilterPMT === 'all' || (stockFilterPMT === 'ready' && (part.stockPMT || 0) > 0) || (stockFilterPMT === 'notready' && (part.stockPMT || 0) === 0);
                 const matchNat = stockFilterNat === 'all' || (stockFilterNat === 'ready' && (part.stockNational || 0) > 0) || (stockFilterNat === 'notready' && (part.stockNational || 0) === 0);
                 
-                card.style.display = (matchGeneral && matchModel && matchSpec && matchMaterial && matchPMT && matchNat) ? 'block' : 'none';
+                const matchQACodes = qaActiveCodes.length === 0 || qaActiveCodes.includes(partCode);
+                card.style.display = (matchGeneral && matchModel && matchSpec && matchMaterial && matchPMT && matchNat && matchQACodes) ? 'block' : 'none';
             });
         }
         
@@ -5912,6 +5915,7 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
         // Q&A — CLAUDE API INTEGRATION
         // ═══════════════════════════════════════
         let qaMessages = [];
+        let qaActiveCodes = []; // codes from last Q&A result for gallery filter
 
         function qaAutoResize(el) {
             el.style.height = 'auto';
@@ -5974,21 +5978,22 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
         }
 
         function qaGoGallery(codes) {
+            const codeList = codes.split(',').map(c => c.trim()).filter(Boolean);
+            if (!codeList.length) return;
+            // Set global filter to these exact codes
+            qaActiveCodes = codeList;
             // Switch to catalog tab
             switchTab('catalog');
-            // Small delay to allow tab to render
             setTimeout(() => {
-                const codeList = codes.split(',').map(c => c.trim()).filter(Boolean);
-                const firstCode = codeList[0];
-                if (!firstCode) return;
-                // Use the correct search box ID
+                // Clear all search boxes
                 const searchBox = document.getElementById('searchBox');
-                if (searchBox) {
-                    searchBox.value = firstCode;
-                    searchParts(); // trigger filter directly
-                }
-                showToast('✅ Menampilkan part di Parts Gallery');
-                // Scroll to top of catalog
+                const modelBox = document.getElementById('modelSearchBox');
+                if (searchBox) searchBox.value = '';
+                if (modelBox) modelBox.value = '';
+                // Trigger filter with QA codes
+                searchParts(true);
+                showToast('✅ Menampilkan ' + codeList.length + ' part dari Q&A');
+                // Scroll to catalog
                 const catalogTab = document.getElementById('catalogTab');
                 if (catalogTab) catalogTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 250);
@@ -6042,9 +6047,9 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
 
             const thinkEl = qaAddThinking();
 
-            // Build parts context from PARTS_DATABASE
+            // Build parts context from PARTS_DATABASE — include ALL compatible models
             const partsContext = Object.values(PARTS_DATABASE).map(p => {
-                const models = (p.compatibleModels || []).slice(0, 8).join(', ');
+                const models = (p.compatibleModels || []).join(', ');
                 const price = p.price ? qaFormatRp(p.price) : '-';
                 return `[${p.partNumber}] ${p.name} | ${p.productCategory} | Model: ${models} | Harga: ${price}`;
             }).join('\n');
@@ -6057,12 +6062,14 @@ ${partsContext}
 
 ATURAN PENTING:
 1. Jawab HANYA dalam Bahasa Indonesia
-2. Jawab singkat, jelas, dan langsung ke poin
+2. Jawab singkat, jelas, dan langsung ke poin — boleh gunakan format tabel jika membantu, tapi JANGAN tampilkan daftar compatible models di teks karena sudah tampil lengkap di kartu part di bawah
 3. Jika ada part yang relevan dari database, WAJIB sertakan kode part
 4. Di AKHIR jawaban, jika ada part yang relevan, tambahkan: PARTS_CODES:["KODE1","KODE2"]
-5. Gunakan data harga dan model dari database di atas
+5. Gunakan data harga dari database di atas
 6. Jika tidak ada part yang cocok, sampaikan jujur dan sarankan hubungi PMT
-7. Jangan sebut nama Claude atau Anthropic — kamu adalah AI MODENA Parts Assistant`;
+7. Jangan sebut nama Claude atau Anthropic — kamu adalah AI MODENA Parts Assistant
+8. JANGAN tampilkan daftar compatible models di teks — info lengkap sudah tersedia di kartu part yang muncul di bawah jawaban
+9. Fokus jawaban hanya pada: nama part, kode, harga, dan rekomendasi singkat`;
 
             try {
                 const response = await fetch('/api/chat', {
@@ -6091,7 +6098,68 @@ ATURAN PENTING:
 
                 if (thinkEl && thinkEl.parentNode) thinkEl.parentNode.removeChild(thinkEl);
 
-                let html = `<p style="margin:0;line-height:1.7">${cleanText.replace(/\n/g, '<br>')}</p>`;
+                // Convert markdown to HTML
+                function mdToHtml(text) {
+                    // Convert markdown table to HTML table
+                    const lines = text.split('\n');
+                    let result = [];
+                    let inTable = false;
+                    let tableRows = [];
+
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        const isTableRow = line.startsWith('|') && line.endsWith('|');
+                        const isSeparator = /^\|[-| :]+\|$/.test(line);
+
+                        if (isTableRow && !isSeparator) {
+                            if (!inTable) { inTable = true; tableRows = []; }
+                            tableRows.push(line);
+                        } else if (isSeparator) {
+                            // skip separator row
+                        } else {
+                            if (inTable) {
+                                // Flush table
+                                let tableHtml = '<table style="width:100%;border-collapse:collapse;font-size:12px;margin:10px 0">';
+                                tableRows.forEach((row, idx) => {
+                                    const cells = row.split('|').filter((c,i,a) => i>0 && i<a.length-1);
+                                    const tag = idx === 0 ? 'th' : 'td';
+                                    const bg = idx === 0 ? 'background:#f0f0f0;font-weight:700' : (idx%2===0?'background:#fafafa':'');
+                                    tableHtml += '<tr>' + cells.map(c =>
+                                        `<${tag} style="padding:6px 8px;border:1px solid #e0e0e0;${bg}">${c.trim()}</${tag}>`
+                                    ).join('') + '</tr>';
+                                });
+                                tableHtml += '</table>';
+                                result.push(tableHtml);
+                                inTable = false; tableRows = [];
+                            }
+                            result.push(line);
+                        }
+                    }
+                    if (inTable && tableRows.length) {
+                        let tableHtml = '<table style="width:100%;border-collapse:collapse;font-size:12px;margin:10px 0">';
+                        tableRows.forEach((row, idx) => {
+                            const cells = row.split('|').filter((c,i,a) => i>0 && i<a.length-1);
+                            const tag = idx === 0 ? 'th' : 'td';
+                            const bg = idx === 0 ? 'background:#f0f0f0;font-weight:700' : (idx%2===0?'background:#fafafa':'');
+                            tableHtml += '<tr>' + cells.map(c =>
+                                `<${tag} style="padding:6px 8px;border:1px solid #e0e0e0;${bg}">${c.trim()}</${tag}>`
+                            ).join('') + '</tr>';
+                        });
+                        tableHtml += '</table>';
+                        result.push(tableHtml);
+                    }
+
+                    return result.join('\n')
+                        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+                        .replace(/^#{1,3} (.+)$/gm, '<strong style="display:block;margin-top:10px;margin-bottom:4px;font-size:14px">$1</strong>')
+                        .replace(/^- (.+)$/gm, '&bull; $1<br>')
+                        .replace(/^\d+\. (.+)$/gm, '&bull; $1<br>')
+                        .replace(/\n\n/g, '<br><br>')
+                        .replace(/\n/g, '<br>');
+                }
+                let formattedText = mdToHtml(cleanText);
+                let html = `<div style="margin:0;line-height:1.7;font-size:14px">${formattedText}</div>`;
                 if (foundParts.length > 0) html += qaBuildPartCards(foundParts);
                 html += `<div class="qa-disclaimer">ℹ️ Pastikan kesesuaian kode part dengan fisik aktual sebelum digunakan. Jika ragu, hubungi Tim PMT.</div>`;
 
