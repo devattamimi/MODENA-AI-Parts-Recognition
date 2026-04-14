@@ -6391,7 +6391,10 @@ ATURAN PENTING:
                 // Extract part codes — robust multiline regex
                 const codesMatch = rawText.match(/PARTS_CODES:\s*\[([^\]]+)\]/s);
                 let foundParts = [];
-                let cleanText = rawText.replace(/PARTS_CODES:\s*\[[^\]]+\]/gs, '').trim();
+                let cleanText = rawText
+                    .replace(/PARTS_CODES:\s*\[[\s\S]*?\]/g, '')
+                    .replace(/PARTS_CODES:\s*\[.*/g, '')
+                    .trim();
 
                 if (codesMatch) {
                     const codes = codesMatch[1].split(',').map(c => c.replace(/['"\s]/g, '').trim()).filter(Boolean);
@@ -6463,9 +6466,12 @@ ATURAN PENTING:
                 // WA buttons if PMT contact mentioned
                 if (hasPMTLink) {
                     const waPMTMsg = 'Halo Tim PMT MODENA 🙏\n\nSaya ada pertanyaan terkait spare part MODENA yang perlu dikonfirmasi lebih lanjut.\n\nMohon bantuannya, terima kasih!';
+                    const waBtnId = 'wa-' + Date.now();
+                    window._qaWAMsgs = window._qaWAMsgs || {};
+                    window._qaWAMsgs[waBtnId] = waPMTMsg;
                     html += '<div class="qa-wa-btns">' +
-                        '<button class="qa-wa-btn" onclick="qaOpenGrupPMT(' + JSON.stringify(waPMTMsg) + ')">💬 Grup PMT</button>' +
-                        '<button class="qa-wa-btn personal" onclick="qaOpenPersonalWA(' + JSON.stringify(waPMTMsg) + ')">📱 Personal</button>' +
+                        '<button class="qa-wa-btn" data-waid="' + waBtnId + '" onclick="qaOpenGrupPMT(this)">💬 Grup PMT</button>' +
+                        '<button class="qa-wa-btn personal" data-waid="' + waBtnId + '" onclick="qaOpenPersonalWA(this)">📱 Personal</button>' +
                         '</div>';
                 }
 
@@ -6531,12 +6537,16 @@ ATURAN PENTING:
         }
 
         // ─── WA PMT BUTTONS ───
-        function qaOpenGrupPMT(msg) {
-            navigator.clipboard.writeText(msg);
+        function qaOpenGrupPMT(btn) {
+            const waid = btn.getAttribute('data-waid');
+            const msg = (window._qaWAMsgs || {})[waid] || 'Halo Tim PMT MODENA 🙏\n\nSaya ada pertanyaan terkait spare part MODENA.\n\nMohon bantuannya, terima kasih!';
+            navigator.clipboard.writeText(msg).catch(()=>{});
             window.open('https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW', '_blank');
             showToast('✅ Pesan disalin! Paste di grup PMT.');
         }
-        function qaOpenPersonalWA(msg) {
+        function qaOpenPersonalWA(btn) {
+            const waid = btn.getAttribute('data-waid');
+            const msg = (window._qaWAMsgs || {})[waid] || 'Halo Tim PMT MODENA 🙏\n\nSaya ada pertanyaan terkait spare part MODENA.\n\nMohon bantuannya, terima kasih!';
             const encoded = encodeURIComponent(msg);
             window.open('https://wa.me/?text=' + encoded, '_blank');
         }
@@ -6617,70 +6627,86 @@ ATURAN PENTING:
         function mdToHtml(text) {
             const lines = text.split('\n');
             let result = [];
-            let inTable = false;
-            let tableRows = [];
             let inList = false;
             let listItems = [];
+            let tableRows = [];
 
             const flushList = () => {
                 if (listItems.length) {
                     result.push('<ul>' + listItems.map(i => '<li>' + i + '</li>').join('') + '</ul>');
-                    listItems = [];
-                    inList = false;
+                    listItems = []; inList = false;
                 }
             };
+
             const flushTable = () => {
                 if (!tableRows.length) return;
-                let tbl = '<div style="overflow-x:auto;margin:8px 0"><table style="width:100%;min-width:400px;border-collapse:collapse;font-size:12px">';
-                tableRows.forEach((row, idx) => {
-                    const cells = row.split('|').filter((c,i,a) => i>0 && i<a.length-1);
+                const validRows = tableRows.filter(r => {
+                    const t = r.trim();
+                    if (!t || t === '|') return false;
+                    if (/^\|[-| :]+\|$/.test(t)) return false;
+                    return t.split('|').filter((c,i,a)=>i>0&&i<a.length-1).some(c=>c.trim());
+                });
+                if (!validRows.length) { tableRows = []; return; }
+                let tbl = '<div style="overflow-x:auto;margin:10px 0"><table style="width:100%;min-width:300px;border-collapse:collapse;font-size:12px">';
+                validRows.forEach((row, idx) => {
+                    const cells = row.trim().split('|').filter((c,i,a)=>i>0&&i<a.length-1);
                     if (!cells.length) return;
-                    const tag = idx === 0 ? 'th' : 'td';
-                    const bg = idx === 0 ? 'background:#f0f0f0;font-weight:700' : (idx%2===1?'background:#fafafa':'');
-                    tbl += '<tr>' + cells.map(c => '<' + tag + ' style="padding:5px 8px;border:1px solid #e8e8e8;' + bg + '">' + c.trim() + '</' + tag + '>').join('') + '</tr>';
+                    const isHeader = idx === 0;
+                    const bg = isHeader ? 'background:#1a1a1a;color:white;font-weight:700' : (idx%2===0?'background:#fafafa':'background:#fff');
+                    const tag = isHeader ? 'th' : 'td';
+                    tbl += '<tr>' + cells.map(c=>'<'+tag+' style="padding:6px 8px;border:1px solid #e0e0e0;vertical-align:top;'+bg+'">'+c.trim()+'</'+tag+'>').join('') + '</tr>';
                 });
                 tbl += '</table></div>';
                 result.push(tbl);
-                tableRows = []; inTable = false;
+                tableRows = [];
             };
 
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
                 const trimmed = line.trim();
-                const isTableRow = trimmed.startsWith('|') && trimmed.endsWith('|');
-                const isSeparator = /^\|[-| :]+\|$/.test(trimmed);
+                const isTableRow = trimmed.startsWith('|') && trimmed.endsWith('|') && trimmed.length > 1;
+                const isSep = /^\|[-| :]+\|$/.test(trimmed);
                 const isBullet = /^[-*•]\s+/.test(trimmed);
                 const isNumbered = /^\d+\.\s+/.test(trimmed);
                 const isHeading = /^#{1,3}\s+/.test(trimmed);
-                const isEmpty = trimmed === '' || trimmed === '---' || trimmed === '—';
+                const isEmpty = trimmed === '' || trimmed === '---';
 
-                if (isSeparator) continue;
+                if (isSep) continue;
 
                 if (isTableRow) {
                     flushList();
-                    inTable = true;
                     tableRows.push(trimmed);
-                } else if (inTable) {
-                    flushTable();
-                    if (isBullet || isNumbered) { inList = true; listItems.push(trimmed.replace(/^[-*•]\s+|^\d+\.\s+/,'')); }
-                    else result.push(trimmed);
-                } else if (isBullet || isNumbered) {
-                    inList = true;
-                    listItems.push(trimmed.replace(/^[-*•]\s+|^\d+\.\s+/,''));
-                } else if (isHeading) {
-                    flushList();
-                    result.push('<span class="qa-section-heading" style="font-weight:700;display:block;margin:14px 0 5px;font-size:14px">' + trimmed.replace(/^#{1,3}\s+/,'') + '</span>');
-                } else if (isEmpty && inList) {
-                    flushList();
+                } else if (isEmpty && tableRows.length) {
+                    // Blank line inside table — look ahead to see if next non-empty line is still a table row
+                    let nextTableRow = false;
+                    for (let j = i+1; j < Math.min(i+4, lines.length); j++) {
+                        const next = lines[j].trim();
+                        if (next && next.startsWith('|') && next.endsWith('|')) { nextTableRow = true; break; }
+                        if (next && !next.startsWith('|')) break;
+                    }
+                    if (!nextTableRow) flushTable();
+                    // else skip blank line and continue collecting table rows
                 } else {
-                    if (!inList) result.push(trimmed);
-                    else { flushList(); result.push(trimmed); }
+                    flushTable();
+                    if (isBullet || isNumbered) {
+                        inList = true;
+                        listItems.push(trimmed.replace(/^[-*•]\s+|^\d+\.\s+/, ''));
+                    } else if (isHeading) {
+                        flushList();
+                        result.push('<span style="font-weight:700;display:block;margin:14px 0 5px;font-size:14px">' + trimmed.replace(/^#{1,3}\s+/, '') + '</span>');
+                    } else if (isEmpty) {
+                        flushList();
+                    } else {
+                        flushList();
+                        result.push(trimmed);
+                    }
                 }
             }
             flushList();
             flushTable();
 
             return result.join('\n')
+                .replace(/PARTS_CODES:\s*\[[\s\S]*/g, '')
                 .replace(/```[a-z]*\n?([\s\S]*?)```/g, '<code style="display:block;background:#f5f5f5;padding:8px;border-radius:6px;font-size:12px;margin:6px 0;white-space:pre-wrap">$1</code>')
                 .replace(/`([^`]+)`/g, '<code style="background:#f5f5f5;padding:2px 5px;border-radius:3px;font-size:12px">$1</code>')
                 .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
@@ -6691,6 +6717,3 @@ ATURAN PENTING:
                 .replace(/\n\n+/g, '<br>')
                 .replace(/\n/g, '<br>');
         }
-    </script>
-</body>
-</html>
