@@ -5996,14 +5996,16 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
                 const modelStr = models.slice(0,3).join(', ') + (models.length > 3 ? ' +' + (models.length-3) + ' lainnya' : '');
                 const price = p.price ? qaFormatRp(p.price) : '-';
                 const img = p.image || p.img || '';
-                return `<div class="qa-part-card">
+                const partCode = p.partNumber || p.code;
+                return `<div class="qa-part-card" onclick="showImageModal('${partCode}')" style="cursor:pointer">
                     <img src="${img}" alt="${p.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2250%22 height=%2250%22%3E%3Crect width=%2250%22 height=%2250%22 fill=%22%23f0f0f0%22/%3E%3Ctext x=%2225%22 y=%2232%22 text-anchor=%22middle%22 font-size=%2218%22%3E📦%3C/text%3E%3C/svg%3E'">
                     <div class="qpc-info">
-                        <div class="qpc-code">${p.partNumber || p.code}<button class="qa-copy-btn" onclick="qaCopyCode('${p.partNumber || p.code}', this)">📋 Copy</button></div>
+                        <div class="qpc-code">${partCode}<button class="qa-copy-btn" onclick="event.stopPropagation(); qaCopyCode('${partCode}', this)">📋 Copy</button></div>
                         <div class="qpc-name">${p.name}</div>
                         <div class="qpc-meta">${p.productCategory || p.cat || ''} | ${modelStr}</div>
                         <div class="qpc-price">${price}</div>
                     </div>
+                    <div style="font-size:18px;color:#ccc;flex-shrink:0">&#8250;</div>
                 </div>`;
             }).join('');
 
