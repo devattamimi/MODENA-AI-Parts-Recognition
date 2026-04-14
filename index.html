@@ -1669,6 +1669,80 @@
         .qa-send-btn:hover    { background: #e63946; }
         .qa-send-btn:disabled { background: #ccc; cursor: not-allowed; }
 
+        /* ─── TOOLBAR ─── */
+        .qa-toolbar {
+            display: flex; gap: 8px; padding: 6px 0 8px;
+            border-bottom: 1px solid #f0f0f0; margin-bottom: 4px;
+        }
+        .qa-tool-btn {
+            display: flex; align-items: center; gap: 5px;
+            background: none; border: 1px solid #e0e0e0; border-radius: 20px;
+            padding: 5px 12px; font-size: 12px; cursor: pointer; color: #555;
+            transition: all .15s;
+        }
+        .qa-tool-btn:hover { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+
+        /* ─── MIC BUTTON ─── */
+        .qa-mic-btn {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: none; border: 1.5px solid #e0e0e0;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #666; flex-shrink: 0;
+            transition: all .15s;
+        }
+        .qa-mic-btn:hover { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+        .qa-mic-btn.recording { background: #e63946; color: #fff; border-color: #e63946; animation: qa-pulse 1s infinite; }
+        @keyframes qa-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(230,57,70,.4); } 50% { box-shadow: 0 0 0 8px rgba(230,57,70,0); } }
+
+        /* ─── TIMESTAMP ─── */
+        .qa-timestamp {
+            font-size: 10px; color: #bbb; margin-top: 4px;
+            text-align: right;
+        }
+        .qa-bubble-wrap .qa-timestamp { text-align: left; }
+        .qa-bubble-wrap.qa-user .qa-timestamp { text-align: right; }
+
+        /* ─── COPY BUBBLE BUTTON ─── */
+        .qa-copy-bubble-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: none; border: 1px solid #e8e8e8; border-radius: 6px;
+            padding: 3px 8px; font-size: 11px; cursor: pointer; color: #888;
+            margin-top: 8px; transition: all .15s;
+        }
+        .qa-copy-bubble-btn:hover { background: #f5f5f5; color: #333; }
+        .qa-copy-bubble-btn.copied { background: #27ae60; color: #fff; border-color: #27ae60; }
+
+        /* ─── SUGGESTED FOLLOW-UP ─── */
+        .qa-suggestions {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+        }
+        .qa-suggestion-btn {
+            background: #f8f8f8; border: 1px solid #e8e8e8; border-radius: 16px;
+            padding: 5px 12px; font-size: 12px; cursor: pointer; color: #444;
+            transition: all .15s; text-align: left;
+        }
+        .qa-suggestion-btn:hover { background: #1e3a8a; color: #fff; border-color: #1e3a8a; }
+
+        /* ─── COMPACT BUBBLE AI ─── */
+        .qa-bubble.ai { line-height: 1.5; }
+        .qa-bubble.ai ul { margin: 4px 0 10px 0; padding-left: 16px; }
+        .qa-bubble.ai li { margin-bottom: 3px; line-height: 1.45; }
+        .qa-bubble.ai .qa-section-heading { font-weight: 700; margin: 14px 0 4px; display: block; }
+        .qa-bubble.ai .qa-section-heading:first-child { margin-top: 0; }
+        .qa-bubble.ai br + br { display: none; }
+
+        /* ─── WHATSAPP BUTTONS ─── */
+        .qa-wa-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .qa-wa-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #25d366; color: #fff; border: none; border-radius: 8px;
+            padding: 8px 14px; font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: background .15s;
+        }
+        .qa-wa-btn:hover { background: #1da853; }
+        .qa-wa-btn.personal { background: #128c7e; }
+        .qa-wa-btn.personal:hover { background: #0e7267; }
+
         @media (max-width: 600px) {
             .qa-wrapper { padding: 8px 8px 0; height: calc(100vh - 150px); }
             .qa-bubble  { max-width: 92%; font-size: 14px; padding: 10px 13px; }
@@ -1676,10 +1750,11 @@
             .qa-quick { font-size: 11px; padding: 6px 10px; }
             .qa-input { font-size: 15px; }
             .qa-send-btn { width: 46px; height: 46px; }
-            .qa-input-row { padding: 8px 0 10px; }
+            .qa-input-row { padding: 8px 0 10px; gap: 6px; }
             .qa-avatar { width: 46px; height: 46px; }
             .qa-part-card { padding: 8px 10px; gap: 8px; }
             .qa-part-card img { width: 44px; height: 44px; }
+            .qa-mic-btn { width: 42px; height: 42px; }
         }
         </style>
 </head>
@@ -1794,32 +1869,49 @@
             <!-- Q&A TAB -->
             <div id="qaTab" class="tab-content">
                 <div class="qa-wrapper">
+                    <!-- Toolbar: Reset + History + Share -->
+                    <div class="qa-toolbar" id="qaToolbar" style="display:none">
+                        <button class="qa-tool-btn" onclick="qaReset()" title="Mulai percakapan baru">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.95"/></svg>
+                            Reset
+                        </button>
+                        <button class="qa-tool-btn" onclick="qaShareConversation()" title="Share percakapan via WhatsApp">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.138.564 4.14 1.534 5.874L0 24l6.26-1.513A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.882a9.875 9.875 0 0 1-5.031-1.372l-.36-.214-3.733.902.938-3.63-.235-.374A9.856 9.856 0 0 1 2.118 12C2.118 6.539 6.539 2.118 12 2.118c5.461 0 9.882 4.421 9.882 9.882 0 5.461-4.421 9.882-9.882 9.882z"/></svg>
+                            Share
+                        </button>
+                        <button class="qa-tool-btn qa-tool-btn-history" onclick="qaToggleHistory()" title="Riwayat percakapan" id="qaHistoryBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Riwayat
+                        </button>
+                    </div>
+
                     <div class="qa-chat-area" id="qaChatArea">
                         <div class="qa-empty-state" id="qaEmptyState">
                             <div class="qa-empty-icon">
-                        <svg width="80" height="80" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="36" cy="36" r="36" fill="#1a1a1a"/>
-                          <text x="36" y="22" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="13">✦</text>
-                          <text x="36" y="42" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="22" letter-spacing="2">AI</text>
-                          <line x1="16" y1="47" x2="56" y2="47" stroke="white" stroke-width="1.8" opacity="0.5"/>
-                          <text x="36" y="58" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="8" letter-spacing="3" opacity="0.8">MODENA</text>
-                        </svg>
-                      </div>
+                                <svg width="80" height="80" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+                                  <circle cx="36" cy="36" r="36" fill="#1a1a1a"/>
+                                  <text x="36" y="22" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="13">✦</text>
+                                  <text x="36" y="42" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="22" letter-spacing="2">AI</text>
+                                  <line x1="16" y1="47" x2="56" y2="47" stroke="white" stroke-width="1.8" opacity="0.5"/>
+                                  <text x="36" y="58" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="8" letter-spacing="3" opacity="0.8">MODENA</text>
+                                </svg>
+                            </div>
                             <h3>Q&A with AI — MODENA Parts</h3>
                             <p>Tanyakan kode part, spesifikasi, atau info model dalam Bahasa Indonesia.<br>Contoh: <em>"Info kode part burner untuk BH 1725"</em></p>
                         </div>
                     </div>
-                    <div class="qa-quick-btns" id="qaQuickBtns">
-                        <button class="qa-quick" onclick="qaSendQuick('Info kode part burner untuk BH 1725')">🔥 Burner BH 1725</button>
-                        <button class="qa-quick" onclick="qaSendQuick('Part apa saja untuk Water Dispenser DD 66?')">💧 Parts DD 66</button>
-                        <button class="qa-quick" onclick="qaSendQuick('Kode part pompa water dispenser')">⚙️ Pompa Dispenser</button>
-                        <button class="qa-quick" onclick="qaSendQuick('Berapa harga knob untuk BH 0325?')">💰 Harga Knob</button>
-                        <button class="qa-quick" onclick="qaSendQuick('Filter apa yang cocok untuk water purifier RO 8115?')">🚿 Filter Purifier</button>
-                    </div>
+
+                    <!-- Quick prompts (rotate) -->
+                    <div class="qa-quick-btns" id="qaQuickBtns"></div>
+
+                    <!-- Input row -->
                     <div class="qa-input-row">
+                        <button class="qa-mic-btn" id="qaMicBtn" onclick="qaToggleMic()" title="Voice input">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                        </button>
                         <div class="qa-input-wrap">
-                        <textarea id="qaInput" class="qa-input" placeholder="Contoh: Kode part burner untuk BH 1725..." rows="1"
-                            onkeydown="qaHandleKey(event)" oninput="qaAutoResize(this)"></textarea>
+                            <textarea id="qaInput" class="qa-input" placeholder="Contoh: Kode part burner untuk BH 1725..." rows="1"
+                                onkeydown="qaHandleKey(event)" oninput="qaAutoResize(this)"></textarea>
                         </div>
                         <button class="qa-send-btn" id="qaSendBtn" onclick="qaSubmit()">
                             <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
@@ -5931,7 +6023,39 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
         // Q&A — CLAUDE API INTEGRATION
         // ═══════════════════════════════════════
         let qaMessages = [];
-        let qaActiveCodes = []; // codes from last Q&A result for gallery filter
+        let qaActiveCodes = [];
+        let qaHistory = JSON.parse(localStorage.getItem('qaHistory') || '[]');
+        let qaIsRecording = false;
+        let qaRecognition = null;
+
+        // ─── QUICK PROMPTS POOL (rotate random) ───
+        const qaPromptPool = [
+            ['🔥 Burner BH 1725', 'Info kode part burner untuk BH 1725'],
+            ['💧 Parts DD 66', 'Part apa saja untuk Water Dispenser DD 66?'],
+            ['⚙️ Pompa Dispenser', 'Kode part pompa water dispenser'],
+            ['💰 Harga Knob', 'Berapa harga knob untuk BH 0325?'],
+            ['🚿 Filter Purifier', 'Filter apa yang cocok untuk water purifier RO 8115?'],
+            ['🔌 PCB Dispenser', 'Kode PCB main untuk water dispenser DD 7106?'],
+            ['🌡️ Thermostat', 'Thermostat untuk DD 66 L kode nya apa?'],
+            ['🔧 Ignition Device', 'Kode ignition device untuk BH 1325'],
+            ['💡 Lampu Hood', 'Lampu LED untuk cooker hood CX 6215 kode apa?'],
+            ['🛠️ Valve Gas', 'Gas valve untuk BH 1725 berapa harganya?'],
+            ['📦 Parts BH 2325', 'Parts apa saja yang tersedia untuk BH 2325?'],
+            ['🌊 Faucet Dispenser', 'Kode faucet cold untuk DD 65'],
+        ];
+
+        function qaRenderQuickPrompts() {
+            const container = document.getElementById('qaQuickBtns');
+            if (!container) return;
+            // Pick 5 random from pool
+            const shuffled = qaPromptPool.sort(() => Math.random() - 0.5).slice(0, 5);
+            container.innerHTML = shuffled.map(([label, text]) =>
+                '<button class="qa-quick" onclick="qaSendQuick(' + JSON.stringify(text) + ')">' + label + '</button>'
+            ).join('');
+        }
+
+        // Initialize quick prompts on load
+        qaRenderQuickPrompts();
 
         function qaAutoResize(el) {
             el.style.height = 'auto';
@@ -5950,24 +6074,43 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
             qaSubmit();
         }
 
-        function qaAddBubble(role, html) {
+        function qaGetTime() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+        }
+
+        function qaAddBubble(role, html, rawText) {
             const area = document.getElementById('qaChatArea');
-            // Remove empty state on first message
             const empty = document.getElementById('qaEmptyState');
             if (empty) empty.remove();
-            // Hide quick prompts after first use
             const qp = document.getElementById('qaQuickBtns');
             if (qp) qp.style.display = 'none';
 
+            // Show toolbar
+            const toolbar = document.getElementById('qaToolbar');
+            if (toolbar) toolbar.style.display = 'flex';
+
             const wrap = document.createElement('div');
             wrap.className = 'qa-bubble-wrap ' + (role === 'user' ? 'qa-user' : '');
+
             const userIcon = '<svg width="52" height="58" viewBox="0 0 52 58" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="26" fill="#1e3a8a"/><circle cx="26" cy="13" r="7" fill="white"/><path d="M12 28 Q13 21 26 21 Q39 21 40 28" fill="white"/><line x1="12" y1="33" x2="40" y2="33" stroke="white" stroke-width="1.5" opacity="0.55"/><text x="26" y="42" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="6.5" letter-spacing="1.5" opacity="0.9">MODENA</text></svg>';
             const aiIcon = '<svg width="52" height="58" viewBox="0 0 52 58" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="26" fill="#1a1a1a"/><text x="26" y="13" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="9">&#x2726;</text><text x="26" y="28" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="15" letter-spacing="2">AI</text><line x1="11" y1="32" x2="41" y2="32" stroke="white" stroke-width="1.8" opacity="0.6"/><text x="26" y="41" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="6.5" letter-spacing="1.5" opacity="0.9">MODENA</text></svg>';
             const avatarIcon = role === 'user' ? userIcon : aiIcon;
             const bubbleClass = role === 'user' ? 'qa-bubble qa-user' : 'qa-bubble ai';
             const avatarClass = role === 'user' ? 'qa-avatar qa-user' : 'qa-avatar ai';
+
+            // Copy button for AI bubbles
+            const copyBtn = role === 'ai' && rawText ?
+                '<button class="qa-copy-bubble-btn" onclick="qaCopyBubble(this, ' + JSON.stringify(rawText || '') + ')">📋 Copy jawaban</button>' : '';
+
+            // Timestamp
+            const ts = '<div class="qa-timestamp">' + qaGetTime() + '</div>';
+
             wrap.innerHTML = '<div class="' + avatarClass + '">' + avatarIcon + '</div>' +
-                '<div class="' + bubbleClass + '" style="opacity:0;transform:translateY(6px)">' + html + '</div>';
+                '<div style="display:flex;flex-direction:column;max-width:80%">' +
+                '<div class="' + bubbleClass + '" style="opacity:0;transform:translateY(6px)">' + html + copyBtn + '</div>' +
+                ts + '</div>';
+
             area.appendChild(wrap);
             requestAnimationFrame(() => {
                 const b = wrap.querySelector('.qa-bubble');
@@ -5979,12 +6122,18 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
             return wrap;
         }
 
+        function qaCopyBubble(btn, text) {
+            const clean = text.replace(/PARTS_CODES:\[[^\]]+\]/g, '').replace(/SUGGESTED:\[\[[^\]]+\]\]/g, '').trim();
+            navigator.clipboard.writeText(clean).then(() => {
+                btn.textContent = '✓ Tersalin!';
+                btn.classList.add('copied');
+                showToast('✅ Jawaban AI tersalin!');
+                setTimeout(() => { btn.textContent = '📋 Copy jawaban'; btn.classList.remove('copied'); }, 2000);
+            });
+        }
+
         function qaAddThinking() {
-            return qaAddBubble('ai', `
-                <div class="qa-thinking">
-                    <span>AI sedang memproses</span>
-                    <div class="qa-dots"><span></span><span></span><span></span></div>
-                </div>`);
+            return qaAddBubble('ai', '<div class="qa-thinking"><span>AI sedang memproses</span><div class="qa-dots"><span></span><span></span><span></span></div></div>', null);
         }
 
         function qaCopyCode(code, btn) {
@@ -6062,7 +6211,7 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
             input.value = '';
             input.style.height = '36px';
 
-            qaAddBubble('user', text);
+            qaAddBubble('user', text, null);
             qaMessages.push({ role: 'user', content: text });
 
             const thinkEl = qaAddThinking();
@@ -6082,21 +6231,27 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
             }).join('\n');
 
             const systemPrompt = `Kamu adalah Asisten AI MODENA Parts untuk teknisi lapangan MODENA Indonesia.
-Tugasmu membantu teknisi menemukan kode spare part yang tepat dengan cepat.
+Tugasmu membantu teknisi menemukan kode spare part MODENA yang tepat, serta menjawab pertanyaan teknis seputar peralatan rumah tangga dan spare parts.
 
 DATABASE SPARE PARTS MODENA (150 SKU):
 ${partsContext}
 
+KONTAK PMT MODENA:
+- Grup WhatsApp PMT: https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW
+- WhatsApp Personal PMT: https://wa.me/?text=Halo%20Tim%20PMT%20MODENA%20%F0%9F%99%8F%0A%0ASaya%20ada%20pertanyaan%20terkait%20spare%20part%20MODENA%20yang%20perlu%20dikonfirmasi%20lebih%20lanjut.%0A%0AMohon%20bantuannya%2C%20terima%20kasih!
+
 ATURAN PENTING:
 1. Jawab HANYA dalam Bahasa Indonesia
-2. Jawab singkat, jelas, dan langsung ke poin — boleh gunakan format tabel jika membantu, tapi JANGAN tampilkan daftar compatible models di teks karena sudah tampil lengkap di kartu part di bawah
-3. Jika ada part yang relevan dari database, WAJIB sertakan kode part
-4. Di AKHIR jawaban (baris terakhir, setelah semua teks), jika ada part yang relevan, tambahkan tepat seperti ini pada baris baru: PARTS_CODES:["KODE1","KODE2"] — pastikan format ini selalu ada di baris tersendiri paling bawah, tanpa teks lain sesudahnya
-5. Gunakan data harga dari database di atas
-6. Jika tidak ada part yang cocok, sampaikan jujur dan sarankan hubungi PMT
-7. Jangan sebut nama Claude atau Anthropic — kamu adalah AI MODENA Parts Assistant
-8. JANGAN tampilkan daftar compatible models di teks — info lengkap sudah tersedia di kartu part yang muncul di bawah jawaban
-9. Fokus jawaban hanya pada: nama part, kode, harga, dan rekomendasi singkat`;
+2. Jawab singkat, jelas, dan langsung ke poin
+3. Boleh gunakan format tabel, heading, dan bullet list jika membantu
+4. JANGAN tampilkan daftar compatible models di teks — sudah tampil di kartu part
+5. Jika ada part relevan dari database, WAJIB sertakan kode part
+6. Di AKHIR jawaban, jika ada part relevan, tambahkan pada baris tersendiri: PARTS_CODES:["KODE1","KODE2"]
+7. Jika tidak ada part yang cocok di database, sarankan hubungi PMT dan sertakan link WhatsApp PMT
+8. Jangan sebut nama Claude atau Anthropic — kamu adalah AI MODENA Parts Assistant
+9. Kamu boleh menjawab pertanyaan teknis umum seputar peralatan (troubleshooting, cara kerja komponen, dll) selain spare parts
+10. Jika ditanya kontak PMT, tampilkan kedua link WhatsApp di atas
+11. Di AKHIR setiap jawaban, sertakan 2-3 SUGGESTED_QUESTIONS yang relevan dalam format: SUGGESTED:[["Pertanyaan 1","Pertanyaan 2","Pertanyaan 3"]]`;
 
             try {
                 const response = await fetch('/api/chat', {
@@ -6131,72 +6286,53 @@ ATURAN PENTING:
 
                 if (thinkEl && thinkEl.parentNode) thinkEl.parentNode.removeChild(thinkEl);
 
-                // Convert markdown to HTML
-                function mdToHtml(text) {
-                    // Convert markdown table to HTML table
-                    const lines = text.split('\n');
-                    let result = [];
-                    let inTable = false;
-                    let tableRows = [];
+                // Use global mdToHtml function
 
-                    for (let i = 0; i < lines.length; i++) {
-                        const line = lines[i].trim();
-                        const isTableRow = line.startsWith('|') && line.endsWith('|');
-                        const isSeparator = /^\|[-| :]+\|$/.test(line);
-
-                        if (isTableRow && !isSeparator) {
-                            if (!inTable) { inTable = true; tableRows = []; }
-                            tableRows.push(line);
-                        } else if (isSeparator) {
-                            // skip separator row
-                        } else {
-                            if (inTable) {
-                                // Flush table
-                                let tableHtml = '<table style="width:100%;border-collapse:collapse;font-size:12px;margin:10px 0">';
-                                tableRows.forEach((row, idx) => {
-                                    const cells = row.split('|').filter((c,i,a) => i>0 && i<a.length-1);
-                                    const tag = idx === 0 ? 'th' : 'td';
-                                    const bg = idx === 0 ? 'background:#f0f0f0;font-weight:700' : (idx%2===0?'background:#fafafa':'');
-                                    tableHtml += '<tr>' + cells.map(c =>
-                                        `<${tag} style="padding:6px 8px;border:1px solid #e0e0e0;${bg}">${c.trim()}</${tag}>`
-                                    ).join('') + '</tr>';
-                                });
-                                tableHtml += '</table>';
-                                result.push(tableHtml);
-                                inTable = false; tableRows = [];
-                            }
-                            result.push(line);
-                        }
-                    }
-                    if (inTable && tableRows.length) {
-                        let tableHtml = '<table style="width:100%;border-collapse:collapse;font-size:12px;margin:10px 0">';
-                        tableRows.forEach((row, idx) => {
-                            const cells = row.split('|').filter((c,i,a) => i>0 && i<a.length-1);
-                            const tag = idx === 0 ? 'th' : 'td';
-                            const bg = idx === 0 ? 'background:#f0f0f0;font-weight:700' : (idx%2===0?'background:#fafafa':'');
-                            tableHtml += '<tr>' + cells.map(c =>
-                                `<${tag} style="padding:6px 8px;border:1px solid #e0e0e0;${bg}">${c.trim()}</${tag}>`
-                            ).join('') + '</tr>';
-                        });
-                        tableHtml += '</table>';
-                        result.push(tableHtml);
-                    }
-
-                    return result.join('\n')
-                        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-                        .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-                        .replace(/^#{1,3} (.+)$/gm, '<strong style="display:block;margin-top:10px;margin-bottom:4px;font-size:14px">$1</strong>')
-                        .replace(/^- (.+)$/gm, '&bull; $1<br>')
-                        .replace(/^\d+\. (.+)$/gm, '&bull; $1<br>')
-                        .replace(/\n\n/g, '<br><br>')
-                        .replace(/\n/g, '<br>');
-                }
                 let formattedText = mdToHtml(cleanText);
-                let html = `<div style="margin:0;line-height:1.7;font-size:14px">${formattedText}</div>`;
-                if (foundParts.length > 0) html += qaBuildPartCards(foundParts);
-                html += `<div class="qa-disclaimer">ℹ️ Pastikan kesesuaian kode part dengan fisik aktual sebelum digunakan. Jika ragu, hubungi Tim PMT.</div>`;
+                // Extract suggested questions
+                const suggestedMatch = cleanText.match(/SUGGESTED:\[\[([^\]]+)\]\]/s);
+                let suggestions = [];
+                if (suggestedMatch) {
+                    try {
+                        suggestions = JSON.parse('[' + suggestedMatch[1] + ']');
+                    } catch(e) {
+                        const rawSuggestions = suggestedMatch[1].split(',').map(s => s.replace(/['"]/g,'').trim()).filter(Boolean);
+                        suggestions = rawSuggestions;
+                    }
+                    cleanText = cleanText.replace(/SUGGESTED:\[\[[^\]]+\]\]/gs, '').trim();
+                }
 
-                qaAddBubble('ai', html);
+                // Check if PMT contact requested
+                const hasPMTLink = cleanText.includes('chat.whatsapp.com') || cleanText.includes('wa.me');
+                cleanText = cleanText.replace(/https:\/\/chat\.whatsapp\.com\/\S+/g, '').replace(/https:\/\/wa\.me\/\S+/g, '').trim();
+
+                let html = '<div style="margin:0;line-height:1.5;font-size:14px">' + formattedText + '</div>';
+                if (foundParts.length > 0) html += qaBuildPartCards(foundParts);
+
+                // WA buttons if PMT contact mentioned
+                if (hasPMTLink) {
+                    const waPMTMsg = 'Halo Tim PMT MODENA 🙏\n\nSaya ada pertanyaan terkait spare part MODENA yang perlu dikonfirmasi lebih lanjut.\n\nMohon bantuannya, terima kasih!';
+                    html += '<div class="qa-wa-btns">' +
+                        '<button class="qa-wa-btn" onclick="qaOpenGrupPMT(' + JSON.stringify(waPMTMsg) + ')">💬 Grup PMT</button>' +
+                        '<button class="qa-wa-btn personal" onclick="qaOpenPersonalWA(' + JSON.stringify(waPMTMsg) + ')">📱 Personal</button>' +
+                        '</div>';
+                }
+
+                // Suggested follow-up questions
+                if (suggestions.length > 0) {
+                    html += '<div class="qa-suggestions">' +
+                        suggestions.map(q => '<button class="qa-suggestion-btn" onclick="qaSendQuick(' + JSON.stringify(q) + ')">↗ ' + q + '</button>').join('') +
+                        '</div>';
+                }
+
+                html += '<div class="qa-disclaimer">ℹ️ Pastikan kesesuaian kode part dengan fisik aktual sebelum digunakan. Jika ragu, hubungi Tim PMT.</div>';
+
+                qaAddBubble('ai', html, rawText);
+
+                // Save to history
+                qaHistory.unshift({ time: new Date().toISOString(), messages: [...qaMessages].slice(-6) });
+                if (qaHistory.length > 10) qaHistory = qaHistory.slice(0, 10);
+                try { localStorage.setItem('qaHistory', JSON.stringify(qaHistory)); } catch(e) {}
 
             } catch (err) {
                 if (thinkEl && thinkEl.parentNode) thinkEl.parentNode.removeChild(thinkEl);
@@ -6206,6 +6342,198 @@ ATURAN PENTING:
 
             sendBtn.disabled = false;
             input.focus();
+        }
+    
+        // ─── RESET CONVERSATION ───
+        function qaReset() {
+            qaMessages = [];
+            qaActiveCodes = [];
+            const area = document.getElementById('qaChatArea');
+            area.innerHTML = '';
+            const empty = document.createElement('div');
+            empty.className = 'qa-empty-state';
+            empty.id = 'qaEmptyState';
+            empty.innerHTML = '<div class="qa-empty-icon"><svg width="80" height="80" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg"><circle cx="36" cy="36" r="36" fill="#1a1a1a"/><text x="36" y="22" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="13">&#x2726;</text><text x="36" y="42" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="22" letter-spacing="2">AI</text><line x1="16" y1="47" x2="56" y2="47" stroke="white" stroke-width="1.8" opacity="0.5"/><text x="36" y="58" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="8" letter-spacing="3" opacity="0.8">MODENA</text></svg></div><h3>Q&A with AI — MODENA Parts</h3><p>Tanyakan kode part, spesifikasi, atau info model dalam Bahasa Indonesia.</p>';
+            area.appendChild(empty);
+            const toolbar = document.getElementById('qaToolbar');
+            if (toolbar) toolbar.style.display = 'none';
+            const qp = document.getElementById('qaQuickBtns');
+            if (qp) { qp.style.display = 'flex'; qaRenderQuickPrompts(); }
+            showToast('🔄 Percakapan direset');
+        }
+
+        // ─── SHARE CONVERSATION ───
+        function qaShareConversation() {
+            const area = document.getElementById('qaChatArea');
+            const bubbles = area.querySelectorAll('.qa-bubble');
+            let text = '📱 *Q&A MODENA Parts*\n\n';
+            bubbles.forEach(b => {
+                const isUser = b.classList.contains('qa-user');
+                const rawText = b.innerText.replace('📋 Copy jawaban', '').trim();
+                if (rawText) text += (isUser ? '👤 ' : '🤖 AI: ') + rawText + '\n\n';
+            });
+            text += '---\nDari: MODENA AI Parts Recognition\nhttps://modena-ai-parts-recognition.vercel.app/';
+            const encoded = encodeURIComponent(text);
+            navigator.clipboard.writeText(text);
+            window.open('https://wa.me/?text=' + encoded, '_blank');
+            showToast('✅ Percakapan disalin & WhatsApp dibuka!');
+        }
+
+        // ─── WA PMT BUTTONS ───
+        function qaOpenGrupPMT(msg) {
+            navigator.clipboard.writeText(msg);
+            window.open('https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW', '_blank');
+            showToast('✅ Pesan disalin! Paste di grup PMT.');
+        }
+        function qaOpenPersonalWA(msg) {
+            const encoded = encodeURIComponent(msg);
+            window.open('https://wa.me/?text=' + encoded, '_blank');
+        }
+
+        // ─── HISTORY ───
+        function qaToggleHistory() {
+            const area = document.getElementById("qaChatArea");
+            if (!qaHistory.length) { showToast("Belum ada riwayat percakapan"); return; }
+            const existing = document.getElementById("qaHistoryPanel");
+            if (existing) { existing.remove(); return; }
+            const panel = document.createElement("div");
+            panel.id = "qaHistoryPanel";
+            panel.style.cssText = "position:absolute;top:50px;right:10px;width:280px;background:#fff;border:1px solid #e0e0e0;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:100;padding:12px;max-height:300px;overflow-y:auto";
+            
+            let html = "<div style=\"font-weight:700;font-size:13px;margin-bottom:10px\">🕐 Riwayat Percakapan</div>";
+            qaHistory.forEach(function(h, i) {
+                const d = new Date(h.time);
+                const timeStr = d.toLocaleDateString("id-ID") + " " + d.toLocaleTimeString("id-ID", {hour:"2-digit",minute:"2-digit"});
+                const firstMsg = h.messages.find(function(m) { return m.role === "user"; });
+                html += "<div style=\"padding:8px;border:1px solid #f0f0f0;border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:12px\" onclick=\"qaLoadHistory(" + i + ")\">" +
+                    "<div style=\"color:#888;font-size:10px\">" + timeStr + "</div>" +
+                    "<div style=\"margin-top:2px;color:#333\">" + (firstMsg ? firstMsg.content.slice(0,50) + "..." : "Sesi kosong") + "</div>" +
+                    "</div>";
+            });
+            html += "<button onclick=\"var p=document.getElementById('qaHistoryPanel');if(p)p.remove()\" style=\"width:100%;padding:6px;border:1px solid #e0e0e0;border-radius:6px;background:none;cursor:pointer;font-size:12px;margin-top:4px\">Tutup</button>";
+            panel.innerHTML = html;
+            
+            const wrapper = document.querySelector(".qa-wrapper");
+            wrapper.style.position = "relative";
+            wrapper.appendChild(panel);
+        }
+
+                function qaLoadHistory(idx) {
+            const h = qaHistory[idx];
+            if (!h) return;
+            qaReset();
+            qaMessages = [...h.messages];
+            h.messages.forEach(m => {
+                if (m.role === 'user') qaAddBubble('user', m.content, null);
+                else qaAddBubble('ai', '<div style="line-height:1.5;font-size:14px">' + m.content.replace(/\n/g,'<br>') + '</div>', m.content);
+            });
+            const panel = document.getElementById('qaHistoryPanel');
+            if (panel) panel.remove();
+            showToast('✅ Riwayat percakapan dimuat');
+        }
+
+        // ─── VOICE INPUT ───
+        function qaToggleMic() {
+            const btn = document.getElementById('qaMicBtn');
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                showToast('❌ Browser tidak support voice input');
+                return;
+            }
+            if (qaIsRecording) {
+                if (qaRecognition) qaRecognition.stop();
+                qaIsRecording = false;
+                btn.classList.remove('recording');
+                return;
+            }
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            qaRecognition = new SR();
+            qaRecognition.lang = 'id-ID';
+            qaRecognition.continuous = false;
+            qaRecognition.interimResults = false;
+            qaRecognition.onstart = () => { qaIsRecording = true; btn.classList.add('recording'); showToast('🎙️ Mulai berbicara...'); };
+            qaRecognition.onresult = (e) => {
+                const transcript = e.results[0][0].transcript;
+                document.getElementById('qaInput').value = transcript;
+                qaAutoResize(document.getElementById('qaInput'));
+                showToast('✅ Suara dikenali: ' + transcript.slice(0, 30));
+            };
+            qaRecognition.onend = () => { qaIsRecording = false; btn.classList.remove('recording'); };
+            qaRecognition.onerror = () => { qaIsRecording = false; btn.classList.remove('recording'); showToast('❌ Gagal mengenali suara'); };
+            qaRecognition.start();
+        }
+
+        // ─── MARKDOWN FIX (compact + fix pipe bug) ───
+        function mdToHtml(text) {
+            const lines = text.split('\n');
+            let result = [];
+            let inTable = false;
+            let tableRows = [];
+            let inList = false;
+            let listItems = [];
+
+            const flushList = () => {
+                if (listItems.length) {
+                    result.push('<ul>' + listItems.map(i => '<li>' + i + '</li>').join('') + '</ul>');
+                    listItems = [];
+                    inList = false;
+                }
+            };
+            const flushTable = () => {
+                if (!tableRows.length) return;
+                let tbl = '<table style="width:100%;border-collapse:collapse;font-size:13px;margin:8px 0">';
+                tableRows.forEach((row, idx) => {
+                    const cells = row.split('|').filter((c,i,a) => i>0 && i<a.length-1);
+                    if (!cells.length) return;
+                    const tag = idx === 0 ? 'th' : 'td';
+                    const bg = idx === 0 ? 'background:#f0f0f0;font-weight:700' : (idx%2===1?'background:#fafafa':'');
+                    tbl += '<tr>' + cells.map(c => '<' + tag + ' style="padding:5px 8px;border:1px solid #e8e8e8;' + bg + '">' + c.trim() + '</' + tag + '>').join('') + '</tr>';
+                });
+                tbl += '</table>';
+                result.push(tbl);
+                tableRows = []; inTable = false;
+            };
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmed = line.trim();
+                const isTableRow = trimmed.startsWith('|') && trimmed.endsWith('|');
+                const isSeparator = /^\|[-| :]+\|$/.test(trimmed);
+                const isBullet = /^[-*•]\s+/.test(trimmed);
+                const isNumbered = /^\d+\.\s+/.test(trimmed);
+                const isHeading = /^#{1,3}\s+/.test(trimmed);
+                const isEmpty = trimmed === '' || trimmed === '---' || trimmed === '—';
+
+                if (isSeparator) continue;
+
+                if (isTableRow) {
+                    flushList();
+                    inTable = true;
+                    tableRows.push(trimmed);
+                } else if (inTable) {
+                    flushTable();
+                    if (isBullet || isNumbered) { inList = true; listItems.push(trimmed.replace(/^[-*•]\s+|^\d+\.\s+/,'')); }
+                    else result.push(trimmed);
+                } else if (isBullet || isNumbered) {
+                    inList = true;
+                    listItems.push(trimmed.replace(/^[-*•]\s+|^\d+\.\s+/,''));
+                } else if (isHeading) {
+                    flushList();
+                    result.push('<span class="qa-section-heading">' + trimmed.replace(/^#{1,3}\s+/,'') + '</span>');
+                } else if (isEmpty && inList) {
+                    flushList();
+                } else {
+                    if (!inList) result.push(trimmed);
+                    else { flushList(); result.push(trimmed); }
+                }
+            }
+            flushList();
+            flushTable();
+
+            return result.join('\n')
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+                .replace(/\n\n+/g, '<br>')
+                .replace(/\n/g, '<br>');
         }
     </script>
 </body>
