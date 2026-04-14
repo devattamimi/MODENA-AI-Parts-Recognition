@@ -1533,10 +1533,10 @@
         .qa-avatar {
             width: 52px; height: 52px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; overflow: hidden;
+            flex-shrink: 0; background: transparent !important;
         }
-        .qa-avatar.ai { background: #1a1a1a !important; }
-        .qa-avatar.qa-user { background: #1e3a8a !important; }
+        .qa-avatar.ai { background: transparent !important; }
+        .qa-avatar.qa-user { background: transparent !important; }
         .qa-bubble {
             max-width: 80%;
             padding: 11px 15px;
@@ -5961,11 +5961,13 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
 
             const wrap = document.createElement('div');
             wrap.className = 'qa-bubble-wrap ' + (role === 'user' ? 'qa-user' : '');
-            const userIcon = '<svg width="52" height="52" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="15" r="9" fill="white"/><path d="M6 37 Q7 24 26 24 Q45 24 46 37" fill="white"/><line x1="13" y1="42" x2="39" y2="42" stroke="white" stroke-width="1.5" opacity="0.55"/><text x="26" y="49" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="7" letter-spacing="2" opacity="0.85">MODENA</text></svg>';
-            const aiIcon = '<svg width="52" height="52" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg"><text x="26" y="13" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="9">&#x2726;</text><text x="26" y="30" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="16" letter-spacing="2">AI</text><line x1="11" y1="34" x2="41" y2="34" stroke="white" stroke-width="2" opacity="0.6"/><text x="26" y="44" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="6" letter-spacing="2.5" opacity="0.85">MODENA</text></svg>';
+            const userIcon = '<svg width="52" height="58" viewBox="0 0 52 58" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="26" fill="#1e3a8a"/><circle cx="26" cy="13" r="7" fill="white"/><path d="M12 28 Q13 21 26 21 Q39 21 40 28" fill="white"/><line x1="12" y1="33" x2="40" y2="33" stroke="white" stroke-width="1.5" opacity="0.55"/><text x="26" y="42" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="6.5" letter-spacing="1.5" opacity="0.9">MODENA</text></svg>';
+            const aiIcon = '<svg width="52" height="58" viewBox="0 0 52 58" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="26" fill="#1a1a1a"/><text x="26" y="13" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="9">&#x2726;</text><text x="26" y="28" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="15" letter-spacing="2">AI</text><line x1="11" y1="32" x2="41" y2="32" stroke="white" stroke-width="1.8" opacity="0.6"/><text x="26" y="41" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="6.5" letter-spacing="1.5" opacity="0.9">MODENA</text></svg>';
             const avatarIcon = role === 'user' ? userIcon : aiIcon;
-            wrap.innerHTML = '<div class="qa-avatar ' + role + '">' + avatarIcon + '</div>' +
-                '<div class="qa-bubble ' + role + '" style="opacity:0;transform:translateY(6px)">' + html + '</div>';
+            const bubbleClass = role === 'user' ? 'qa-bubble qa-user' : 'qa-bubble ai';
+            const avatarClass = role === 'user' ? 'qa-avatar qa-user' : 'qa-avatar ai';
+            wrap.innerHTML = '<div class="' + avatarClass + '">' + avatarIcon + '</div>' +
+                '<div class="' + bubbleClass + '" style="opacity:0;transform:translateY(6px)">' + html + '</div>';
             area.appendChild(wrap);
             requestAnimationFrame(() => {
                 const b = wrap.querySelector('.qa-bubble');
