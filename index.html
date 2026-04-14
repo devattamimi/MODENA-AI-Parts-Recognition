@@ -6050,7 +6050,7 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
             // Pick 5 random from pool
             const shuffled = qaPromptPool.sort(() => Math.random() - 0.5).slice(0, 5);
             container.innerHTML = shuffled.map(([label, text]) =>
-                '<button class="qa-quick" onclick="qaSendQuick(' + JSON.stringify(text) + ')">' + label + '</button>'
+                '<button class="qa-quick" onclick="qaSendQuick(this.dataset.q)" data-q="' + text.replace(/"/g, '&quot;') + '">' + label + '</button>'
             ).join('');
         }
 
@@ -6069,7 +6069,8 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
             }
         }
 
-        function qaSendQuick(text) {
+        function qaSendQuick(textOrEl) {
+            const text = typeof textOrEl === 'string' ? textOrEl : textOrEl;
             document.getElementById('qaInput').value = text;
             qaSubmit();
         }
@@ -6117,8 +6118,17 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
                 b.style.transition = 'opacity .3s, transform .3s';
                 b.style.opacity = '1';
                 b.style.transform = 'translateY(0)';
+                // Scroll to top of this bubble (not bottom of chat)
+                // For user bubble: scroll to bottom so user sees their message
+                // For AI bubble: scroll to TOP of AI answer so user reads from beginning
+                if (role === 'user') {
+                    area.scrollTop = area.scrollHeight;
+                } else {
+                    setTimeout(() => {
+                        wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
             });
-            area.scrollTop = area.scrollHeight;
             return wrap;
         }
 
@@ -6251,7 +6261,10 @@ ATURAN PENTING:
 8. Jangan sebut nama Claude atau Anthropic — kamu adalah AI MODENA Parts Assistant
 9. Kamu boleh menjawab pertanyaan teknis umum seputar peralatan (troubleshooting, cara kerja komponen, dll) selain spare parts
 10. Jika ditanya kontak PMT, tampilkan kedua link WhatsApp di atas
-11. Di AKHIR setiap jawaban, sertakan 2-3 SUGGESTED_QUESTIONS yang relevan dalam format: SUGGESTED:[["Pertanyaan 1","Pertanyaan 2","Pertanyaan 3"]]`;
+11. Di AKHIR setiap jawaban, sertakan 2-3 pertanyaan lanjutan relevan dalam format TEPAT ini (di baris paling bawah): SUGGESTED:[["Pertanyaan 1","Pertanyaan 2","Pertanyaan 3"]]
+12. JANGAN gunakan triple backtick untuk format teks biasa — gunakan hanya untuk kode program
+13. Untuk bullet list gunakan tanda - atau bullet di awal baris
+14. Berikan jarak baris yang cukup antara section yang berbeda`;
 
             try {
                 const response = await fetch('/api/chat', {
@@ -6290,17 +6303,24 @@ ATURAN PENTING:
 
                 let formattedText = mdToHtml(cleanText);
                 // Extract suggested questions
-                const suggestedMatch = cleanText.match(/SUGGESTED:\[\[([^\]]+)\]\]/s);
+                // Extract SUGGESTED questions — multiple format support
                 let suggestions = [];
-                if (suggestedMatch) {
+                const sugPattern = /SUGGESTED:\s*\[\s*\[([\s\S]*?)\]\s*\]/;
+                const sugMatch = rawText.match(sugPattern);
+                if (sugMatch) {
                     try {
-                        suggestions = JSON.parse('[' + suggestedMatch[1] + ']');
+                        const parsed = JSON.parse('[' + sugMatch[1] + ']');
+                        suggestions = parsed.filter(s => typeof s === 'string' && s.trim());
                     } catch(e) {
-                        const rawSuggestions = suggestedMatch[1].split(',').map(s => s.replace(/['"]/g,'').trim()).filter(Boolean);
-                        suggestions = rawSuggestions;
+                        suggestions = sugMatch[1].split(',')
+                            .map(s => s.replace(/['"\s]/g,'').trim())
+                            .filter(s => s.length > 5);
                     }
-                    cleanText = cleanText.replace(/SUGGESTED:\[\[[^\]]+\]\]/gs, '').trim();
                 }
+                // Strip SUGGESTED from display text
+                cleanText = cleanText
+                    .replace(/SUGGESTED:\s*\[\s*\[[\s\S]*?\]\s*\]/g, '')
+                    .trim();
 
                 // Check if PMT contact requested
                 const hasPMTLink = cleanText.includes('chat.whatsapp.com') || cleanText.includes('wa.me');
@@ -6321,7 +6341,7 @@ ATURAN PENTING:
                 // Suggested follow-up questions
                 if (suggestions.length > 0) {
                     html += '<div class="qa-suggestions">' +
-                        suggestions.map(q => '<button class="qa-suggestion-btn" onclick="qaSendQuick(' + JSON.stringify(q) + ')">↗ ' + q + '</button>').join('') +
+                        suggestions.map(function(q) { return '<button class="qa-suggestion-btn" onclick="qaSendQuick(this.dataset.q)" data-q="' + q.replace(/"/g,'&quot;') + '">↗ ' + q + '</button>'; }).join('') +
                         '</div>';
                 }
 
@@ -6480,7 +6500,7 @@ ATURAN PENTING:
             };
             const flushTable = () => {
                 if (!tableRows.length) return;
-                let tbl = '<table style="width:100%;border-collapse:collapse;font-size:13px;margin:8px 0">';
+                let tbl = '<div style="overflow-x:auto;margin:8px 0"><table style="width:100%;min-width:400px;border-collapse:collapse;font-size:12px">';
                 tableRows.forEach((row, idx) => {
                     const cells = row.split('|').filter((c,i,a) => i>0 && i<a.length-1);
                     if (!cells.length) return;
@@ -6488,7 +6508,7 @@ ATURAN PENTING:
                     const bg = idx === 0 ? 'background:#f0f0f0;font-weight:700' : (idx%2===1?'background:#fafafa':'');
                     tbl += '<tr>' + cells.map(c => '<' + tag + ' style="padding:5px 8px;border:1px solid #e8e8e8;' + bg + '">' + c.trim() + '</' + tag + '>').join('') + '</tr>';
                 });
-                tbl += '</table>';
+                tbl += '</table></div>';
                 result.push(tbl);
                 tableRows = []; inTable = false;
             };
@@ -6518,7 +6538,7 @@ ATURAN PENTING:
                     listItems.push(trimmed.replace(/^[-*•]\s+|^\d+\.\s+/,''));
                 } else if (isHeading) {
                     flushList();
-                    result.push('<span class="qa-section-heading">' + trimmed.replace(/^#{1,3}\s+/,'') + '</span>');
+                    result.push('<span class="qa-section-heading" style="font-weight:700;display:block;margin:14px 0 5px;font-size:14px">' + trimmed.replace(/^#{1,3}\s+/,'') + '</span>');
                 } else if (isEmpty && inList) {
                     flushList();
                 } else {
@@ -6530,6 +6550,8 @@ ATURAN PENTING:
             flushTable();
 
             return result.join('\n')
+                .replace(/```[a-z]*\n?([\s\S]*?)```/g, '<code style="display:block;background:#f5f5f5;padding:8px;border-radius:6px;font-size:12px;margin:6px 0;white-space:pre-wrap">$1</code>')
+                .replace(/`([^`]+)`/g, '<code style="background:#f5f5f5;padding:2px 5px;border-radius:3px;font-size:12px">$1</code>')
                 .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*([^*]+)\*/g, '<em>$1</em>')
                 .replace(/\n\n+/g, '<br>')
