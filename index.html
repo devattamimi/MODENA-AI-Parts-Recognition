@@ -1915,160 +1915,8 @@
             cursor: pointer;
         }
         .cmp-btn-clear-all:hover { border-color: #e63946; color: #e63946; }
-        
-
-        
-        
-            #compareModal .modal-body > div[style*="grid-template-columns:1fr 1fr"]:not([id]) {
-                display: flex !important;
-                flex-direction: column !important;
-            }
-            /* Photo section, details, copy buttons in compareModal */
-            #cmpPhotoGrid, #cmpDetails, #cmpCopyGrid {
-                display: flex !important;
-                flex-direction: column !important;
-            }
-            #cmpPhotoGrid > div:first-child {
-                border-right: none !important;
-                border-bottom: 2px solid #f0f0f0 !important;
-            }
-            #cmpDetails > div:nth-child(odd) {
-                border-right: none !important;
-                border-bottom: none !important;
-            }
-
-            /* compare4Modal → 1 column scroll */
-            #compare4Modal .modal-content { width: 98vw !important; max-height: 90vh; overflow-y: auto; }
-            #c4Grid {
-                grid-template-columns: 1fr !important;
-            }
-
-            /* compare bar slots → 2 col on mobile (already set, keep) */
-        }
-
-        
-
-        
-        /* ════════════════════════════════════════════
-           COMPREHENSIVE MOBILE RESPONSIVE — v4.0
-           Breakpoints: 768px (tablet), 480px (phone), 360px (small phone)
-        ════════════════════════════════════════════ */
-
-        /* ── GLOBAL ── */
-        @media (max-width: 768px) {
-            /* Header */
-            .title { font-size: 22px !important; }
-            .subtitle { font-size: 13px !important; }
-            .status-badge { font-size: 12px; padding: 6px 14px; }
-
-            /* Tabs */
-            .tabs { flex-direction: row; flex-wrap: wrap; gap: 6px; }
-            .tab { flex: 1 1 calc(50% - 6px); padding: 11px 8px; font-size: 13px; min-width: 0; }
-
-            /* Parts Gallery */
-            .catalog-header { padding: 0 4px; }
-            .search-grid-2x2 { grid-template-columns: 1fr !important; gap: 8px; }
-            .parts-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important; gap: 12px; }
-            .part-card { font-size: 12px; }
-            .part-price { font-size: 13px; }
-
-            /* Stock filter */
-            .stock-filter-row { flex-direction: column; gap: 8px; }
-            .stock-filter-item { flex-wrap: wrap; gap: 6px; }
-            .stock-filter-label { font-size: 12px; min-width: 90px; }
-            .stf-btn { font-size: 11px; padding: 5px 10px; }
-
-            /* Category filter buttons */
-            .filter-buttons { gap: 6px; }
-            .filter-btn { font-size: 11px; padding: 7px 10px; }
-
-            /* Compare Bar */
-            .cmp-bar { padding: 8px 10px 10px; }
-            .cmp-slots { grid-template-columns: repeat(2, 1fr) !important; gap: 5px; }
-            .cmp-slot { font-size: 10px; padding: 6px 22px 6px 7px; }
-            .cmp-slot-label { font-size: 8px; }
-            .cmp-btn-compare { font-size: 11px; padding: 7px 14px; }
-            .cmp-btn-clear-all { font-size: 10px; padding: 7px 9px; }
-            .cmp-bar-count { font-size: 10px; }
-
-            /* Modals general */
-            .modal-content { width: 98vw !important; margin: 4px auto; border-radius: 14px; }
-            .modal-header { padding: 12px 14px 10px; }
-            .modal-title { font-size: 15px; }
-            .modal-subtitle { font-size: 11px; }
-            .modal-close { width: 28px; height: 28px; font-size: 16px; }
-            .modal-body { padding: 0; }
-
-            /* modelsModal — specs strip 3-col → 2-col */
-            .modal-specs-strip { grid-template-columns: 1fr 1fr !important; gap: 6px; }
-            .modal-spec-item { padding: 8px; }
-            .modal-spec-label { font-size: 9px; }
-            .modal-spec-value { font-size: 12px; }
-            .modal-part-price { font-size: 18px; }
-
-            /* Substitute chips */
-            .substitute-chips { gap: 4px; }
-            .substitute-chip { font-size: 10px; padding: 3px 8px; }
-
-            /* compareModal (2-col) → 1 col */
-            #compareModal .modal-content { max-width: 98vw !important; }
-            #cmpPhotoGrid { display: flex !important; flex-direction: column !important; }
-            #cmpPhotoGrid > div:first-child {
-                border-right: none !important;
-                border-bottom: 2px solid #f0f0f0 !important;
-            }
-            #cmpDetails { display: flex !important; flex-direction: column !important; }
-            #cmpDetails > div:nth-child(odd) { border-right: none !important; }
-            #cmpCopyGrid { display: flex !important; flex-direction: column !important; gap: 6px !important; padding: 10px !important; }
-            #cmpCopyGrid button { width: 100% !important; }
-            #cmpConclusion div[style*="padding:12px 16px"] { padding: 10px 12px !important; }
-
-            /* compare4Modal (2×2) → 1 col */
-            #compare4Modal .modal-content { max-width: 98vw !important; max-height: 92vh; overflow-y: auto; }
-            #c4Grid { grid-template-columns: 1fr !important; gap: 8px !important; }
-            #c4Conclusion { font-size: 12px; }
-
-            /* Q&A */
-            .qa-wrapper { padding: 8px 10px 0; }
-            .qa-bubble { max-width: 90% !important; font-size: 13px; }
-            .qa-part-card { padding: 8px 10px; }
-        }
-
-        /* ── PHONE (≤ 480px) ── */
-        @media (max-width: 480px) {
-            .title { font-size: 18px !important; }
-            .tab { font-size: 11px; padding: 9px 6px; }
-
-            /* parts grid → single column */
-            .parts-grid { grid-template-columns: 1fr !important; }
-
-            /* modal specs strip → 1 col */
-            .modal-specs-strip { grid-template-columns: 1fr !important; }
-
-            /* Compare bar → 2 col stays, but smaller */
-            .cmp-slot { font-size: 9px; }
-            .cmp-bar-title { font-size: 9px; }
-
-            /* compare4Modal always 1 col */
-            #c4Grid { grid-template-columns: 1fr !important; }
-
-            /* Font adjustments */
-            .qa-bubble { font-size: 12.5px !important; }
-            .modal-title { font-size: 14px; }
-
-            /* Stock filter toggle wrap */
-            .stock-filter-toggle { flex-wrap: wrap; }
-            .stf-btn { flex: 1; text-align: center; min-width: 60px; }
-        }
-
-        /* ── SMALL PHONE (≤ 360px) ── */
-        @media (max-width: 360px) {
-            .title { font-size: 16px !important; }
-            .tabs { gap: 4px; }
-            .tab { font-size: 10px; padding: 8px 4px; }
-            .cmp-slots { grid-template-columns: 1fr 1fr !important; }
-            .filter-btn { font-size: 10px; padding: 6px 8px; }
-            .modal-content { border-radius: 10px; }
+        @media(max-width:600px){
+            .cmp-slots { grid-template-columns: repeat(2,1fr); }
         }
 
         </style>
@@ -8212,7 +8060,7 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
             <div class="modal-body" style="padding:0">
                 <!-- Photo section -->
                 <div style="text-align:center;font-size:10px;font-weight:700;letter-spacing:1px;color:#999;padding:8px 0;border-bottom:1px solid #f0f0f0">FOTO PERBANDINGAN</div>
-                <div id="cmpPhotoGrid" style="display:grid;grid-template-columns:1fr 1fr">
+                <div style="display:grid;grid-template-columns:1fr 1fr">
                     <!-- Original photo -->
                     <div style="padding:12px;border-right:1px solid #f0f0f0">
                         <span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:20px;background:#e6f1fb;color:#0c447c;margin-bottom:8px">ORIGINAL</span>
@@ -8246,7 +8094,7 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
                 <!-- AI Conclusion -->
                 <div id="cmpConclusion" style="display:none"></div>
                 <!-- Copy buttons -->
-                <div id="cmpCopyGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px;border-top:1px solid #f0f0f0">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px;border-top:1px solid #f0f0f0">
                     <button id="cmpBtnO" onclick="cmpCopy('o')" style="padding:9px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer">📋 Copy Original</button>
                     <button id="cmpBtnS" onclick="cmpCopy('s')" style="padding:9px;border-radius:8px;background:#5e35b1;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer">📋 Copy Substitute</button>
                 </div>
