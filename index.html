@@ -188,7 +188,7 @@
         .stock-filter-row {
             display: flex;
             gap: 16px;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
         .stock-filter-item {
@@ -197,10 +197,11 @@
             gap: 10px;
         }
         .stock-filter-label {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--gray);
             white-space: nowrap;
+            min-width: 90px;
         }
         .stock-filter-toggle {
             display: flex;
@@ -210,8 +211,8 @@
             overflow: hidden;
         }
         .stf-btn {
-            padding: 5px 14px;
-            font-size: 12px;
+            padding: 8px 14px;
+            font-size: 13px;
             font-weight: 600;
             background: var(--white);
             border: none;
@@ -235,8 +236,8 @@
         .search-grid-2x2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 16px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
         @media (max-width: 768px) {
             .search-grid-2x2 { grid-template-columns: 1fr; }
@@ -815,12 +816,13 @@
         
         .search-box {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid var(--light-gray);
-            border-radius: 12px;
-            font-size: 16px;
-            margin-bottom: 16px;
+            padding: 9px 12px;
+            border: 1.5px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 0;
             transition: border-color 0.3s ease;
+            box-sizing: border-box;
         }
         
         .search-box:focus {
@@ -836,14 +838,14 @@
         }
         
         .filter-btn {
-            padding: 10px 20px;
-            border: 2px solid var(--light-gray);
+            padding: 9px 16px;
+            border: 1.5px solid var(--light-gray);
             background: var(--white);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
         }
         
         .filter-btn:hover {
@@ -1793,16 +1795,16 @@
 
         /* ── COMPARE BAR ── */
         .cmp-bar {
-            background: linear-gradient(135deg, #f0f4ff 0%, #f8f0ff 100%);
-            border: 1.5px solid #d0d8f0;
-            border-radius: 12px;
-            padding: 10px 14px 12px;
+            background: #fff;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px 12px 12px;
             margin-bottom: 10px;
         }
         .cmp-bar-title {
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 1.5px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
             color: #888;
             margin-bottom: 8px;
             display: flex;
@@ -1820,11 +1822,11 @@
         }
         .cmp-slot {
             width: 100%;
-            padding: 7px 26px 7px 8px;
-            border: 1.5px solid #dde2f0;
+            padding: 9px 26px 9px 12px;
+            border: 1.5px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 500;
             background: #fff;
             color: #111;
             outline: none;
@@ -1845,11 +1847,11 @@
         }
         .cmp-slot.filled ~ .cmp-slot-clear { display: block; }
         .cmp-slot-label {
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 700;
             color: #aaa;
             text-align: center;
-            margin-top: 2px;
+            margin-top: 3px;
             letter-spacing: .5px;
         }
         .cmp-dropdown {
@@ -1882,18 +1884,18 @@
             gap: 8px;
         }
         .cmp-bar-count {
-            font-size: 11px;
+            font-size: 13px;
             color: #888;
             flex: 1;
         }
         .cmp-bar-count span { font-weight: 700; color: #1e3a8a; }
         .cmp-btn-compare {
-            padding: 8px 20px;
+            padding: 9px 20px;
             background: #1a1a1a;
             color: #fff;
             border: none;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             transition: background .15s, transform .1s;
@@ -1905,12 +1907,12 @@
         .cmp-btn-compare:active { transform: scale(.97); }
         .cmp-btn-compare:disabled { background: #ccc; cursor: not-allowed; }
         .cmp-btn-clear-all {
-            padding: 8px 12px;
+            padding: 9px 12px;
             background: #fff;
             color: #888;
             border: 1.5px solid #ddd;
             border-radius: 8px;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
         }
@@ -2049,18 +2051,19 @@
                         </div>
                     </div>
                     
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" onclick="filterCategory('ALL')">ALL (150)</button>
-                        <button class="filter-btn" onclick="filterCategory('Built in Hob')">BUILT-IN HOB (45)</button>
-                        <button class="filter-btn" onclick="filterCategory('Water Dispenser')">WATER DISPENSER (32)</button>
-                        <button class="filter-btn desktop-only" onclick="filterCategory('Cooker Hood')">COOKER HOOD (5)</button>
-                        <button class="filter-btn desktop-only" onclick="filterCategory('Water Purifier')">WATER PURIFIER (4)</button>
+                    <div class="filter-buttons" style="align-items:center">
+                        <span style="font-size:13px;font-weight:700;color:var(--gray);white-space:nowrap;min-width:90px">Product</span>
+                        <button class="filter-btn active" onclick="filterCategory('ALL')">All (150)</button>
+                        <button class="filter-btn" onclick="filterCategory('Built in Hob')">Built-in Hob (45)</button>
+                        <button class="filter-btn" onclick="filterCategory('Water Dispenser')">Water Dispenser (32)</button>
+                        <button class="filter-btn desktop-only" onclick="filterCategory('Cooker Hood')">Cooker Hood (5)</button>
+                        <button class="filter-btn desktop-only" onclick="filterCategory('Water Purifier')">Water Purifier (4)</button>
                         <div class="dropdown-container">
-                            <button class="filter-btn" onclick="toggleDropdown()">OTHERS ▼</button>
+                            <button class="filter-btn" onclick="toggleDropdown()">Others ▼</button>
                             <div class="dropdown-menu" id="dropdownMenu">
                                 <div class="dropdown-item mobile-only" onclick="filterCategory('Cooker Hood')">Cooker Hood (5)</div>
                                 <div class="dropdown-item mobile-only" onclick="filterCategory('Water Purifier')">Water Purifier (4)</div>
-                                <div class="dropdown-item" onclick="filterCategory('Built in Induction')">Built in Induction (2)</div>
+                                <div class="dropdown-item" onclick="filterCategory('Built in Induction')">Built-in Induction (2)</div>
                                 <div class="dropdown-item" onclick="filterCategory('Chest Freezer')">Chest Freezer (1)</div>
                                 <div class="dropdown-item" onclick="filterCategory('Freestanding Cooker')">Freestanding Cooker (1)</div>
                             </div>
@@ -7699,12 +7702,15 @@ ATURAN PENTING:
                 });
                 const data = await resp.json();
                 const text = data.content?.[0]?.text || 'Analisis tidak tersedia.';
+                const parseConclusion = t => t.trim()
+                    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
                 const html = text.trim().split(/\n\n+/).map(p =>
-                    '<p style="margin:0 0 8px;line-height:1.6;font-size:12.5px;color:#222">' + p.replace(/\n/g,'<br>') + '</p>'
+                    '<p style="margin:0 0 8px;line-height:1.6;font-size:12.5px;color:#222">' + parseConclusion(p.replace(/\n/g,'<br>')) + '</p>'
                 ).join('');
                 el.innerHTML = '<div style="padding:12px 16px;border-top:1px solid #f0f0f0">' +
-                    '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">' +
-                    '<span style="font-size:14px">🤖</span>' +
+                    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+                    '<svg width="20" height="20" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><circle cx="36" cy="36" r="36" fill="#1a1a1a"/><text x="36" y="22" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="13">&#x2726;</text><text x="36" y="42" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="22" letter-spacing="2">AI</text><line x1="16" y1="47" x2="56" y2="47" stroke="white" stroke-width="1.8" opacity="0.5"/><text x="36" y="58" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="8" letter-spacing="3" opacity="0.8">MODENA</text></svg>' +
                     '<span style="font-size:10px;font-weight:800;letter-spacing:1px;color:#999">KESIMPULAN AI</span></div>' +
                     '<div style="background:#f8faff;border-left:3px solid #1e3a8a;border-radius:0 8px 8px 0;padding:12px 14px">' + html + '</div></div>';
             } catch(e) {
@@ -7870,15 +7876,18 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
                 const data = await response.json();
                 const text = data.content?.[0]?.text || 'Analisis tidak tersedia.';
 
-                // Convert newlines to paragraphs
+                // Convert newlines to paragraphs + parse markdown bold
+                const parseConclusion2 = t => t.trim()
+                    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
                 const html = text.trim().split(/\n\n+/).map(p =>
-                    '<p style="margin:0 0 8px;line-height:1.6;font-size:12.5px;color:#222">' + p.replace(/\n/g,'<br>') + '</p>'
+                    '<p style="margin:0 0 8px;line-height:1.6;font-size:12.5px;color:#222">' + parseConclusion2(p.replace(/\n/g,'<br>')) + '</p>'
                 ).join('');
 
                 el.innerHTML = `
                     <div style="border-top:1px solid #f0f0f0;padding:12px 16px">
-                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
-                            <span style="font-size:14px">🤖</span>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                            <svg width="20" height="20" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0"><circle cx="36" cy="36" r="36" fill="#1a1a1a"/><text x="36" y="22" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="13">&#x2726;</text><text x="36" y="42" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-weight="700" font-size="22" letter-spacing="2">AI</text><line x1="16" y1="47" x2="56" y2="47" stroke="white" stroke-width="1.8" opacity="0.5"/><text x="36" y="58" text-anchor="middle" fill="white" font-family="Arial,sans-serif" font-size="8" letter-spacing="3" opacity="0.8">MODENA</text></svg>
                             <span style="font-size:10px;font-weight:800;letter-spacing:1px;color:#999">KESIMPULAN AI</span>
                         </div>
                         <div style="background:#f8faff;border-left:3px solid #1e3a8a;border-radius:0 8px 8px 0;padding:12px 14px">
