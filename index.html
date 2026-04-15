@@ -6366,18 +6366,14 @@ const PARTS_DATABASE = {
             
             // Update active state on all filter buttons
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                if (btn.textContent.includes('OTHERS')) return;
+                if (btn.textContent.includes('Others')) return;
                 btn.classList.remove('active');
             });
             
-            // Add active to clicked category
+            // Add active to clicked category — match against onclick attribute
             document.querySelectorAll('.filter-btn').forEach(btn => {
-                const btnText = btn.textContent;
-                if ((category === 'ALL' && btnText.startsWith('ALL')) ||
-                    (category === 'Built in Hob' && btnText.includes('BUILT-IN HOB')) ||
-                    (category === 'Water Dispenser' && btnText.includes('WATER DISPENSER')) ||
-                    (category === 'Cooker Hood' && btnText.includes('COOKER HOOD')) ||
-                    (category === 'Water Purifier' && btnText.includes('WATER PURIFIER'))) {
+                const onclick = btn.getAttribute('onclick') || '';
+                if (onclick.includes("'" + category + "'") || onclick.includes('"' + category + '"')) {
                     btn.classList.add('active');
                 }
             });
