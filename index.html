@@ -6987,24 +6987,54 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
 
             const thinkEl = qaAddThinking();
 
-            // Build parts context from PARTS_DATABASE — include ALL fields
-            const partsContext = Object.values(PARTS_DATABASE).map(p => {
-                const models = (p.compatibleModels || []).join(', ');
-                const price = p.price ? qaFormatRp(p.price) : '-';
-                const material = p.material || '-';
-                const spec = p.specification || '-';
-                const dimW = p.dimensionW || '-';
-                const dimD = p.dimensionD || '-';
-                const dimH = p.dimensionH || '-';
-                const stockPMT = p.stockPMT !== undefined ? p.stockPMT + ' pcs' : '-';
-                const stockNat = p.stockNational !== undefined ? p.stockNational + ' pcs' : '-';
-                return `[${p.partNumber}] ${p.name} | Kategori: ${p.productCategory} | Material: ${material} | Spesifikasi: ${spec} | Dimensi: W${dimW}xD${dimD}xH${dimH}mm | Stok PMT: ${stockPMT} | Stok Nasional: ${stockNat} | Model: ${models} | Harga: ${price}`;
-            }).join('\n');
+            // Build parts context — detect model mentions for filtered context
+            const userText = text.toUpperCase();
+            const mentionedModel = (() => {
+                // Extract model pattern like BH 1725, DD 66, etc from user query
+                const m = text.match(/\b([A-Z]{2}\s*\d{2,4}(?:\s+[A-Z]{1,5})?)\b/i);
+                return m ? m[1].toUpperCase().trim() : null;
+            })();
+
+            // Build full context — always include all SKUs
+            const allParts = Object.values(PARTS_DATABASE);
+
+            // If user mentions a specific model, put matching parts FIRST with clear label
+            let partsContext = '';
+            if (mentionedModel) {
+                const matchingParts = allParts.filter(p =>
+                    (p.compatibleModels || []).some(m => m.toUpperCase().includes(mentionedModel))
+                );
+                const otherParts = allParts.filter(p =>
+                    !(p.compatibleModels || []).some(m => m.toUpperCase().includes(mentionedModel))
+                );
+                if (matchingParts.length > 0) {
+                    partsContext += `=== PARTS YANG KOMPATIBEL DENGAN "${mentionedModel}" (GUNAKAN HANYA INI untuk model ini) ===\n`;
+                    partsContext += matchingParts.map(p =>
+                        `${p.partNumber} | ${p.name} | ${p.specification||'-'} | Stok PMT:${p.stockPMT||0} Nasional:${p.stockNational||0} | Harga:${p.price?'Rp'+p.price.toLocaleString('id-ID'):'-'} | COMPATIBLE_MODELS: ${(p.compatibleModels||[]).join(' | ')}`
+                    ).join('\n');
+                    partsContext += `\n\n=== PARTS LAINNYA (TIDAK KOMPATIBEL DENGAN ${mentionedModel}) ===\n`;
+                    partsContext += otherParts.map(p =>
+                        `${p.partNumber} | ${p.name} | COMPATIBLE_MODELS: ${(p.compatibleModels||[]).join(' | ')}`
+                    ).join('\n');
+                } else {
+                    partsContext = allParts.map(p =>
+                        `${p.partNumber} | ${p.name} | ${p.specification||'-'} | Stok PMT:${p.stockPMT||0} | Harga:${p.price?'Rp'+p.price.toLocaleString('id-ID'):'-'} | COMPATIBLE_MODELS: ${(p.compatibleModels||[]).join(' | ')}`
+                    ).join('\n');
+                }
+            } else {
+                partsContext = allParts.map(p =>
+                    `${p.partNumber} | ${p.name} | ${p.specification||'-'} | Stok PMT:${p.stockPMT||0} | Harga:${p.price?'Rp'+p.price.toLocaleString('id-ID'):'-'} | COMPATIBLE_MODELS: ${(p.compatibleModels||[]).join(' | ')}`
+                ).join('\n');
+            }
 
             const systemPrompt = `Kamu adalah Asisten AI MODENA Parts untuk teknisi lapangan MODENA Indonesia.
 Tugasmu membantu teknisi menemukan kode spare part MODENA yang tepat, serta menjawab pertanyaan teknis seputar peralatan rumah tangga dan spare parts.
 
 DATABASE SPARE PARTS MODENA (150 SKU):
+FORMAT: [PART_NUMBER] | [NAMA] | [SPESIFIKASI] | Stok PMT | Harga | COMPATIBLE_MODELS: [daftar model yang BOLEH menggunakan part ini]
+
+PERINGATAN KRITIS: Field COMPATIBLE_MODELS adalah SATU-SATUNYA sumber kebenaran untuk kompatibilitas. Jika sebuah model TIDAK ADA dalam COMPATIBLE_MODELS suatu part, maka part tersebut TIDAK KOMPATIBEL dengan model itu — tidak peduli nama part-nya, jumlah tungku, atau asumsi apapun.
+
 ${partsContext}
 
 KONTAK PMT MODENA:
@@ -7120,7 +7150,9 @@ ATURAN PENTING:
 12. JANGAN gunakan triple backtick untuk format teks biasa — gunakan hanya untuk kode program
 13. Untuk bullet list gunakan tanda - atau bullet di awal baris
 14. Berikan jarak baris yang cukup antara section yang berbeda
-15. Jika tersedia Substitute Parts untuk kode yang diminta, sebutkan kode substitutenya sebagai alternatif`;
+15. Jika tersedia Substitute Parts untuk kode yang diminta, sebutkan kode substitutenya sebagai alternatif
+16. SANGAT PENTING — AKURASI DATABASE: Saat menyebut kode part untuk model tertentu, kamu WAJIB memverifikasi dari field "compatibleModels" di database. JANGAN menebak atau mengasumsikan kompatibilitas. Contoh: untuk BH 1725, hanya rekomendasikan part yang benar-benar memiliki "BH 1725" di compatibleModels-nya. Jika ada beberapa varian part serupa (misal Ignition Device 2 burners vs 4 burners), pilih yang tepat sesuai database — BUKAN berdasarkan asumsi jumlah tungku model.
+17. Jika kamu tidak yakin dengan kompatibilitas suatu part terhadap model tertentu, lebih baik sarankan user untuk memverifikasi ke PMT daripada memberikan kode yang salah.`;
 
             try {
                 const response = await fetch('/api/chat', {
@@ -7255,12 +7287,14 @@ ATURAN PENTING:
             if (event) event.stopPropagation();
             const panel = document.getElementById('qaHistoryPanel');
             if (panel) panel.remove();
+            // Tutup semua modal yang sedang terbuka
+            document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
             if (origCode && PARTS_DATABASE[origCode] && PARTS_DATABASE[subCode]) {
-                openCompareModal(origCode, subCode);
+                setTimeout(() => openCompareModal(origCode, subCode), 80);
             } else {
                 const part = PARTS_DATABASE[subCode];
                 if (!part) { showToast('Part ' + subCode + ' tidak ditemukan'); return; }
-                showCompatibleModels(subCode);
+                setTimeout(() => showCompatibleModels(subCode), 80);
             }
         }
 
@@ -7410,7 +7444,29 @@ ATURAN PENTING:
                     return t.split('|').filter((c,i,a)=>i>0&&i<a.length-1).some(c=>c.trim());
                 });
                 if (!validRows.length) { tableRows = []; return; }
-                let tbl = '<div style="overflow-x:auto;margin:10px 0"><table style="width:100%;min-width:300px;border-collapse:collapse;font-size:12px">';
+
+                // Build TSV string for Excel copy
+                const tsvRows = validRows.map(row =>
+                    row.trim().split('|').filter((c,i,a)=>i>0&&i<a.length-1).map(c=>c.trim()).join('\t')
+                );
+                const tsvData = tsvRows.join('\n').replace(/'/g, "\\'");
+
+                // Unique ID for this table
+                const tblId = 'tbl_' + Math.random().toString(36).substr(2,6);
+
+                let tbl = '<div style="margin:10px 0">';
+                tbl += '<div style="display:flex;justify-content:flex-end;margin-bottom:4px">';
+                tbl += '<button onclick="(function(){';
+                tbl += 'navigator.clipboard.writeText(\'' + tsvData + '\').then(function(){';
+                tbl += 'var btn=document.getElementById(\'' + tblId + '\');';
+                tbl += 'var orig=btn.textContent;';
+                tbl += 'btn.textContent=\'✅ Tersalin!\';btn.style.background=\'#27ae60\';btn.style.color=\'#fff\';';
+                tbl += 'setTimeout(function(){btn.textContent=orig;btn.style.background=\'\';btn.style.color=\'\';},2000);';
+                tbl += '})})();" ';
+                tbl += 'id="' + tblId + '" ';
+                tbl += 'style="font-size:11px;font-weight:600;padding:4px 10px;border:1.5px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s">';
+                tbl += '📋 Copy Table</button></div>';
+                tbl += '<div style="overflow-x:auto"><table style="width:100%;min-width:300px;border-collapse:collapse;font-size:12px">';
                 validRows.forEach((row, idx) => {
                     const cells = row.trim().split('|').filter((c,i,a)=>i>0&&i<a.length-1);
                     if (!cells.length) return;
@@ -7419,7 +7475,7 @@ ATURAN PENTING:
                     const tag = isHeader ? 'th' : 'td';
                     tbl += '<tr>' + cells.map(c=>'<'+tag+' style="padding:6px 8px;border:1px solid #e0e0e0;vertical-align:top;'+bg+'">'+c.trim()+'</'+tag+'>').join('') + '</tr>';
                 });
-                tbl += '</table></div>';
+                tbl += '</table></div></div>';
                 result.push(tbl);
                 tableRows = [];
             };
