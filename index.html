@@ -7445,24 +7445,22 @@ ATURAN PENTING:
                 });
                 if (!validRows.length) { tableRows = []; return; }
 
-                // Build TSV string for Excel copy
+                // Build TSV — strip HTML tags, store in window object keyed by unique id
+                const tblId = 'tbl_' + Date.now() + '_' + Math.random().toString(36).substr(2,4);
+                const stripHtml = s => s.replace(/<[^>]*>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').trim();
                 const tsvRows = validRows.map(row =>
-                    row.trim().split('|').filter((c,i,a)=>i>0&&i<a.length-1).map(c=>c.trim()).join('\t')
+                    row.trim().split('|')
+                        .filter((c,i,a) => i>0 && i<a.length-1)
+                        .map(c => stripHtml(c.trim()))
+                        .join('\t')
                 );
-                const tsvData = tsvRows.join('\n').replace(/'/g, "\\'");
-
-                // Unique ID for this table
-                const tblId = 'tbl_' + Math.random().toString(36).substr(2,6);
+                // Store TSV in window to avoid newline escaping issues in onclick
+                window._tblTsv = window._tblTsv || {};
+                window._tblTsv[tblId] = tsvRows.join('\r\n');
 
                 let tbl = '<div style="margin:10px 0">';
                 tbl += '<div style="display:flex;justify-content:flex-end;margin-bottom:4px">';
-                tbl += '<button onclick="(function(){';
-                tbl += 'navigator.clipboard.writeText(\'' + tsvData + '\').then(function(){';
-                tbl += 'var btn=document.getElementById(\'' + tblId + '\');';
-                tbl += 'var orig=btn.textContent;';
-                tbl += 'btn.textContent=\'✅ Tersalin!\';btn.style.background=\'#27ae60\';btn.style.color=\'#fff\';';
-                tbl += 'setTimeout(function(){btn.textContent=orig;btn.style.background=\'\';btn.style.color=\'\';},2000);';
-                tbl += '})})();" ';
+                tbl += '<button onclick="copyTableTsv(\'' + tblId + '\', this)" ';
                 tbl += 'id="' + tblId + '" ';
                 tbl += 'style="font-size:11px;font-weight:600;padding:4px 10px;border:1.5px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s">';
                 tbl += '📋 Copy Table</button></div>';
@@ -8117,6 +8115,23 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
                 }
             }
             showToast('⚠️ Semua slot sudah terisi. Reset dulu untuk mengganti.');
+        }
+
+
+        function copyTableTsv(tblId, btn) {
+            const tsv = (window._tblTsv || {})[tblId];
+            if (!tsv) { showToast('Data tabel tidak ditemukan'); return; }
+            navigator.clipboard.writeText(tsv).then(() => {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '✅ Tersalin!';
+                btn.style.background = '#27ae60';
+                btn.style.color = '#fff';
+                setTimeout(() => {
+                    btn.innerHTML = orig;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            }).catch(() => showToast('Gagal menyalin tabel'));
         }
 
     </script>
