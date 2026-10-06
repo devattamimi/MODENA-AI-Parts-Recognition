@@ -23526,7 +23526,11 @@ const PARTS_DATABASE = {
             try {
                 // Go through our own /api/image proxy so the browser canvas is not blocked by CORS
                 let res = await fetch('/api/image?url=' + encodeURIComponent(url));
-                if (!res.ok) res = await fetch(url, { mode: 'cors' });
+                if (!res.ok) {
+                    const detail = await res.text().catch(() => '');
+                    console.warn('Image proxy failed', res.status, detail);
+                    res = await fetch(url, { mode: 'cors' });
+                }
                 if (!res.ok) throw new Error('fetch ' + res.status);
                 const blob = await res.blob();
                 return await new Promise((resolve, reject) => {
@@ -23541,6 +23545,8 @@ const PARTS_DATABASE = {
                 });
             } catch (e) {
                 console.warn('Catalog image fetch failed for', url, e);
+                window.__imgErrors = window.__imgErrors || {};
+                window.__imgErrors[url] = String(e && e.message || e);
                 return null;
             }
         }
