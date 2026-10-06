@@ -23347,6 +23347,10 @@ const PARTS_DATABASE = {
         
         // Claude Vision Configuration (no API key in browser; calls go through /api/chat)
         const CLAUDE_MODEL = 'claude-haiku-4-5';
+        // Vision models per stage (testing phase: Sonnet for both to measure best-case accuracy).
+        // To save cost later, set STAGE1 back to 'claude-haiku-4-5'.
+        const VISION_MODEL_STAGE1 = 'claude-sonnet-5-5';
+        const VISION_MODEL_STAGE2 = 'claude-sonnet-5-5';
         const MAX_IMAGE_PX = 900;        // technician photo resize target
         const CATALOG_IMAGE_PX = 500;    // catalog candidate photo resize target
         const MAX_CANDIDATES = 8;        // cap sent to Stage 2 to keep token cost bounded
@@ -23434,7 +23438,7 @@ const PARTS_DATABASE = {
 
                 aiReady = true;
                 console.log('✅ Claude Vision ready');
-                statusBadge.textContent = '✅ AI Model Siap! (Claude Vision — Haiku 4.5)';
+                statusBadge.textContent = '✅ AI Model Siap! (Claude Vision)';
                 statusBadge.className = 'status-badge status-ready';
                 enableButtons();
             } catch (error) {
@@ -23819,7 +23823,7 @@ Return JSON exactly in this shape:
   "shortlist": [list numbers, most likely first]
 }`}
                 ];
-                const stage1Raw = await callClaude({ system: stage1Sys, userBlocks: stage1User, maxTokens: 600 });
+                const stage1Raw = await callClaude({ system: stage1Sys, userBlocks: stage1User, maxTokens: 700, model: VISION_MODEL_STAGE1 });
                 const stage1 = parseJsonFromResponse(stage1Raw) || {};
                 console.log('Stage 1 result:', stage1);
 
@@ -23868,17 +23872,21 @@ Return JSON exactly in this shape:
 `You are a MODENA spare-part visual comparison expert.
 
 The TECHNICIAN'S photo is shown first.
-Then there are ${candidates.length} CANDIDATE catalog photos labelled [1]..[${candidates.length}].
+Then there are ${candidates.length} CANDIDATE catalog photos, each preceded by a label line "CANDIDATE [n] — PARTNUMBER — NAME".
 
 Technician's model unit: ${window.selectedModel}
 Stage-1 observation (may be imperfect, do not trust blindly): ${JSON.stringify(stage1)}
 
-Your task: rank the TOP 3 best matches (fewer if confidence is too low) by comparing the technician's photo to each candidate photo. Consider shape, color, texture, visible text/codes, mounting points, connector styles, and overall silhouette.
+Your task: rank the TOP 3 best matches (fewer if confidence is too low) by comparing the technician's photo to each candidate photo.
+Rules:
+- Judge primarily by the PHOTOS. First make sure the part FUNCTION matches (e.g. burner head vs pan support vs burner cap vs knob are different parts even if all are round). Then compare shape, flame ports/holes, ribs, material (aluminium vs cast iron vs enamel), color, size cues and printed text.
+- Color can differ due to lighting; structure and function matter more.
+- If none of the candidates match, return an empty ranked list.
 
 Reply with STRICT JSON only (no prose, no fences):
 {
   "ranked": [
-    { "candidateIndex": <1-based index>, "confidence": "high|medium|low", "reason": "one short sentence (max 25 words) in Bahasa Indonesia explaining why" }
+    { "partNumber": "exact PARTNUMBER from the label line", "candidateIndex": <n from the label>, "confidence": "high|medium|low", "reason": "one short sentence (max 25 words) in Bahasa Indonesia explaining why" }
   ]
 }
 Include at most 3 entries. Omit candidates whose visual match is clearly wrong.` },
@@ -23898,7 +23906,8 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 const stage2Raw = await callClaude({
                     system: 'You are a MODENA spare-part visual comparison expert. Reply with strict JSON only.',
                     userBlocks: stage2Blocks,
-                    maxTokens: 700
+                    maxTokens: 800,
+                    model: VISION_MODEL_STAGE2
                 });
                 const stage2 = parseJsonFromResponse(stage2Raw) || { ranked: [] };
                 console.log('Stage 2 result:', stage2);
@@ -23907,9 +23916,13 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 const confMap = { high: 0.90, medium: 0.65, low: 0.35 };
                 let predictions = (stage2.ranked || [])
                     .map(r => {
-                        const idx = parseInt(r.candidateIndex, 10) - 1;
-                        if (isNaN(idx) || idx < 0 || idx >= candidates.length) return null;
-                        const part = candidates[idx];
+                        // Prefer exact part number (robust), fall back to index
+                        let part = candidates.find(c => c.partNumber === String(r.partNumber || '').trim());
+                        if (!part) {
+                            const idx = parseInt(r.candidateIndex, 10) - 1;
+                            if (isNaN(idx) || idx < 0 || idx >= candidates.length) return null;
+                            part = candidates[idx];
+                        }
                         return {
                             className: part.partNumber,
                             probability: confMap[(r.confidence || 'medium').toLowerCase()] || 0.50,
@@ -23940,6 +23953,24 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 window.__lastScanTs = scanTs;
 
                 displayPredictions(predictions);
+
+                // Debug panel (collapsed): what the AI saw and which parts it compared
+                try {
+                    const esc = s => String(s == null ? '' : s).replace(/[&<>]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]));
+                    const rows = candidates.map((c, i) =>
+                        `<li>${esc(c.partNumber)} | ${esc(c.name)} ${catImgs[i] ? '📷' : '<span style="color:#c00">(foto katalog gagal dimuat)</span>'}</li>`).join('');
+                    const dbg = document.createElement('details');
+                    dbg.style.cssText = 'margin-top:14px;font-size:12px;color:#444;background:#fafafa;border:1px solid #e5e5e5;border-radius:8px;padding:10px 14px';
+                    dbg.innerHTML = `<summary style="cursor:pointer;font-weight:700">🔎 Detail analisis AI (untuk evaluasi)</summary>
+                        <div style="margin-top:8px;line-height:1.5">
+                        <b>Model unit:</b> ${esc(sel)} &nbsp;|&nbsp; <b>Total part di model:</b> ${pool.length}<br>
+                        <b>AI model:</b> Tahap 1 ${esc(VISION_MODEL_STAGE1)}, Tahap 2 ${esc(VISION_MODEL_STAGE2)}<br>
+                        <b>Jenis part terdeteksi:</b> ${esc(stage1.partType)}<br>
+                        <b>Ciri:</b> ${esc((stage1.features || []).join(', '))}<br>
+                        <b>Teks terbaca:</b> ${esc(stage1.visibleText) || '-'}<br>
+                        <b>Kandidat yang dibandingkan (${candidates.length}):</b><ol style="margin:4px 0 0 18px">${rows}</ol></div>`;
+                    document.getElementById('resultsBox').appendChild(dbg);
+                } catch (e) { console.warn('debug panel failed', e); }
             } catch (error) {
                 console.error('❌ Claude Vision error:', error);
                 resultsBox.innerHTML = `
