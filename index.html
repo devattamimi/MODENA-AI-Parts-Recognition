@@ -23361,6 +23361,19 @@ const PARTS_DATABASE = {
         let audioContext = null;
         
         // Initialize
+        // csms.sap.modena.com is only reachable inside the MODENA network, so photos on that
+        // host do not load on phones using mobile data. E-Catalog (public) serves the same
+        // /photos/part/ files, so point every photo to ecatalog.modena.com.
+        (function normalizePhotoUrls() {
+            const fix = u => typeof u === 'string'
+                ? u.replace(/^https?:\/\/csms\.sap\.modena\.com\//i, 'https://ecatalog.modena.com/')
+                : u;
+            Object.values(PARTS_DATABASE).forEach(p => {
+                p.image = fix(p.image);
+                if (Array.isArray(p.images)) p.images = p.images.map(fix);
+            });
+        })();
+
         window.onload = function() {
             initAudio();
             initModel();
