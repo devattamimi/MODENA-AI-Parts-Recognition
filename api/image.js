@@ -49,7 +49,13 @@ export default async function handler(req, res) {
   if (!ALLOWED_HOSTS.includes(target.hostname)) {
     return res.status(403).json({ error: 'Host not allowed' });
   }
-  const attempts = [target.toString()];
+  const attempts = [];
+  // csms.sap.modena.com is an internal hostname (not resolvable from the internet).
+  // E-Catalog (public) serves the same /photos/part/ files, so try that first.
+  if (target.hostname === 'csms.sap.modena.com') {
+    attempts.push('https://ecatalog.modena.com' + target.pathname);
+  }
+  attempts.push(target.toString());
   if (target.protocol === 'https:') attempts.push(target.toString().replace(/^https:/, 'http:'));
   const errors = [];
   for (const url of attempts) {
