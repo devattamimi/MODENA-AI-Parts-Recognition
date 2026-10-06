@@ -23594,16 +23594,15 @@ const PARTS_DATABASE = {
                 localStorage.setItem(SCAN_LOG_KEY, JSON.stringify(list));
             } catch (e) { console.warn('logScan failed:', e); }
         }
-        function updateScanChoice(ts, chosen) {
+        function updateScanResult(scanId, fields) {
             try {
                 const list = JSON.parse(localStorage.getItem(SCAN_LOG_KEY) || '[]');
-                const idx = list.findIndex(x => x.ts === ts);
+                const idx = list.findIndex(x => x.scanId === scanId || x.ts === scanId);
                 if (idx >= 0) {
-                    list[idx].userChoice = chosen;
-                    list[idx].confirmed = true;
+                    Object.assign(list[idx], fields, { confirmed: true, confirmedAt: new Date().toISOString() });
                     localStorage.setItem(SCAN_LOG_KEY, JSON.stringify(list));
                 }
-            } catch (e) { console.warn('updateScanChoice failed:', e); }
+            } catch (e) { console.warn('updateScanResult failed:', e); }
         }
         function exportScanLog() {
             const list = localStorage.getItem(SCAN_LOG_KEY) || '[]';
@@ -23962,6 +23961,25 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
 
                 displayPredictions(predictions);
 
+                // "None of these is correct" button + form
+                window.__lastCandidates = candidates.map(c => c.partNumber);
+                try {
+                    const wrong = document.createElement('div');
+                    wrong.id = 'wrongBox';
+                    wrong.style.cssText = 'margin-top:16px;padding:14px 16px;border:1.5px dashed #e57373;border-radius:10px;background:#fff8f8;text-align:center';
+                    const opts = Object.keys(PARTS_DATABASE).map(k => `<option value="${k}">${PARTS_DATABASE[k].name}</option>`).join('');
+                    wrong.innerHTML = `
+                        <div style="font-size:13px;color:#555;margin-bottom:8px">Tidak ada yang cocok dengan part aktual?</div>
+                        <button class="confirm-btn" style="background:#c62828" onclick="openWrongForm()">❌ SEMUA HASIL SALAH</button>
+                        <div id="wrongForm" style="display:none;margin-top:12px;text-align:left">
+                            <label style="font-size:12px;color:#444;font-weight:600">Kode part yang benar (kalau tahu, boleh dikosongkan):</label>
+                            <input id="wrongCodeInput" list="wrongCodeList" class="model-input" style="margin-top:6px" placeholder="Ketik kode / nama part">
+                            <datalist id="wrongCodeList">${opts}</datalist>
+                            <button class="confirm-btn" style="background:#c62828;margin-top:10px" onclick="submitWrongResult()">💾 SIMPAN</button>
+                        </div>`;
+                    document.getElementById('resultsBox').appendChild(wrong);
+                } catch (e) { console.warn('wrong box failed', e); }
+
                 // Debug panel (collapsed): what the AI saw and which parts it compared
                 try {
                     const esc = s => String(s == null ? '' : s).replace(/[&<>]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]));
@@ -23996,13 +24014,50 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
 
         // Confirm a candidate as the correct part (called by card button)
         function confirmPartChoice(partCode) {
+            const preds = window.currentPredictions || [];
+            const rank = preds.findIndex(p => p.className === partCode) + 1;   // 1 = top result
             if (window.__lastScanTs) {
-                updateScanChoice(window.__lastScanTs, partCode);
+                updateScanResult(window.__lastScanTs, {
+                    userChoice: partCode,
+                    verdict: rank === 1 ? 'benar_top1' : 'benar_kandidat_' + rank,
+                    correctCode: partCode
+                });
             }
             const el = document.getElementById('confirmBanner');
-            if (el) el.innerHTML = `<div class="confirm-done">✅ Konfirmasi tersimpan: <b>${partCode}</b></div>`;
+            if (el) el.innerHTML = `<div class="confirm-done">✅ Konfirmasi tersimpan: <b>${partCode}</b>${rank > 1 ? ' (kandidat #' + rank + ')' : ''}. Terima kasih!</div>`;
+            const wb = document.getElementById('wrongBox');
+            if (wb) wb.style.display = 'none';
+            el && el.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         window.confirmPartChoice = confirmPartChoice;
+
+        // Technician says none of the AI results is correct
+        function openWrongForm() {
+            const f = document.getElementById('wrongForm');
+            if (f) { f.style.display = 'block'; document.getElementById('wrongCodeInput').focus(); }
+        }
+        function submitWrongResult() {
+            const input = document.getElementById('wrongCodeInput');
+            const code = (input.value || '').trim().toUpperCase();
+            const inDb = code && PARTS_DATABASE[code];
+            const presented = (window.__lastCandidates || []);
+            if (window.__lastScanTs) {
+                updateScanResult(window.__lastScanTs, {
+                    userChoice: null,
+                    verdict: 'salah',
+                    correctCode: code || '(tidak tahu)',
+                    correctCodeInDatabase: !!inDb,
+                    correctCodeWasCompared: code ? presented.includes(code) : null
+                });
+            }
+            const el = document.getElementById('confirmBanner');
+            if (el) el.innerHTML = `<div class="confirm-done" style="background:#fdecea;color:#b71c1c">❌ Tercatat: hasil AI salah${code ? '. Kode benar: <b>' + code + '</b>' + (inDb ? '' : ' (kode ini belum ada di database aplikasi)') : ''}. Terima kasih, ini membantu evaluasi akurasi.</div>`;
+            const wb = document.getElementById('wrongBox');
+            if (wb) wb.style.display = 'none';
+            el && el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        window.openWrongForm = openWrongForm;
+        window.submitWrongResult = submitWrongResult;
         
         // Display predictions with smart filtering
         function displayPredictions(predictions) {
@@ -24150,7 +24205,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                              onerror="this.style.display='none'">
                         <div class="part-name">${part.name}</div>
                         ${pred.aiReason ? `<div class="ai-reason-block"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
-                        ${isTop ? `<button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">✅ KONFIRMASI PART INI BENAR</button>` : ''}
+                        <button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">${isTop ? '✅ KONFIRMASI PART INI BENAR' : '✅ INI YANG BENAR'}</button>
                         <div class="part-details">
                             <strong>Compatible:</strong> ${modelsDisplay}
                         </div>
@@ -24294,7 +24349,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                              onerror="this.style.display='none'">
                         <div class="part-name">${part.name}</div>
                         ${pred.aiReason ? `<div class="ai-reason-block"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
-                        ${isTop ? `<button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">✅ KONFIRMASI PART INI BENAR</button>` : ''}
+                        <button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">${isTop ? '✅ KONFIRMASI PART INI BENAR' : '✅ INI YANG BENAR'}</button>
                         <div class="part-details">
                             <strong>Compatible:</strong> ${modelsDisplay}
                         </div>
@@ -24480,7 +24535,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                              onerror="this.style.display='none'">
                         <div class="part-name">${part.name}</div>
                         ${pred.aiReason ? `<div class="ai-reason-block"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
-                        ${isTop ? `<button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">✅ KONFIRMASI PART INI BENAR</button>` : ''}
+                        <button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">${isTop ? '✅ KONFIRMASI PART INI BENAR' : '✅ INI YANG BENAR'}</button>
                         <div class="part-details">
                             <strong>Compatible:</strong> ${modelsDisplay}
                         </div>
