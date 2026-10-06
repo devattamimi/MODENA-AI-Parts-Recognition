@@ -23881,7 +23881,8 @@ Your task: rank the TOP 3 best matches (fewer if confidence is too low) by compa
 Rules:
 - Judge primarily by the PHOTOS. First make sure the part FUNCTION matches (e.g. burner head vs pan support vs burner cap vs knob are different parts even if all are round). Then compare shape, flame ports/holes, ribs, material (aluminium vs cast iron vs enamel), color, size cues and printed text.
 - Color can differ due to lighting; structure and function matter more.
-- If none of the candidates match, return an empty ranked list.
+- Always return your best 1-3 candidates, even if unsure. Use confidence "low" when the match is uncertain. Never return an empty list.
+- If two candidates are very similar (e.g. burner head vs burner basement), compare the specific details visible in the technician photo and explain the deciding detail in the reason.
 
 Reply with STRICT JSON only (no prose, no fences):
 {
@@ -23906,7 +23907,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 const stage2Raw = await callClaude({
                     system: 'You are a MODENA spare-part visual comparison expert. Reply with strict JSON only.',
                     userBlocks: stage2Blocks,
-                    maxTokens: 800,
+                    maxTokens: 1200,
                     model: VISION_MODEL_STAGE2
                 });
                 const stage2 = parseJsonFromResponse(stage2Raw) || { ranked: [] };
@@ -23937,7 +23938,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     predictions = candidates.slice(0, 3).map((p, i) => ({
                         className: p.partNumber,
                         probability: 0.4 - i * 0.05,
-                        aiReason: 'Stage 2 fallback (AI tidak memberi ranking jelas) — mohon verifikasi manual.'
+                        aiReason: 'AI belum bisa memberi ranking yang jelas, ini urutan dari daftar kandidat. Mohon verifikasi manual.'
                     }));
                 }
 
@@ -23948,6 +23949,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     stage1,
                     candidatesPresented: candidates.map(c => c.partNumber),
                     top3: predictions,
+                    stage2Raw: (stage2Raw || '').slice(0, 2000),
                     confirmed: false
                 });
                 window.__lastScanTs = scanTs;
@@ -23968,7 +23970,8 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                         <b>Jenis part terdeteksi:</b> ${esc(stage1.partType)}<br>
                         <b>Ciri:</b> ${esc((stage1.features || []).join(', '))}<br>
                         <b>Teks terbaca:</b> ${esc(stage1.visibleText) || '-'}<br>
-                        <b>Kandidat yang dibandingkan (${candidates.length}):</b><ol style="margin:4px 0 0 18px">${rows}</ol></div>`;
+                        <b>Kandidat yang dibandingkan (${candidates.length}):</b><ol style="margin:4px 0 0 18px">${rows}</ol>
+                        <b>Jawaban mentah Tahap 2:</b><pre style="white-space:pre-wrap;background:#fff;border:1px solid #eee;padding:6px;border-radius:4px;max-height:200px;overflow:auto">${esc(stage2Raw)}</pre></div>`;
                     document.getElementById('resultsBox').appendChild(dbg);
                 } catch (e) { console.warn('debug panel failed', e); }
             } catch (error) {
