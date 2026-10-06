@@ -23520,7 +23520,9 @@ const PARTS_DATABASE = {
         // ----- Fetch a catalog image URL and return resized base64 -----
         async function urlToResizedBase64(url, maxPx) {
             try {
-                const res = await fetch(url, { mode: 'cors' });
+                // Go through our own /api/image proxy so the browser canvas is not blocked by CORS
+                let res = await fetch('/api/image?url=' + encodeURIComponent(url));
+                if (!res.ok) res = await fetch(url, { mode: 'cors' });
                 if (!res.ok) throw new Error('fetch ' + res.status);
                 const blob = await res.blob();
                 return await new Promise((resolve, reject) => {
@@ -23785,51 +23787,53 @@ const PARTS_DATABASE = {
                 // Resize technician photo
                 const techB64 = await resizeImageToBase64(currentImage, MAX_IMAGE_PX);
 
-                // ===== Stage 1: identify part type + visible text =====
-                const stage1Sys = `You are an industrial spare-parts classifier. Your task is to describe what you see in a photo of a MODENA spare part — not to guess the part number. Reply with STRICT JSON only, no prose, no code fences.`;
+                // ===== Candidate pool: every part compatible with the selected model =====
+                const sel = window.selectedModel;
+                const pool = Object.values(PARTS_DATABASE).filter(p => {
+                    const models = p.compatibleModels || [];
+                    return models.some(m => m && (m === sel || m.toLowerCase().startsWith('all ')));
+                });
+
+                // ===== Stage 1: look at photo + read the model's parts list, shortlist plausible parts =====
+                // We give Claude the NAMES of every part for this model, so it can map what it sees
+                // (e.g. "ring with a hole") to MODENA naming (e.g. "CAP BURNER EXTERNAL") instead of
+                // relying on keyword overlap, which missed parts with sparse names/keywords.
+                const partList = pool.map((c, i) => `${i+1}. ${c.name}`).join('\n');
+                const stage1Sys = `You are a MODENA spare-parts expert. Reply with STRICT JSON only, no prose, no code fences.`;
                 const stage1User = [
                     { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: techB64 } },
                     { type: 'text', text:
-`The user photographed a spare part for MODENA model: ${window.selectedModel}.
+`A technician photographed ONE spare part from a MODENA unit, model: ${sel}.
+Below is the complete list of spare parts registered for this model (numbered):
+${partList}
+
+Tasks:
+1. Describe the part in the photo (type, shape, material, color, any printed text/codes).
+2. Using MODENA naming conventions and your appliance knowledge, shortlist up to ${MAX_CANDIDATES} list numbers that could plausibly be this part, most likely first. Think about function and shape, not just matching words (e.g. a flat ring with a large hole on a gas hob is usually an outer/external burner cap, not a sealing ring).
+
 Return JSON exactly in this shape:
 {
-  "partType": "short category label, e.g. knob, burner, PCB, pump, sensor, wire mesh, hose, igniter, switch",
-  "features": ["3-6 short visual clues: color, material, shape, size cues"],
-  "visibleText": "any text/code/numbers/labels printed on the part, or empty string"
+  "partType": "short label",
+  "features": ["3-6 short visual clues"],
+  "visibleText": "printed text/codes or empty string",
+  "shortlist": [list numbers, most likely first]
 }`}
                 ];
-                const stage1Raw = await callClaude({
-                    system: stage1Sys,
-                    userBlocks: stage1User,
-                    maxTokens: 400
-                });
+                const stage1Raw = await callClaude({ system: stage1Sys, userBlocks: stage1User, maxTokens: 600 });
                 const stage1 = parseJsonFromResponse(stage1Raw) || {};
                 console.log('Stage 1 result:', stage1);
 
-                // ===== Filter candidates from DB =====
-                const sel = window.selectedModel;
-                let candidates = Object.values(PARTS_DATABASE).filter(p => {
-                    const models = p.compatibleModels || [];
-                    return models.some(m => {
-                        if (!m) return false;
-                        if (m === sel) return true;
-                        // Loose match: "All FC model" style wildcards
-                        const low = m.toLowerCase();
-                        if (low.startsWith('all ')) return true;
-                        return false;
+                let candidates = [];
+                if (Array.isArray(stage1.shortlist)) {
+                    const seen = new Set();
+                    stage1.shortlist.forEach(n => {
+                        const idx = parseInt(n, 10) - 1;
+                        if (!isNaN(idx) && idx >= 0 && idx < pool.length && !seen.has(idx)) {
+                            seen.add(idx); candidates.push(pool[idx]);
+                        }
                     });
-                });
-
-                // Narrow further by partType if we got one
-                const pt = (stage1.partType || '').toLowerCase().trim();
-                if (pt && candidates.length > MAX_CANDIDATES) {
-                    const typed = candidates.filter(c => {
-                        const hay = ((c.name || '') + ' ' + (c.productCategory || '') + ' ' + (c.searchKeywords || '')).toLowerCase();
-                        return pt.split(/\s+/).some(tok => tok && hay.includes(tok));
-                    });
-                    if (typed.length > 0) candidates = typed;
                 }
-
+                if (candidates.length === 0) candidates = pool.slice();   // fallback: whole pool
                 candidates = candidates.slice(0, MAX_CANDIDATES);
 
                 if (candidates.length === 0) {
