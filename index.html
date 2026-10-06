@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MODENA AI Parts Recognition - Roboflow ViT</title>
+    <title>MODENA AI Parts Recognition - Claude Vision</title>
     
-    <!-- No external AI library needed - using Roboflow REST API -->
+    <!-- No external AI library needed - using Claude Vision via /api/chat (Haiku 4.5) -->
     
     <style>
         * {
@@ -1921,6 +1921,117 @@
             .cmp-slots { grid-template-columns: repeat(2,1fr); }
         }
 
+        
+        /* Claude Vision — model-unit selector */
+        .model-selector {
+            background: #fff;
+            border: 2px solid var(--border, #e5e5e5);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin: 0 0 16px 0;
+            position: relative;
+        }
+        .model-selector label {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .model-selector .model-hint {
+            color: #777;
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 4px;
+            font-style: italic;
+        }
+        .model-input {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color .15s;
+            box-sizing: border-box;
+        }
+        .model-input:focus { border-color: #1E2D4D; }
+        .model-options {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            top: calc(100% - 4px);
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 260px;
+            overflow-y: auto;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            z-index: 50;
+        }
+        .model-opt {
+            padding: 9px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f3f3;
+        }
+        .model-opt:last-child { border-bottom: none; }
+        .model-opt:hover { background: #f3f6ff; }
+        .model-opt.empty { color: #999; cursor: default; font-style: italic; }
+        .model-chip-wrap { margin-top: 8px; }
+        .model-chip {
+            display: inline-block;
+            background: #e6f4ea;
+            color: #1b5e20;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .model-chip a {
+            color: #1E2D4D;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-left: 6px;
+            font-weight: 500;
+        }
+        /* AI reason block + confirm banner */
+        .ai-reason-block {
+            background: #f0f6ff;
+            border-left: 3px solid #1E2D4D;
+            padding: 8px 12px;
+            margin: 8px 0;
+            font-size: 12.5px;
+            color: #333;
+            border-radius: 4px;
+            line-height: 1.45;
+        }
+        .ai-reason-block b { color: #1E2D4D; }
+        .confirm-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #2f7d4f;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+        }
+        .confirm-btn:hover { background: #246139; }
+        .confirm-done {
+            background: #e6f4ea;
+            color: #1b5e20;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 10px 0;
+            text-align: center;
+        }
         </style>
 </head>
 <body>
@@ -1948,7 +2059,22 @@
             <!-- Scanner Tab -->
             <div id="scannerTab" class="tab-content active">
                 <h2 class="section-title">📸 SCAN PART DENGAN AI</h2>
-                
+
+                <!-- Mandatory Model Unit selector (Claude Vision filter) -->
+                <div class="model-selector">
+                    <label for="modelInput">
+                        🔧 <b>Model Unit</b>
+                        <span style="color:#e63946;font-weight:700">*wajib dipilih</span>
+                        <span class="model-hint">Filter ini membuat AI jauh lebih akurat</span>
+                    </label>
+                    <input type="text" id="modelInput" class="model-input" autocomplete="off"
+                        placeholder="Ketik atau pilih model (BH 1725, DD 65, FC 7320, ...)"
+                        oninput="filterModelOptions()"
+                        onfocus="filterModelOptions()">
+                    <div class="model-options" id="modelOptions" style="display:none"></div>
+                    <div id="selectedModelChip" class="model-chip-wrap"></div>
+                </div>
+
                 <div class="upload-area" id="uploadArea">
                     <div id="uploadPlaceholder">
                         <div class="upload-placeholder">📷</div>
@@ -1975,6 +2101,7 @@
                 </div>
                 
                 <div class="results-box" id="resultsBox"></div>
+                <div style="text-align:right;font-size:10px;color:#aaa;margin-top:6px">💾 Tip admin: Ctrl+Shift+L untuk export log scan (JSON)</div>
             </div>
             
             <!-- Catalog Tab -->
@@ -23218,11 +23345,13 @@ const PARTS_DATABASE = {
         let currentFilter = 'ALL';
         let currentModalPartCode = '';
         
-        // Roboflow Configuration
-        const ROBOFLOW_API_KEY = 'mLv07aRHF5HC6M5ajBcS';
-        const ROBOFLOW_MODEL = 'modena-ai-parts-recognition';
-        const ROBOFLOW_VERSION = 1;
-        let roboflowModel = null;
+        // Claude Vision Configuration (no API key in browser; calls go through /api/chat)
+        const CLAUDE_MODEL = 'claude-haiku-4-5';
+        const MAX_IMAGE_PX = 900;        // technician photo resize target
+        const CATALOG_IMAGE_PX = 500;    // catalog candidate photo resize target
+        const MAX_CANDIDATES = 8;        // cap sent to Stage 2 to keep token cost bounded
+        let aiReady = false;              // flag that model dropdown + helpers are ready
+        window.selectedModel = null;      // mandatory, set via model selector UI
         
         // Audio Context for sounds
         let audioContext = null;
@@ -23292,43 +23421,203 @@ const PARTS_DATABASE = {
             }
         }
         
-        // Initialize AI Model (Roboflow REST API - no library needed)
+        // Initialize AI Model (Claude Vision via /api/chat — Haiku 4.5)
         async function initModel() {
-            console.log('📥 Connecting to Roboflow API...');
+            console.log('📥 Preparing Claude Vision...');
             const statusBadge = document.getElementById('statusBadge');
-            
             try {
-                statusBadge.textContent = '⏳ Connecting to Roboflow...';
+                statusBadge.textContent = '⏳ Preparing AI...';
                 statusBadge.className = 'status-badge status-loading';
-                
-                // Test API connection - skip test, langsung ready
 
-                
-                // Any response (even 400) means API is reachable
-                roboflowModel = true; // flag that API is ready
-                
-                console.log('✅ Roboflow API connected!');
-                statusBadge.textContent = '✅ AI Model Siap! (Roboflow ViT - 98.8%)';
+                // Build the model-unit dropdown from PARTS_DATABASE
+                buildModelSelector();
+
+                aiReady = true;
+                console.log('✅ Claude Vision ready');
+                statusBadge.textContent = '✅ AI Model Siap! (Claude Vision — Haiku 4.5)';
                 statusBadge.className = 'status-badge status-ready';
-                
                 enableButtons();
-                
             } catch (error) {
-                console.error('❌ Roboflow API connection failed:', error.message);
-                // Still enable buttons - API might work during inference
-                roboflowModel = true;
-                statusBadge.textContent = '✅ AI Model Siap! (Roboflow ViT)';
+                console.error('❌ Init failed:', error);
+                aiReady = true;
+                statusBadge.textContent = '⚠️ AI partially ready — upload masih bisa dicoba';
                 statusBadge.className = 'status-badge status-ready';
                 enableButtons();
             }
         }
+
+        // ----- Model-unit selector (mandatory) -----
+        function buildModelSelector() {
+            // Collect unique models across the full PARTS_DATABASE
+            const set = new Set();
+            Object.values(PARTS_DATABASE).forEach(p => {
+                (p.compatibleModels || []).forEach(m => {
+                    if (m && typeof m === 'string') set.add(m.trim());
+                });
+            });
+            const all = Array.from(set).sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
+            window.allModelOptions = all;
+            console.log('🔧 Model options loaded:', all.length);
+            renderModelOptions(all.slice(0, 50)); // show first 50 by default
+        }
+
+        function filterModelOptions() {
+            const q = (document.getElementById('modelInput').value || '').toLowerCase().trim();
+            const all = window.allModelOptions || [];
+            const filtered = q
+                ? all.filter(m => m.toLowerCase().includes(q)).slice(0, 50)
+                : all.slice(0, 50);
+            renderModelOptions(filtered);
+            document.getElementById('modelOptions').style.display = 'block';
+        }
+
+        function renderModelOptions(list) {
+            const box = document.getElementById('modelOptions');
+            if (!box) return;
+            if (list.length === 0) {
+                box.innerHTML = '<div class="model-opt empty">Tidak ada model cocok</div>';
+                return;
+            }
+            box.innerHTML = list.map(m =>
+                `<div class="model-opt" onclick="selectModel('${m.replace(/'/g, "\\'")}')">${m}</div>`
+            ).join('');
+        }
+
+        function selectModel(model) {
+            window.selectedModel = model;
+            document.getElementById('modelInput').value = model;
+            document.getElementById('modelOptions').style.display = 'none';
+            const chip = document.getElementById('selectedModelChip');
+            if (chip) chip.innerHTML = `<span class="model-chip">✅ Model: <b>${model}</b> <a onclick="clearSelectedModel()">change</a></span>`;
+            console.log('✅ Model selected:', model);
+        }
+
+        function clearSelectedModel() {
+            window.selectedModel = null;
+            document.getElementById('modelInput').value = '';
+            document.getElementById('selectedModelChip').innerHTML = '';
+            filterModelOptions();
+        }
+
+        // ----- Image resize helper (returns base64 w/o data: prefix) -----
+        async function resizeImageToBase64(imgEl, maxPx) {
+            return new Promise((resolve, reject) => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const srcW = imgEl.naturalWidth || imgEl.width;
+                    const srcH = imgEl.naturalHeight || imgEl.height;
+                    const scale = Math.min(1, maxPx / Math.max(srcW, srcH));
+                    canvas.width = Math.round(srcW * scale);
+                    canvas.height = Math.round(srcH * scale);
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                    resolve(dataUrl.split(',')[1]);
+                } catch (e) { reject(e); }
+            });
+        }
+
+        // ----- Fetch a catalog image URL and return resized base64 -----
+        async function urlToResizedBase64(url, maxPx) {
+            try {
+                const res = await fetch(url, { mode: 'cors' });
+                if (!res.ok) throw new Error('fetch ' + res.status);
+                const blob = await res.blob();
+                return await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = async () => {
+                        try { resolve(await resizeImageToBase64(img, maxPx)); }
+                        catch (e) { reject(e); }
+                    };
+                    img.onerror = reject;
+                    img.src = URL.createObjectURL(blob);
+                });
+            } catch (e) {
+                console.warn('Catalog image fetch failed for', url, e);
+                return null;
+            }
+        }
+
+        // ----- Call Claude via /api/chat (text + optional images) -----
+        async function callClaude({ system, userBlocks, maxTokens = 800, model = CLAUDE_MODEL }) {
+            const resp = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model,
+                    max_tokens: maxTokens,
+                    system,
+                    messages: [{ role: 'user', content: userBlocks }]
+                })
+            });
+            const data = await resp.json();
+            if (data.error) throw new Error(data.error + (data.detail ? ': ' + data.detail : ''));
+            return (data.content && data.content[0] && data.content[0].text) || '';
+        }
+
+        // Robustly extract JSON from Claude's response (strip code fences, prose)
+        function parseJsonFromResponse(text) {
+            if (!text) return null;
+            // Try fenced code block first
+            const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+            const candidate = fenced ? fenced[1] : text;
+            // Find first { ... last }
+            const first = candidate.indexOf('{');
+            const last = candidate.lastIndexOf('}');
+            if (first < 0 || last < 0) return null;
+            try { return JSON.parse(candidate.slice(first, last + 1)); }
+            catch (e) { console.warn('JSON parse failed:', e, candidate); return null; }
+        }
+
+        // ----- Scan logging (localStorage ring buffer, max 200) -----
+        const SCAN_LOG_KEY = 'modena_scan_log_v1';
+        const SCAN_LOG_MAX = 200;
+        function logScan(entry) {
+            try {
+                const now = new Date().toISOString();
+                const list = JSON.parse(localStorage.getItem(SCAN_LOG_KEY) || '[]');
+                list.push({ ts: now, ...entry });
+                while (list.length > SCAN_LOG_MAX) list.shift();
+                localStorage.setItem(SCAN_LOG_KEY, JSON.stringify(list));
+            } catch (e) { console.warn('logScan failed:', e); }
+        }
+        function updateScanChoice(ts, chosen) {
+            try {
+                const list = JSON.parse(localStorage.getItem(SCAN_LOG_KEY) || '[]');
+                const idx = list.findIndex(x => x.ts === ts);
+                if (idx >= 0) {
+                    list[idx].userChoice = chosen;
+                    list[idx].confirmed = true;
+                    localStorage.setItem(SCAN_LOG_KEY, JSON.stringify(list));
+                }
+            } catch (e) { console.warn('updateScanChoice failed:', e); }
+        }
+        function exportScanLog() {
+            const list = localStorage.getItem(SCAN_LOG_KEY) || '[]';
+            const blob = new Blob([list], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'modena_scan_log_' + new Date().toISOString().slice(0,10) + '.json';
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+        window.exportScanLog = exportScanLog;
+        // Secret keystroke: Ctrl+Shift+L → export log
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && e.shiftKey && (e.key === 'L' || e.key === 'l')) {
+                e.preventDefault();
+                exportScanLog();
+            }
+        });
         
         function enableButtons() {
             document.getElementById('uploadBtn').disabled = false;
             document.getElementById('cameraBtn').disabled = false;
         }
         
-        // Convert image element to base64 string for Roboflow API
+        // Convert image element to base64 string (legacy helper, still used by getBase64FromImage)
         function getBase64FromImage(imageElement) {
             const canvas = document.createElement('canvas');
             const maxSize = 640;
@@ -23471,87 +23760,205 @@ const PARTS_DATABASE = {
         // Analyze part
         async function analyzePart() {
             if (!currentImage) return;
-            
+
+            // Mandatory: model unit must be selected first
+            if (!window.selectedModel) {
+                playBuzzBuzz();
+                alert('Mohon pilih MODEL UNIT terlebih dahulu (contoh: BH 1725, DD 65).\n\nFilter ini membuat AI jauh lebih akurat.');
+                document.getElementById('modelInput').focus();
+                return;
+            }
+
             playBeep();
-            
             const resultsBox = document.getElementById('resultsBox');
             resultsBox.classList.add('show');
             resultsBox.innerHTML = `
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p class="loading-text">🤖 AI sedang menganalisis part...</p>
-                    <p class="loading-subtext">Mohon tunggu sebentar</p>
+                    <p class="loading-text">🤖 Tahap 1/2: Mengenali jenis part...</p>
+                    <p class="loading-subtext">Model: <b>${window.selectedModel}</b></p>
                 </div>
             `;
-            
+
+            const scanTs = new Date().toISOString();
             try {
-                let predictions;
-                
-                if (roboflowModel) {
-                    // Convert image to base64
-                    const base64 = getBase64FromImage(currentImage);
-                    
-                    // Call Roboflow Hosted API v1 - supports multiple predictions
-                    // confidence=0 = return all classes, not just top 1
-                    const response = await fetch(
-                        `https://classify.roboflow.com/${ROBOFLOW_MODEL}/${ROBOFLOW_VERSION}?api_key=${ROBOFLOW_API_KEY}&confidence=0`,
-                        {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: base64
-                        }
-                    );
-                    
-                    const data = await response.json();
-                    
-                    if (data && data.predictions && Array.isArray(data.predictions) && data.predictions.length > 0) {
-                        predictions = data.predictions
-                            .map(p => ({
-                                className: p.class,
-                                probability: p.confidence
-                            }))
-                            .filter(p => p.probability >= 0.20) // hanya tampil jika >= 20%
-                            .sort((a, b) => b.probability - a.probability)
-                            .slice(0, 5);
-                    } else if (data && data.top) {
-                        predictions = [{
-                            className: data.top,
-                            probability: data.confidence
-                        }];
-                    } else {
-                        predictions = [];
-                    }
-                } else {
-                    // Demo mode fallback
-                    predictions = Object.keys(PARTS_DATABASE).slice(0, 10).map(key => ({
-                        className: key,
-                        probability: Math.random() * 0.3
-                    }));
+                // Resize technician photo
+                const techB64 = await resizeImageToBase64(currentImage, MAX_IMAGE_PX);
+
+                // ===== Stage 1: identify part type + visible text =====
+                const stage1Sys = `You are an industrial spare-parts classifier. Your task is to describe what you see in a photo of a MODENA spare part — not to guess the part number. Reply with STRICT JSON only, no prose, no code fences.`;
+                const stage1User = [
+                    { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: techB64 } },
+                    { type: 'text', text:
+`The user photographed a spare part for MODENA model: ${window.selectedModel}.
+Return JSON exactly in this shape:
+{
+  "partType": "short category label, e.g. knob, burner, PCB, pump, sensor, wire mesh, hose, igniter, switch",
+  "features": ["3-6 short visual clues: color, material, shape, size cues"],
+  "visibleText": "any text/code/numbers/labels printed on the part, or empty string"
+}`}
+                ];
+                const stage1Raw = await callClaude({
+                    system: stage1Sys,
+                    userBlocks: stage1User,
+                    maxTokens: 400
+                });
+                const stage1 = parseJsonFromResponse(stage1Raw) || {};
+                console.log('Stage 1 result:', stage1);
+
+                // ===== Filter candidates from DB =====
+                const sel = window.selectedModel;
+                let candidates = Object.values(PARTS_DATABASE).filter(p => {
+                    const models = p.compatibleModels || [];
+                    return models.some(m => {
+                        if (!m) return false;
+                        if (m === sel) return true;
+                        // Loose match: "All FC model" style wildcards
+                        const low = m.toLowerCase();
+                        if (low.startsWith('all ')) return true;
+                        return false;
+                    });
+                });
+
+                // Narrow further by partType if we got one
+                const pt = (stage1.partType || '').toLowerCase().trim();
+                if (pt && candidates.length > MAX_CANDIDATES) {
+                    const typed = candidates.filter(c => {
+                        const hay = ((c.name || '') + ' ' + (c.productCategory || '') + ' ' + (c.searchKeywords || '')).toLowerCase();
+                        return pt.split(/\s+/).some(tok => tok && hay.includes(tok));
+                    });
+                    if (typed.length > 0) candidates = typed;
                 }
-                
-                predictions.sort((a, b) => b.probability - a.probability);
-                
-                if (predictions.length === 0) {
+
+                candidates = candidates.slice(0, MAX_CANDIDATES);
+
+                if (candidates.length === 0) {
                     playBuzzBuzz();
-                    showModal('notFoundModal');
-                    document.getElementById('resultsBox').classList.remove('show');
+                    resultsBox.innerHTML = `
+                        <div style="text-align:center;padding:36px 20px">
+                            <div style="font-size:56px;margin-bottom:14px">🤷‍♂️</div>
+                            <h3 style="color:var(--error);margin-bottom:10px;font-weight:800">Tidak ada kandidat untuk model ${sel}</h3>
+                            <p style="color:var(--gray)">Model ini mungkin belum tersedia di database. Silakan hubungi Tim PMT.</p>
+                        </div>`;
+                    logScan({ model: sel, stage1, candidates: [], top3: [], note: 'no candidates' });
                     return;
                 }
-                
+
+                // ===== Stage 2: side-by-side ranking =====
+                resultsBox.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p class="loading-text">🤖 Tahap 2/2: Membandingkan dengan ${candidates.length} kandidat katalog...</p>
+                        <p class="loading-subtext">Jenis part terdeteksi: <b>${stage1.partType || '(tidak terdeteksi)'}</b></p>
+                    </div>
+                `;
+
+                // Fetch & resize catalog images in parallel
+                const catImgs = await Promise.all(
+                    candidates.map(c => c.image ? urlToResizedBase64(c.image, CATALOG_IMAGE_PX) : Promise.resolve(null))
+                );
+
+                // Build Stage 2 message: tech photo first, then each candidate photo labeled by index
+                const stage2Blocks = [
+                    { type: 'text', text:
+`You are a MODENA spare-part visual comparison expert.
+
+The TECHNICIAN'S photo is shown first.
+Then there are ${candidates.length} CANDIDATE catalog photos labelled [1]..[${candidates.length}].
+
+Technician's model unit: ${window.selectedModel}
+Stage-1 observation (may be imperfect, do not trust blindly): ${JSON.stringify(stage1)}
+
+Your task: rank the TOP 3 best matches (fewer if confidence is too low) by comparing the technician's photo to each candidate photo. Consider shape, color, texture, visible text/codes, mounting points, connector styles, and overall silhouette.
+
+Reply with STRICT JSON only (no prose, no fences):
+{
+  "ranked": [
+    { "candidateIndex": <1-based index>, "confidence": "high|medium|low", "reason": "one short sentence (max 25 words) in Bahasa Indonesia explaining why" }
+  ]
+}
+Include at most 3 entries. Omit candidates whose visual match is clearly wrong.` },
+                    { type: 'text', text: 'TECHNICIAN PHOTO:' },
+                    { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: techB64 } }
+                ];
+                for (let i = 0; i < candidates.length; i++) {
+                    const c = candidates[i];
+                    stage2Blocks.push({ type: 'text', text: `CANDIDATE [${i+1}] — ${c.partNumber} — ${c.name}` });
+                    if (catImgs[i]) {
+                        stage2Blocks.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: catImgs[i] } });
+                    } else {
+                        stage2Blocks.push({ type: 'text', text: '(no catalog photo available for this candidate)' });
+                    }
+                }
+
+                const stage2Raw = await callClaude({
+                    system: 'You are a MODENA spare-part visual comparison expert. Reply with strict JSON only.',
+                    userBlocks: stage2Blocks,
+                    maxTokens: 700
+                });
+                const stage2 = parseJsonFromResponse(stage2Raw) || { ranked: [] };
+                console.log('Stage 2 result:', stage2);
+
+                // Map ranked -> predictions shape expected by displayPredictions
+                const confMap = { high: 0.90, medium: 0.65, low: 0.35 };
+                let predictions = (stage2.ranked || [])
+                    .map(r => {
+                        const idx = parseInt(r.candidateIndex, 10) - 1;
+                        if (isNaN(idx) || idx < 0 || idx >= candidates.length) return null;
+                        const part = candidates[idx];
+                        return {
+                            className: part.partNumber,
+                            probability: confMap[(r.confidence || 'medium').toLowerCase()] || 0.50,
+                            aiReason: r.reason || ''
+                        };
+                    })
+                    .filter(Boolean)
+                    .slice(0, 3);
+
+                // Safety fallback: if Stage 2 returned nothing usable, show candidates ranked by stage 1 keyword overlap
+                if (predictions.length === 0) {
+                    predictions = candidates.slice(0, 3).map((p, i) => ({
+                        className: p.partNumber,
+                        probability: 0.4 - i * 0.05,
+                        aiReason: 'Stage 2 fallback (AI tidak memberi ranking jelas) — mohon verifikasi manual.'
+                    }));
+                }
+
+                // Log the scan
+                logScan({
+                    scanId: scanTs,
+                    model: sel,
+                    stage1,
+                    candidatesPresented: candidates.map(c => c.partNumber),
+                    top3: predictions,
+                    confirmed: false
+                });
+                window.__lastScanTs = scanTs;
+
                 displayPredictions(predictions);
-                
             } catch (error) {
-                console.error('❌ Prediction error:', error);
+                console.error('❌ Claude Vision error:', error);
                 resultsBox.innerHTML = `
                     <div style="text-align: center; padding: 40px;">
                         <div style="font-size: 64px; margin-bottom: 16px;">❌</div>
                         <h3 style="color: var(--error); margin-bottom: 12px; font-weight: 800;">Analisis Gagal</h3>
                         <p style="color: var(--gray); font-weight: 600;">Error: ${error.message}</p>
+                        <p style="color: var(--gray); margin-top: 10px; font-size: 13px;">Coba ulangi, atau hubungi Tim PMT jika terus gagal.</p>
                     </div>
                 `;
                 playBuzzBuzz();
             }
         }
+
+        // Confirm a candidate as the correct part (called by card button)
+        function confirmPartChoice(partCode) {
+            if (window.__lastScanTs) {
+                updateScanChoice(window.__lastScanTs, partCode);
+            }
+            const el = document.getElementById('confirmBanner');
+            if (el) el.innerHTML = `<div class="confirm-done">✅ Konfirmasi tersimpan: <b>${partCode}</b></div>`;
+        }
+        window.confirmPartChoice = confirmPartChoice;
         
         // Display predictions with smart filtering
         function displayPredictions(predictions) {
@@ -23581,7 +23988,7 @@ const PARTS_DATABASE = {
             playDingDing();
             
             const resultsBox = document.getElementById('resultsBox');
-            resultsBox.innerHTML = '<h2 class="section-title">🎯 HASIL ANALISIS AI</h2><div class="predictions-grid" id="predictions"></div>';
+            resultsBox.innerHTML = '<h2 class="section-title">🎯 HASIL ANALISIS AI</h2><div id="confirmBanner"></div><div class="predictions-grid" id="predictions"></div>';
             
             // Store predictions for reference
             window.currentPredictions = predictions;
@@ -23698,6 +24105,8 @@ const PARTS_DATABASE = {
                              onclick="showImageModal('${pred.className}')"
                              onerror="this.style.display='none'">
                         <div class="part-name">${part.name}</div>
+                        ${pred.aiReason ? `<div class="ai-reason-block"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
+                        ${isTop ? `<button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">✅ KONFIRMASI PART INI BENAR</button>` : ''}
                         <div class="part-details">
                             <strong>Compatible:</strong> ${modelsDisplay}
                         </div>
@@ -23840,6 +24249,8 @@ const PARTS_DATABASE = {
                              onclick="showImageModal('${pred.className}')"
                              onerror="this.style.display='none'">
                         <div class="part-name">${part.name}</div>
+                        ${pred.aiReason ? `<div class="ai-reason-block"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
+                        ${isTop ? `<button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">✅ KONFIRMASI PART INI BENAR</button>` : ''}
                         <div class="part-details">
                             <strong>Compatible:</strong> ${modelsDisplay}
                         </div>
@@ -24024,6 +24435,8 @@ const PARTS_DATABASE = {
                              onclick="showImageModal('${pred.className}')"
                              onerror="this.style.display='none'">
                         <div class="part-name">${part.name}</div>
+                        ${pred.aiReason ? `<div class="ai-reason-block"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
+                        ${isTop ? `<button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">✅ KONFIRMASI PART INI BENAR</button>` : ''}
                         <div class="part-details">
                             <strong>Compatible:</strong> ${modelsDisplay}
                         </div>
