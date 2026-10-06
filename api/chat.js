@@ -12,7 +12,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages, system } = req.body;
+    const { messages, system, model, max_tokens } = req.body;
+
+    // Allow caller to pick a model (e.g. "claude-sonnet-4-5" for vision tasks).
+    // Default stays on Haiku so existing Q&A code keeps working unchanged.
+    const chosenModel = (typeof model === 'string' && model.trim().length > 0)
+      ? model.trim()
+      : 'claude-haiku-4-5';
+
+    // Allow caller to lift the token ceiling for longer responses (vision reasoning).
+    const tokenCap = Number.isInteger(max_tokens) && max_tokens > 0 && max_tokens <= 4096
+      ? max_tokens
+      : 1000;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -22,8 +33,8 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5',
-        max_tokens: 1000,
+        model: chosenModel,
+        max_tokens: tokenCap,
         system: system,
         messages: messages
       })
