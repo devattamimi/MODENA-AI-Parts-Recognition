@@ -2112,7 +2112,8 @@
         body.mx .mx-ver { font-size: 12px; color: var(--mx-char); }
         body.mx .status-badge { display: inline-block; margin: 0; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; background: #fff; color: var(--mx-black); border: 1px solid var(--mx-metal); box-shadow: none; text-transform: none; letter-spacing: 0; }
         body.mx .status-ready { border-color: var(--mx-tint-b); background: var(--mx-tint); color: var(--mx-tint-t); }
-        body.mx .tabs { gap: 28px; margin: 0 0 18px; padding: 0 4px; border-bottom: 1px solid var(--mx-metal); }
+        body.mx button, body.mx input, body.mx textarea, body.mx select { font-family: inherit; }
+        body.mx .tabs { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; gap: 28px; margin: 0 0 18px; padding: 0 4px; border-bottom: 1px solid var(--mx-metal); }
         body.mx .tab { flex: 0 0 auto; background: none; border: none; border-bottom: 2px solid transparent; border-radius: 0; padding: 14px 0 12px; font-size: 14px; font-weight: 500; color: var(--mx-char); margin-bottom: -1px; }
         body.mx .tab:hover { color: var(--mx-black); background: none; transform: none; }
         body.mx .tab.active { background: none; color: var(--mx-black); font-weight: 600; border-bottom-color: var(--mx-black); }
