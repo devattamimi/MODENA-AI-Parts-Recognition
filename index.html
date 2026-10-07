@@ -2314,14 +2314,18 @@
         body.mx .mx-wa-btn .mxi { width: 18px; height: 18px; }
         body.mx .mx-wa-btn:hover { border-color: #161616; }
     
-        /* #1 recommendation: full light-blue card */
+        /* #1 recommendation: full light-blue card, everything inside blue too */
         body.mx .ai-card.top { background: #E6F5FA; border: 1.5px solid #0099C3; box-shadow: none; }
-        body.mx .ai-card.top .ai-card-img, body.mx .ai-card.top .ai-card-photo > div:first-child { background: #fff; }
-        body.mx .ai-card.top .stock-row, body.mx .ai-card.top .ai-reason, body.mx .ai-card.top .substitute-section, body.mx .ai-card.top .mx-avail-txt { background: #fff; }
-        body.mx .ai-card.top .mx-avail.bad .mx-avail-txt { background: #FFF1EE; }
+        body.mx .ai-card.top .ai-card-img, body.mx .ai-card.top .ai-card-photo > div:first-child,
+        body.mx .ai-card.top .stock-row, body.mx .ai-card.top .ai-reason, body.mx .ai-card.top .substitute-section,
+        body.mx .ai-card.top .mx-avail-txt { background: transparent; }
+        body.mx .ai-card.top .ai-card-img, body.mx .ai-card.top .stock-row, body.mx .ai-card.top .substitute-section, body.mx .ai-card.top .mx-avail-txt { border: 1px solid #9FD6E6; }
         body.mx .ai-card.top .part-price-row { border-top-color: #9FD6E6; }
         body.mx .ai-card.top .ai-rank { background: #0099C3; color: #fff; }
-        body.mx .ai-card.top .ai-conf { background: #fff; border: 1px solid #9FD6E6; }
+        /* confidence chip: solid, clear colours (all cards) */
+        body.mx .ai-conf.high { background: #3CB149; color: #fff; }
+        body.mx .ai-conf.medium { background: #626262; color: #fff; }
+        body.mx .ai-conf.low { background: #FF4B33; color: #fff; }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
