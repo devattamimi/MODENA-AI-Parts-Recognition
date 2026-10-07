@@ -2221,7 +2221,39 @@
         body.mx #resultsBox:empty + .mx-bottom-reset { display: none; }
         body.mx .mx-ic:empty { display: none; }
         @media (min-width: 769px) { body.mx .mx-actions { max-width: 640px; margin-left: auto; margin-right: auto; } body.mx .mx-analyze { max-width: 640px; display: block; margin-left: auto; margin-right: auto; } }
-        </style>
+        
+        /* ===== MODENA line icons ===== */
+        .mxi { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.2em; flex-shrink: 0; display: inline-block; }
+        body.mx .mx-ic { display: inline-flex; align-items: center; margin-right: 6px; }
+        body.mx .btn, body.mx .ai-btn, body.mx .copy-btn-small, body.mx .qa-quick, body.mx .confirm-btn, body.mx .tab, body.mx .qa-wa-btn, body.mx .qa-gallery-btn, body.mx .qa-copy-btn, body.mx .qa-copy-bubble-btn, body.mx .cmp-btn-compare, body.mx .cmp-btn-clear-all, body.mx .image-modal-copy-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        body.mx .tab .mxi { width: 1.05em; height: 1.05em; }
+        body.mx .upload-placeholder .mxi { width: 56px; height: 56px; stroke-width: 1.25; color: #626262; }
+        body.mx .mxi-xl { width: 56px; height: 56px; stroke-width: 1.25; color: #626262; }
+        body.mx .whatsapp-icon-btn .mxi { width: 20px; height: 20px; color: #626262; }
+        body.mx .substitute-chip .mxi, body.mx .substitute-label .mxi { width: 1em; height: 1em; }
+        body.mx .ai-reason .mxi { color: #0099C3; }
+        body.mx .ai-disclaimer .mxi, body.mx .qa-disclaimer .mxi { color: #626262; }
+        body.mx .status-badge .mxi { margin-right: 4px; }
+        body.mx .mx-spin { animation: mxspin 1s linear infinite; }
+        @keyframes mxspin { to { transform: rotate(360deg); } }
+        body.mx .toast { display: flex; align-items: center; gap: 8px; }
+        body.mx .mx-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: 0; }
+        /* AI thinking (2 stage) */
+        body.mx .mx-think { text-align: center; padding: 28px 12px; }
+        body.mx .mx-think-ic { position: relative; width: 72px; height: 72px; margin: 0 auto 16px; }
+        body.mx .mx-think-ic::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid #E6F5FA; border-top-color: #0099C3; animation: mxspin 1.1s linear infinite; }
+        body.mx .mx-think-ic .mxi { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; color: #0099C3; animation: mxpulse 1.4s ease-in-out infinite; }
+        @keyframes mxpulse { 0%,100% { transform: scale(.88); opacity: .65; } 50% { transform: scale(1.08); opacity: 1; } }
+        body.mx .mx-steps { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 0 auto 12px; font-size: 12px; color: #626262; flex-wrap: wrap; }
+        body.mx .mx-step { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 20px; border: 1px solid #C4C5C4; background: #fff; }
+        body.mx .mx-step b { display: inline-flex; width: 18px; height: 18px; border-radius: 50%; align-items: center; justify-content: center; background: #F2F2F2; font-size: 11px; color: #161616; }
+        body.mx .mx-step.on { border-color: #0099C3; color: #006E8C; background: #E6F5FA; }
+        body.mx .mx-step.on b { background: #0099C3; color: #fff; }
+        body.mx .mx-step.done { border-color: #3CB149; color: #161616; }
+        body.mx .mx-step.done b { background: #3CB149; color: #fff; }
+        body.mx .mx-step-line { width: 18px; height: 1px; background: #C4C5C4; }
+        body.mx .mx-think .loading-text { font-weight: 600; color: #161616; }
+    </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -2239,15 +2271,15 @@
             </div>
             <div class="mx-meta">
                 <span class="mx-ver">Version 5.0 · 7 October 2026</span>
-                <div class="status-badge status-loading" id="statusBadge">⏳ Loading AI Model...</div>
+                <div class="status-badge status-loading" id="statusBadge"><span data-ic="loader-circle" class="mx-spin"></span> Loading AI Model...</div>
             </div>
         </div>
         
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('scanner')">AI Parts Scanner</button>
-            <button class="tab" onclick="switchTab('catalog')">Parts Gallery</button>
-            <button class="tab" onclick="switchTab('qa')">Q&amp;A with AI</button>
+            <button class="tab active" onclick="switchTab('scanner')"><span data-ic="scan-search"></span>AI Parts Scanner</button>
+            <button class="tab" onclick="switchTab('catalog')"><span data-ic="layout-grid"></span>Parts Gallery</button>
+            <button class="tab" onclick="switchTab('qa')"><span data-ic="message-circle"></span>Q&amp;A with AI</button>
         </div>
         
         <!-- Content -->
@@ -2261,7 +2293,7 @@
                 <!-- Mandatory Model Unit selector (Claude Vision filter) -->
                 <div class="model-selector">
                     <label for="modelInput">
-                        🔧 <b>Model Unit</b>
+                        <span data-ic="wrench"></span> <b>Model Unit</b>
                         <span style="color:#e63946;font-weight:700">*wajib dipilih</span>
                         <span class="model-hint">Filter ini membuat AI jauh lebih akurat</span>
                     </label>
@@ -2275,7 +2307,7 @@
 
                 <div class="upload-area" id="uploadArea">
                     <div id="uploadPlaceholder">
-                        <div class="upload-placeholder">📷</div>
+                        <div class="upload-placeholder" data-ic="camera"></div>
                         <h3>Upload Foto Part</h3>
                         <p style="color: var(--gray); margin-top: 8px;">Ambil foto dengan kamera, <b>paste (Ctrl+V)</b>, atau <b>drag &amp; drop</b> foto ke kotak ini</p>
                     </div>
@@ -2286,22 +2318,22 @@
                 
                 <input type="file" id="fileInput" accept="image/*" style="display: none;">
                 
-                <button class="btn btn-primary mx-analyze" id="analyzeBtn" onclick="analyzePart()" style="display: none;"><span class="mx-ic" data-ic="search"></span>Analisis part</button>
+                <button class="btn btn-primary mx-analyze" id="analyzeBtn" onclick="analyzePart()" style="display: none;"><span class="mx-ic" data-ic="scan-search"></span>Analisis part</button>
                 <div class="buttons mx-actions">
                     <div class="mx-row mx-row3">
                         <button class="btn" id="uploadBtn" onclick="document.getElementById('fileInput').click()" disabled><span class="mx-ic" data-ic="upload"></span>Upload</button>
                         <button class="btn" id="cameraBtn" onclick="startCamera()" disabled><span class="mx-ic" data-ic="camera"></span><span class="mx-lbl">Kamera</span></button>
-                        <button class="btn" id="pasteBtn" onclick="pasteImageFromClipboard()" disabled><span class="mx-ic" data-ic="paste"></span>Paste</button>
+                        <button class="btn" id="pasteBtn" onclick="pasteImageFromClipboard()" disabled><span class="mx-ic" data-ic="clipboard-paste"></span>Paste</button>
                     </div>
                     <div class="mx-row mx-row2">
-                        <button class="btn btn-primary" onclick="resetScanner()"><span class="mx-ic" data-ic="reset"></span>Reset</button>
-                        <button class="btn" onclick="exportScanLog()"><span class="mx-ic" data-ic="download"></span>Log (<span id="scanLogCount">0</span>)</button>
+                        <button class="btn btn-primary" onclick="resetScanner()"><span class="mx-ic" data-ic="rotate-ccw"></span>Reset</button>
+                        <button class="btn" onclick="exportScanLog()"><span class="mx-ic" data-ic="download"></span><span>Log (<span id="scanLogCount">0</span>)</span></button>
                     </div>
                     <div class="mx-note">Log tersimpan di HP/browser ini saja, maks. 200 scan terakhir</div>
                 </div>
 
                 <div class="results-box" id="resultsBox"></div>
-                <div class="mx-bottom-reset"><button class="btn" onclick="resetScanner()"><span class="mx-ic" data-ic="reset"></span>Reset / scan item baru</button></div>
+                <div class="mx-bottom-reset"><button class="btn" onclick="resetScanner()"><span class="mx-ic" data-ic="rotate-ccw"></span>Reset / scan item baru</button></div>
                 <div id="scanHistory" class="sh-wrap"></div>
             </div>
             
@@ -2310,15 +2342,15 @@
                 <div class="catalog-header">
                     <h2 class="section-title">Parts Gallery</h2>
                     <div class="search-grid-2x2">
-                        <input type="text" class="search-box" id="searchBox" placeholder="🔍 Cari part code, nama, keywords..." oninput="searchParts()">
-                        <input type="text" class="search-box" id="specSearchBox" placeholder="⚙️ Cari spesifikasi (220V, R600a)..." oninput="searchParts()">
-                        <input type="text" class="search-box" id="modelSearchBox" placeholder="🏷️ Cari model (DD 65, BH 1725)..." oninput="searchParts()">
-                        <input type="text" class="search-box" id="materialSearchBox" placeholder="🧱 Cari material (Stainless, Brass)..." oninput="searchParts()">
+                        <input type="text" class="search-box" id="searchBox" placeholder="Cari part code, nama, keywords..." oninput="searchParts()">
+                        <input type="text" class="search-box" id="specSearchBox" placeholder="Cari spesifikasi (220V, R600a)..." oninput="searchParts()">
+                        <input type="text" class="search-box" id="modelSearchBox" placeholder="Cari model (DD 65, BH 1725)..." oninput="searchParts()">
+                        <input type="text" class="search-box" id="materialSearchBox" placeholder="Cari material (Stainless, Brass)..." oninput="searchParts()">
                     </div>
                     <!-- ⚡ COMPARE BAR -->
                     <div class="cmp-bar">
                         <div class="cmp-bar-title">
-                            <span>⚡</span> COMPARE PARTS — masukkan 2–4 kode SKU
+                            <span data-ic="git-compare-arrows"></span> COMPARE PARTS — masukkan 2–4 kode SKU
                         </div>
                         <div class="cmp-slots">
                             <div class="cmp-slot-wrap">
@@ -2356,8 +2388,8 @@
                         </div>
                         <div class="cmp-bar-footer">
                             <div class="cmp-bar-count" id="cmpBarCount">Isi minimal <span>2 SKU</span> untuk mulai perbandingan</div>
-                            <button class="cmp-btn-clear-all" onclick="cmpBarClearAll()">🗑️ Reset</button>
-                            <button class="cmp-btn-compare" id="cmpBarBtn" onclick="cmpBarCompare()" disabled>⚡ Compare</button>
+                            <button class="cmp-btn-clear-all" onclick="cmpBarClearAll()"><span data-ic="trash-2"></span>Reset</button>
+                            <button class="cmp-btn-compare" id="cmpBarBtn" onclick="cmpBarCompare()" disabled><span data-ic="git-compare-arrows"></span>Compare</button>
                         </div>
                     </div>
                     <div class="stock-filter-row">
@@ -2467,7 +2499,7 @@
                 <h2 class="modal-title">Part Details</h2>
                 <div class="modal-subtitle">
                     <span id="modelsModalPartCode"></span>
-                    <button class="copy-btn-small" onclick="copyFromModal()">📋 COPY</button>
+                    <button class="copy-btn-small" onclick="copyFromModal()"><span data-ic="copy"></span>COPY</button>
                 </div>
             </div>
             <div class="modal-body">
@@ -2490,7 +2522,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button class="modal-close" onclick="closeModal('notFoundModal')">&times;</button>
-                <h2 class="modal-title">⚠️ PART TIDAK DITEMUKAN</h2>
+                <h2 class="modal-title"><span data-ic="triangle-alert"></span> PART TIDAK DITEMUKAN</h2>
             </div>
             <div class="modal-body">
                 <p style="margin-bottom: 16px; font-size: 16px;">
@@ -2503,10 +2535,10 @@
                     <li>Hubungi support</li>
                 </ul>
                 <div class="modal-buttons">
-                    <button class="btn btn-primary" onclick="retakePhoto()">📸 FOTO ULANG</button>
-                    <button class="btn" onclick="viewCatalog()">📚 LIHAT CATALOG</button>
-                    <button class="btn" onclick="contactPMT()" style="background:#25d366;color:white;border-color:#25d366;">📱 HUBUNGI PMT</button>
-                    <button class="btn" onclick="closeModal('notFoundModal')">❌ CANCEL</button>
+                    <button class="btn btn-primary" onclick="retakePhoto()"><span data-ic="camera"></span>FOTO ULANG</button>
+                    <button class="btn" onclick="viewCatalog()"><span data-ic="layout-grid"></span>LIHAT CATALOG</button>
+                    <button class="btn" onclick="contactPMT()" style="background:#25d366;color:white;border-color:#25d366;"><span data-ic="message-circle"></span>HUBUNGI PMT</button>
+                    <button class="btn" onclick="closeModal('notFoundModal')"><span data-ic="x"></span>CANCEL</button>
                 </div>
             </div>
         </div>
@@ -2529,7 +2561,7 @@
             <div class="image-modal-info">
                 <div class="image-modal-code">
                     <span id="imageModalCode"></span>
-                    <button class="image-modal-copy-btn" onclick="event.stopPropagation(); copyPartNumber(document.getElementById('imageModalCode').textContent)">📋 COPY</button>
+                    <button class="image-modal-copy-btn" onclick="event.stopPropagation(); copyPartNumber(document.getElementById('imageModalCode').textContent)"><span data-ic="copy"></span>COPY</button>
                 </div>
                 <div class="image-modal-name" id="imageModalName"></div>
             </div>
@@ -2537,6 +2569,15 @@
     </div>
     
     <script>
+        // MODENA line icons (Lucide, ISC licence), visual only
+        const MXI = {"upload": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /> <polyline points=\"17 8 12 3 7 8\" /> <line x1=\"12\" x2=\"12\" y1=\"3\" y2=\"15\" />", "camera": "<path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />", "clipboard-paste": "<path d=\"M15 2H9a1 1 0 0 0-1 1v2c0 .6.4 1 1 1h6c.6 0 1-.4 1-1V3c0-.6-.4-1-1-1Z\" /> <path d=\"M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M16 4h2a2 2 0 0 1 2 2v2M11 14h10\" /> <path d=\"m17 10 4 4-4 4\" />", "scan-search": "<path d=\"M3 7V5a2 2 0 0 1 2-2h2\" /> <path d=\"M17 3h2a2 2 0 0 1 2 2v2\" /> <path d=\"M21 17v2a2 2 0 0 1-2 2h-2\" /> <path d=\"M7 21H5a2 2 0 0 1-2-2v-2\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" /> <path d=\"m16 16-1.9-1.9\" />", "rotate-ccw": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /> <path d=\"M3 3v5h5\" />", "download": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /> <polyline points=\"7 10 12 15 17 10\" /> <line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\" />", "copy": "<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\" /> <path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\" />", "info": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 16v-4\" /> <path d=\"M12 8h.01\" />", "share-2": "<circle cx=\"18\" cy=\"5\" r=\"3\" /> <circle cx=\"6\" cy=\"12\" r=\"3\" /> <circle cx=\"18\" cy=\"19\" r=\"3\" /> <line x1=\"8.59\" x2=\"15.42\" y1=\"13.51\" y2=\"17.49\" /> <line x1=\"15.41\" x2=\"8.59\" y1=\"6.51\" y2=\"10.49\" />", "wrench": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\" />", "layout-grid": "<rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\" />", "message-circle": "<path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\" />", "check": "<path d=\"M20 6 9 17l-5-5\" />", "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "x": "<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "circle-x": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m15 9-6 6\" /> <path d=\"m9 9 6 6\" />", "triangle-alert": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "loader-circle": "<path d=\"M21 12a9 9 0 1 1-6.219-8.56\" />", "sparkles": "<path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\" /> <path d=\"M20 3v4\" /> <path d=\"M22 5h-4\" /> <path d=\"M4 17v2\" /> <path d=\"M5 18H3\" />", "search": "<circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "search-x": "<path d=\"m13.5 8.5-5 5\" /> <path d=\"m8.5 8.5 5 5\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "book-open": "<path d=\"M12 7v14\" /> <path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" />", "trash-2": "<path d=\"M3 6h18\" /> <path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\" /> <path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\" /> <line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\" /> <line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\" />", "git-compare-arrows": "<circle cx=\"5\" cy=\"6\" r=\"3\" /> <path d=\"M12 6h5a2 2 0 0 1 2 2v7\" /> <path d=\"m15 9-3-3 3-3\" /> <circle cx=\"19\" cy=\"18\" r=\"3\" /> <path d=\"M12 18H7a2 2 0 0 1-2-2V9\" /> <path d=\"m9 15 3 3-3 3\" />", "arrow-left-right": "<path d=\"M8 3 4 7l4 4\" /> <path d=\"M4 7h16\" /> <path d=\"m16 21 4-4-4-4\" /> <path d=\"M20 17H4\" />", "save": "<path d=\"M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z\" /> <path d=\"M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7\" /> <path d=\"M7 3v4a1 1 0 0 0 1 1h7\" />", "image": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /> <circle cx=\"9\" cy=\"9\" r=\"2\" /> <path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\" />", "lightbulb": "<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />", "history": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /> <path d=\"M3 3v5h5\" /> <path d=\"M12 7v5l4 2\" />", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" /> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />", "flame": "<path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\" />", "droplet": "<path d=\"M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z\" />", "cog": "<path d=\"M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z\" /> <path d=\"M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z\" /> <path d=\"M12 2v2\" /> <path d=\"M12 22v-2\" /> <path d=\"m17 20.66-1-1.73\" /> <path d=\"M11 10.27 7 3.34\" /> <path d=\"m20.66 17-1.73-1\" /> <path d=\"m3.34 7 1.73 1\" /> <path d=\"M14 12h8\" /> <path d=\"M2 12h2\" /> <path d=\"m20.66 7-1.73 1\" /> <path d=\"m3.34 17 1.73-1\" /> <path d=\"m17 3.34-1 1.73\" /> <path d=\"m11 13.73-4 6.93\" />", "banknote": "<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M6 12h.01M18 12h.01\" />", "filter": "<polygon points=\"22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3\" />", "cpu": "<rect width=\"16\" height=\"16\" x=\"4\" y=\"4\" rx=\"2\" /> <rect width=\"6\" height=\"6\" x=\"9\" y=\"9\" rx=\"1\" /> <path d=\"M15 2v2\" /> <path d=\"M15 20v2\" /> <path d=\"M2 15h2\" /> <path d=\"M2 9h2\" /> <path d=\"M20 15h2\" /> <path d=\"M20 9h2\" /> <path d=\"M9 2v2\" /> <path d=\"M9 20v2\" />", "thermometer": "<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />", "package": "<path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <path d=\"m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7\" /> <path d=\"m7.5 4.27 9 5.15\" />", "droplets": "<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />", "circle-alert": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /> <line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" />", "smartphone": "<rect width=\"14\" height=\"20\" x=\"5\" y=\"2\" rx=\"2\" ry=\"2\" /> <path d=\"M12 18h.01\" />", "tag": "<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />", "mic": "<path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z\" /> <path d=\"M19 10v2a7 7 0 0 1-14 0v-2\" /> <line x1=\"12\" x2=\"12\" y1=\"19\" y2=\"22\" />"};
+
+        function ic(n, cls) { return '<svg class="mxi' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (MXI[n] || '') + '</svg>'; }
+        function mxFillIcons(root) { (root || document).querySelectorAll('[data-ic]').forEach(el => { if (!el.innerHTML.trim()) el.innerHTML = ic(el.dataset.ic); }); }
+        function mxBtn(id, icon, label) { const b = document.getElementById(id); if (!b) return; const i = b.querySelector('.mx-ic'), l = b.querySelector('.mx-lbl'); if (i) i.innerHTML = ic(icon); if (l) l.textContent = label; }
+        const MX_EMOJI_IC = {'🔥':'flame','💧':'droplet','⚙️':'cog','💰':'banknote','🚿':'filter','🔌':'cpu','🌡️':'thermometer','🔧':'wrench','💡':'lightbulb','🛠️':'wrench','📦':'package','🌊':'droplets'};
+        document.addEventListener('DOMContentLoaded', () => mxFillIcons());
+
         console.log('================================================================================');
         console.log('🚀 MODENA AI PARTS SCANNER');
         console.log('================================================================================');
@@ -2579,7 +2620,7 @@ let PARTS_DATABASE = {};
         async function loadPartsDatabase() {
             const badge = document.getElementById('statusBadge');
             try {
-                if (badge) badge.textContent = '⏳ Memuat data part...';
+                if (badge) badge.innerHTML = ic('loader-circle','mx-spin') + ' Memuat data part...';
                 const res = await fetch('/data/parts.json', { cache: 'no-cache' });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 PARTS_DATABASE = await res.json();
@@ -2597,7 +2638,7 @@ let PARTS_DATABASE = {};
                 console.log('✅ Parts loaded:', Object.keys(PARTS_DATABASE).length);
             } catch (e) {
                 console.error('❌ Failed to load parts data', e);
-                if (badge) { badge.textContent = '❌ Gagal memuat data part, coba refresh'; badge.className = 'status-badge status-loading'; }
+                if (badge) { badge.innerHTML = ic('circle-x') + ' Gagal memuat data part, coba refresh'; badge.className = 'status-badge status-loading'; }
             }
         }
 
@@ -2672,7 +2713,7 @@ let PARTS_DATABASE = {};
             console.log('📥 Preparing Claude Vision...');
             const statusBadge = document.getElementById('statusBadge');
             try {
-                statusBadge.textContent = '⏳ Preparing AI...';
+                statusBadge.innerHTML = ic('loader-circle','mx-spin') + ' Preparing AI...';
                 statusBadge.className = 'status-badge status-loading';
 
                 // Build the model-unit dropdown from PARTS_DATABASE
@@ -2680,13 +2721,13 @@ let PARTS_DATABASE = {};
 
                 aiReady = true;
                 console.log('✅ Claude Vision ready');
-                statusBadge.textContent = '✅ AI Model Siap! (Claude Vision)';
+                statusBadge.innerHTML = ic('circle-check') + ' AI Model Siap! (Claude Vision)';
                 statusBadge.className = 'status-badge status-ready';
                 enableButtons();
             } catch (error) {
                 console.error('❌ Init failed:', error);
                 aiReady = true;
-                statusBadge.textContent = '⚠️ AI partially ready — upload masih bisa dicoba';
+                statusBadge.innerHTML = ic('triangle-alert') + ' AI partially ready — upload masih bisa dicoba';
                 statusBadge.className = 'status-badge status-ready';
                 enableButtons();
             }
@@ -2734,7 +2775,7 @@ let PARTS_DATABASE = {};
             document.getElementById('modelInput').value = model;
             document.getElementById('modelOptions').style.display = 'none';
             const chip = document.getElementById('selectedModelChip');
-            if (chip) chip.innerHTML = `<span class="model-chip">✅ Model: <b>${model}</b> <a onclick="clearSelectedModel()">change</a></span>`;
+            if (chip) chip.innerHTML = `<span class="model-chip">${ic('check')} Model: <b>${model}</b> <a onclick="clearSelectedModel()">change</a></span>`;
             console.log('✅ Model selected:', model);
         }
 
@@ -3104,7 +3145,7 @@ let PARTS_DATABASE = {};
                 document.getElementById('previewImage').style.display = 'none';
                 document.getElementById('canvas').style.display = 'none';
                 document.getElementById('uploadArea').classList.add('active');
-                document.getElementById('cameraBtn').textContent = '📸 AMBIL FOTO';
+                mxBtn('cameraBtn', 'camera', 'Ambil foto');
                 document.getElementById('cameraBtn').onclick = capturePhoto;
                 
                 showToast('✅ Kamera aktif!', 'success');
@@ -3152,7 +3193,7 @@ let PARTS_DATABASE = {};
             currentImage = canvas;
             
             document.getElementById('analyzeBtn').style.display = 'block';
-            document.querySelector('#cameraBtn .mx-lbl').textContent = 'Foto ulang';
+            mxBtn('cameraBtn', 'rotate-ccw', 'Foto ulang');
             document.getElementById('cameraBtn').onclick = resetCamera;
         }
         
@@ -3162,7 +3203,7 @@ let PARTS_DATABASE = {};
             document.getElementById('webcam').style.display = 'none';
             document.getElementById('uploadPlaceholder').style.display = 'block';
             document.getElementById('analyzeBtn').style.display = 'none';
-            document.querySelector('#cameraBtn .mx-lbl').textContent = 'Kamera';
+            mxBtn('cameraBtn', 'camera', 'Kamera');
             document.getElementById('cameraBtn').onclick = startCamera;
             document.getElementById('uploadArea').classList.remove('active');
             currentImage = null;
@@ -3210,9 +3251,10 @@ let PARTS_DATABASE = {};
             const resultsBox = document.getElementById('resultsBox');
             resultsBox.classList.add('show');
             resultsBox.innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p class="loading-text">🤖 Tahap 1/2: Mengenali jenis part...</p>
+                <div class="loading mx-think">
+                    <div class="mx-think-ic">${ic('sparkles')}</div>
+                    <div class="mx-steps"><span class="mx-step on"><b>1</b>Kenali part</span><span class="mx-step-line"></span><span class="mx-step"><b>2</b>Bandingkan katalog</span></div>
+                    <p class="loading-text">AI sedang mengenali jenis part...</p>
                     <p class="loading-subtext">Model: <b>${window.selectedModel}</b></p>
                 </div>
             `;
@@ -3275,7 +3317,7 @@ Return JSON exactly in this shape:
                     playBuzzBuzz();
                     resultsBox.innerHTML = `
                         <div style="text-align:center;padding:36px 20px">
-                            <div style="font-size:56px;margin-bottom:14px">🤷‍♂️</div>
+                            <div style="margin-bottom:14px">${ic('search-x','mxi-xl')}</div>
                             <h3 style="color:var(--error);margin-bottom:10px;font-weight:800">Tidak ada kandidat untuk model ${sel}</h3>
                             <p style="color:var(--gray)">Model ini mungkin belum tersedia di database. Silakan hubungi Tim PMT.</p>
                         </div>`;
@@ -3285,9 +3327,10 @@ Return JSON exactly in this shape:
 
                 // ===== Stage 2: side-by-side ranking =====
                 resultsBox.innerHTML = `
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p class="loading-text">🤖 Tahap 2/2: Membandingkan dengan ${candidates.length} kandidat katalog...</p>
+                    <div class="loading mx-think">
+                        <div class="mx-think-ic">${ic('sparkles')}</div>
+                        <div class="mx-steps"><span class="mx-step done"><b>${ic('check')}</b>Kenali part</span><span class="mx-step-line"></span><span class="mx-step on"><b>2</b>Bandingkan katalog</span></div>
+                        <p class="loading-text">AI sedang membandingkan dengan ${candidates.length} kandidat katalog...</p>
                         <p class="loading-subtext">Jenis part terdeteksi: <b>${stage1.partType || '(tidak terdeteksi)'}</b></p>
                     </div>
                 `;
@@ -3396,12 +3439,12 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     const opts = pool.map(p => `<option value="${p.partNumber}">${p.name}</option>`).join('');
                     wrong.innerHTML = `
                         <div style="font-size:13px;color:#555;margin-bottom:8px">Tidak ada yang cocok dengan part aktual?</div>
-                        <button class="confirm-btn" style="background:#c62828" onclick="openWrongForm()">❌ SEMUA HASIL SALAH</button>
+                        <button class="confirm-btn" style="background:#c62828" onclick="openWrongForm()">${ic('circle-x')} SEMUA HASIL SALAH</button>
                         <div id="wrongForm" style="display:none;margin-top:12px;text-align:left">
                             <label style="font-size:12px;color:#444;font-weight:600">Kode part yang benar (kalau tahu, boleh dikosongkan):</label>
                             <input id="wrongCodeInput" list="wrongCodeList" class="model-input" style="margin-top:6px" placeholder="Ketik kode / nama part">
                             <datalist id="wrongCodeList">${opts}</datalist>
-                            <button class="confirm-btn" style="background:#c62828;margin-top:10px" onclick="submitWrongResult()">💾 SIMPAN</button>
+                            <button class="confirm-btn" style="background:#c62828;margin-top:10px" onclick="submitWrongResult()">${ic('save')} SIMPAN</button>
                         </div>`;
                     document.getElementById('resultsBox').appendChild(wrong);
                 } catch (e) { console.warn('wrong box failed', e); }
@@ -3410,10 +3453,10 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 try {
                     const esc = s => String(s == null ? '' : s).replace(/[&<>]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]));
                     const rows = candidates.map((c, i) =>
-                        `<li>${esc(c.partNumber)} | ${esc(c.name)} ${catImgs[i] ? '📷' : '<span style="color:#c00">(foto katalog gagal dimuat)</span>'}</li>`).join('');
+                        `<li>${esc(c.partNumber)} | ${esc(c.name)} ${catImgs[i] ? ic('image') : '<span style="color:#c00">(foto katalog gagal dimuat)</span>'}</li>`).join('');
                     const dbg = document.createElement('details');
                     dbg.style.cssText = 'margin-top:14px;font-size:12px;color:#444;background:#fafafa;border:1px solid #e5e5e5;border-radius:8px;padding:10px 14px';
-                    dbg.innerHTML = `<summary style="cursor:pointer;font-weight:700">🔎 Detail analisis AI (untuk evaluasi)</summary>
+                    dbg.innerHTML = `<summary style="cursor:pointer;font-weight:700">${ic('search')} Detail analisis AI (untuk evaluasi)</summary>
                         <div style="margin-top:8px;line-height:1.5">
                         <b>Model unit:</b> ${esc(sel)} &nbsp;|&nbsp; <b>Total part di model:</b> ${pool.length}<br>
                         <b>AI model:</b> Tahap 1 ${esc(VISION_MODEL_STAGE1)}, Tahap 2 ${esc(VISION_MODEL_STAGE2)}<br>
@@ -3428,7 +3471,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 console.error('❌ Claude Vision error:', error);
                 resultsBox.innerHTML = `
                     <div style="text-align: center; padding: 40px;">
-                        <div style="font-size: 64px; margin-bottom: 16px;">❌</div>
+                        <div style="margin-bottom: 16px;">${ic('circle-alert','mxi-xl')}</div>
                         <h3 style="color: var(--error); margin-bottom: 12px; font-weight: 800;">Analisis Gagal</h3>
                         <p style="color: var(--gray); font-weight: 600;">Error: ${error.message}</p>
                         <p style="color: var(--gray); margin-top: 10px; font-size: 13px;">Coba ulangi, atau hubungi Tim PMT jika terus gagal.</p>
@@ -3450,7 +3493,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 });
             }
             const el = document.getElementById('confirmBanner');
-            if (el) el.innerHTML = `<div class="confirm-done">✅ Konfirmasi tersimpan: <b>${partCode}</b>${rank > 1 ? ' (kandidat #' + rank + ')' : ''}. Terima kasih!</div>`;
+            if (el) el.innerHTML = `<div class="confirm-done">${ic('circle-check')} Konfirmasi tersimpan: <b>${partCode}</b>${rank > 1 ? ' (kandidat #' + rank + ')' : ''}. Terima kasih!</div>`;
             const wb = document.getElementById('wrongBox');
             if (wb) wb.style.display = 'none';
             el && el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3477,7 +3520,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 });
             }
             const el = document.getElementById('confirmBanner');
-            if (el) el.innerHTML = `<div class="confirm-done" style="background:#fdecea;color:#b71c1c">❌ Tercatat: hasil AI salah${code ? '. Kode benar: <b>' + code + '</b>' + (inDb ? '' : ' (kode ini belum ada di database aplikasi)') : ''}. Terima kasih, ini membantu evaluasi akurasi.</div>`;
+            if (el) el.innerHTML = `<div class="confirm-done" style="background:#fdecea;color:#b71c1c">${ic('circle-x')} Tercatat: hasil AI salah${code ? '. Kode benar: <b>' + code + '</b>' + (inDb ? '' : ' (kode ini belum ada di database aplikasi)') : ''}. Terima kasih, ini membantu evaluasi akurasi.</div>`;
             const wb = document.getElementById('wrongBox');
             if (wb) wb.style.display = 'none';
             el && el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3503,7 +3546,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 <h2 class="section-title">Hasil analisis AI</h2>
                 <div id="confirmBanner"></div>
                 <div class="ai-result-list">${cards}</div>
-                <div class="ai-disclaimer">ℹ️ AI bisa membuat kesalahan. Cocokkan part aktual dengan foto katalog. Jika tidak sesuai, hubungi Tim PMT.</div>`;
+                <div class="ai-disclaimer">${ic('info')} AI bisa membuat kesalahan. Cocokkan part aktual dengan foto katalog. Jika tidak sesuai, hubungi Tim PMT.</div>`;
         }
 
         function aiConfLabel(prob) {
@@ -3525,8 +3568,8 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             const models = part.compatibleModels || [];
             const modelsDisplay = models.length <= 3 ? models.join(', ') : models.slice(0, 3).join(', ') + ` ... +${models.length - 3}`;
             const subs = SUBSTITUTE_MAP[code] || [];
-            const subsHTML = subs.length ? `<div class="substitute-section"><span class="substitute-label">⚡ Substitute Parts</span><div class="substitute-chips">` +
-                subs.map(s => `<span class="substitute-chip" onclick="openSubstitutePart(event,'${s}','${code}')">🔄 ${s}</span>`).join('') + `</div></div>` : '';
+            const subsHTML = subs.length ? `<div class="substitute-section"><span class="substitute-label">${ic('arrow-left-right')} Substitute Parts</span><div class="substitute-chips">` +
+                subs.map(s => `<span class="substitute-chip" onclick="openSubstitutePart(event,'${s}','${code}')">${ic('arrow-left-right')} ${s}</span>`).join('') + `</div></div>` : '';
             const img = (part.images && part.images[0]) || part.image;
             const nameEsc = part.name.replace(/'/g, "\\'");
             const waMsg = createWhatsAppMessage(part, Math.round(pred.probability * 100), conf.txt);
@@ -3545,7 +3588,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     <div class="ai-card-body">
                         <div class="part-code-catalog">
                             ${code}
-                            <button class="copy-btn-small" onclick="event.stopPropagation(); copyPartNumber('${code}')">📋 COPY</button>
+                            <button class="copy-btn-small" onclick="event.stopPropagation(); copyPartNumber('${code}')">${ic('copy')} COPY</button>
                         </div>
                         <div class="part-name-catalog">${part.name}</div>
                         <div class="part-info-row"><span class="part-info-label">Material:</span><span>${part.material || '-'}</span></div>
@@ -3564,13 +3607,13 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                         </div>
                         <div class="part-price-row">
                             <div class="part-price">${formatPrice(part.price)}</div>
-                            <button class="whatsapp-icon-btn" onclick="event.stopPropagation(); checkStock('${code}', '${nameEsc}', event)" title="Cek stock via WhatsApp">💬</button>
+                            <button class="whatsapp-icon-btn" onclick="event.stopPropagation(); checkStock('${code}', '${nameEsc}', event)" title="Cek stock via WhatsApp">${ic('message-circle')}</button>
                         </div>
-                        ${pred.aiReason ? `<div class="ai-reason"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
+                        ${pred.aiReason ? `<div class="ai-reason"><b>${ic('sparkles')} Alasan AI:</b> ${pred.aiReason}</div>` : ''}
                         <div class="ai-actions">
-                    <button class="ai-btn primary" onclick="confirmPartChoice('${code}')">✅ ${isTop ? 'KONFIRMASI PART INI BENAR' : 'INI YANG BENAR'}</button>
-                    <button class="ai-btn" onclick="showCompatibleModels('${code}')">ⓘ DETAIL</button>
-                    <button class="ai-btn" onclick="shareToGroupPMT(decodeURIComponent('${encodeURIComponent(waMsg)}'), 'https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW')">📱 SHARE KE PMT</button>
+                    <button class="ai-btn primary" onclick="confirmPartChoice('${code}')">${ic('check')} ${isTop ? 'KONFIRMASI PART INI BENAR' : 'INI YANG BENAR'}</button>
+                    <button class="ai-btn" onclick="showCompatibleModels('${code}')">${ic('info')} DETAIL</button>
+                    <button class="ai-btn" onclick="shareToGroupPMT(decodeURIComponent('${encodeURIComponent(waMsg)}'), 'https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW')">${ic('share-2')} SHARE KE PMT</button>
                         </div>
                     </div>
                 </div>
@@ -3597,7 +3640,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 document.body.appendChild(modal);
             }
             modal.style.display = 'flex';
-            modal.innerHTML = `<div class="bs-box"><div class="bs-head"><div><div class="bs-title">Stock per Cabang</div><div class="bs-sub">${code} · ${part.name}</div></div><button class="bs-x" onclick="document.getElementById('branchStockModal').style.display='none'">×</button></div><div class="bs-body">⏳ Memuat data stock...</div></div>`;
+            modal.innerHTML = `<div class="bs-box"><div class="bs-head"><div><div class="bs-title">Stock per Cabang</div><div class="bs-sub">${code} · ${part.name}</div></div><button class="bs-x" onclick="document.getElementById('branchStockModal').style.display='none'">×</button></div><div class="bs-body">${ic('loader-circle','mx-spin')} Memuat data stock...</div></div>`;
             try {
                 if (!BRANCH_STOCK) BRANCH_STOCK = await (await fetch('/data/branch_stock.json', { cache: 'no-cache' })).json();
             } catch (e) { BRANCH_STOCK = {}; }
@@ -3624,7 +3667,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             } else {
                 const remaining = models.length - 3;
                 return models.slice(0, 3).join(', ') + 
-                       ` <span class="models-link" onclick="showCompatibleModels('${partCode}')">... +${remaining} more ⓘ</span>`;
+                       ` <span class="models-link" onclick="showCompatibleModels('${partCode}')">... +${remaining} more ${ic('info')}</span>`;
             }
         }
         
@@ -3777,9 +3820,9 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     const chips = subsModal.map(s => {
                         const subPart = PARTS_DATABASE[s];
                         const subName = subPart ? subPart.name : s;
-                        return '<span class="substitute-chip" onclick="openSubstitutePart(event,\'' + s + '\',\'' + partCode + '\')" style="margin:2px">🔄 ' + s + '<span style="font-weight:400;color:#888;margin-left:4px;font-size:10px">' + subName + '</span></span>';
+                        return '<span class="substitute-chip" onclick="openSubstitutePart(event,\'' + s + '\',\'' + partCode + '\')" style="margin:2px">' + ic('arrow-left-right') + ' ' + s + '<span style="font-weight:400;color:#888;margin-left:4px;font-size:10px">' + subName + '</span></span>';
                     }).join('');
-                    subContainer.innerHTML = '<div class="substitute-section" style="margin:12px 0 0"><span class="substitute-label">⚡ Substitute Parts</span><div class="substitute-chips">' + chips + '</div></div>';
+                    subContainer.innerHTML = '<div class="substitute-section" style="margin:12px 0 0"><span class="substitute-label">' + ic('arrow-left-right') + ' Substitute Parts</span><div class="substitute-chips">' + chips + '</div></div>';
                     subContainer.style.display = 'block';
                 } else {
                     subContainer.style.display = 'none';
@@ -3898,7 +3941,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     <div class="part-card-body" onclick="showCompatibleModels('${part.partNumber}')">
                         <div class="part-code-catalog">
                             ${part.partNumber}
-                            <button class="copy-btn-small" onclick="event.stopPropagation(); copyPartNumber('${part.partNumber}')">📋 COPY</button>
+                            <button class="copy-btn-small" onclick="event.stopPropagation(); copyPartNumber('${part.partNumber}')">${ic('copy')} COPY</button>
                         </div>
                         <div class="part-name-catalog">${part.name}</div>
                         <div class="part-info-row">
@@ -3912,8 +3955,8 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                         ${(function(){
                             const subs = SUBSTITUTE_MAP[part.partNumber];
                             if (!subs || !subs.length) return '';
-                            const chips = subs.map(s => '<span class="substitute-chip" onclick="openSubstitutePart(event,\''+s+'\',\''+part.partNumber+'\')">🔄 '+s+'</span>').join('');
-                            return '<div class="substitute-section"><span class="substitute-label">⚡ Substitute Parts</span><div class="substitute-chips">'+chips+'</div></div>';
+                            const chips = subs.map(s => '<span class="substitute-chip" onclick="openSubstitutePart(event,\''+s+'\',\''+part.partNumber+'\')">'+ic('arrow-left-right')+' '+s+'</span>').join('');
+                            return '<div class="substitute-section"><span class="substitute-label">'+ic('arrow-left-right')+' Substitute Parts</span><div class="substitute-chips">'+chips+'</div></div>';
                         })()}
                         <div class="part-info-row">
                             <span class="part-info-label">Applied Model:</span>
@@ -4184,7 +4227,9 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
         // Toast
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            toast.textContent = message;
+            const msg = String(message).replace(/^[\u2600-\u27BF\u2B50\u2139\u23F3\u231B\u2713\uFE0F\u200D\u2642\u2640]+\s*|^(?:[\uD83C-\uDBFF][\uDC00-\uDFFF][\uFE0F\u200D\u2642\u2640]*)+\s*/, '');
+            toast.innerHTML = ic(type === 'error' ? 'circle-alert' : 'circle-check') + '<span></span>';
+            toast.lastChild.textContent = msg;
             toast.className = 'toast show ' + type;
             
             setTimeout(() => {
@@ -4312,7 +4357,7 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
             // Pick 5 random from pool
             const shuffled = qaPromptPool.sort(() => Math.random() - 0.5).slice(0, 5);
             container.innerHTML = shuffled.map(([label, text]) =>
-                '<button class="qa-quick" onclick="qaSendQuick(this.dataset.q)" data-q="' + text.replace(/"/g, '&quot;') + '">' + label + '</button>'
+                '<button class="qa-quick" onclick="qaSendQuick(this.dataset.q)" data-q="' + text.replace(/"/g, '&quot;') + '">' + (function(l){ const k = Object.keys(MX_EMOJI_IC).find(e => l.startsWith(e)); return k ? ic(MX_EMOJI_IC[k]) + ' ' + l.slice(k.length).trim() : l; })(label) + '</button>'
             ).join('');
         }
 
@@ -4370,7 +4415,7 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
                 window._qaBubbleTexts[bubbleId] = rawText;
             }
             const copyBtn = role === 'ai' && rawText ?
-                '<button class="qa-copy-bubble-btn" data-bid="' + bubbleId + '" onclick="qaCopyBubble(this)">📋 Copy jawaban</button>' : '';
+                '<button class="qa-copy-bubble-btn" data-bid="' + bubbleId + '" onclick="qaCopyBubble(this)">' + ic('copy') + ' Copy jawaban</button>' : '';
 
             // Timestamp
             const ts = '<div class="qa-timestamp">' + qaGetTime() + '</div>';
@@ -4410,10 +4455,10 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
                 .replace(/SUGGESTED:[\s\S]*/g, '')
                 .trim();
             navigator.clipboard.writeText(clean).then(() => {
-                btn.textContent = '✓ Tersalin!';
+                btn.innerHTML = ic('check') + ' Tersalin!';
                 btn.classList.add('copied');
                 showToast('✅ Jawaban AI tersalin!');
-                setTimeout(() => { btn.textContent = '📋 Copy jawaban'; btn.classList.remove('copied'); }, 2000);
+                setTimeout(() => { btn.innerHTML = ic('copy') + ' Copy jawaban'; btn.classList.remove('copied'); }, 2000);
             }).catch(() => {
                 showToast('❌ Gagal menyalin');
             });
@@ -4425,10 +4470,10 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
 
         function qaCopyCode(code, btn) {
             navigator.clipboard.writeText(code).then(() => {
-                btn.textContent = '✓ Copied';
+                btn.innerHTML = ic('check') + ' Copied';
                 btn.classList.add('copied');
                 showToast('✅ Kode ' + code + ' tersalin!');
-                setTimeout(() => { btn.textContent = '📋 Copy'; btn.classList.remove('copied'); }, 2000);
+                setTimeout(() => { btn.innerHTML = ic('copy') + ' Copy'; btn.classList.remove('copied'); }, 2000);
             });
         }
 
@@ -4474,7 +4519,7 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
                         title="Klik untuk lihat foto"
                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2250%22 height=%2250%22%3E%3Crect width=%2250%22 height=%2250%22 fill=%22%23f5f5f5%22/%3E%3Ctext x=%2225%22 y=%2228%22 text-anchor=%22middle%22 font-size=%2216%22%3E📦%3C/text%3E%3Ctext x=%2225%22 y=%2242%22 text-anchor=%22middle%22 font-size=%228%22 fill=%22%23999%22%3ENo Image%3C/text%3E%3C/svg%3E'">
                     <div class="qpc-info" style="cursor:pointer" onclick="event.stopPropagation(); showCompatibleModels('${partCode}')" title="Klik untuk lihat detail">
-                        <div class="qpc-code">${partCode}<button class="qa-copy-btn" onclick="event.stopPropagation(); qaCopyCode('${partCode}', this)">📋 Copy</button></div>
+                        <div class="qpc-code">${partCode}<button class="qa-copy-btn" onclick="event.stopPropagation(); qaCopyCode('${partCode}', this)">${ic('copy')} Copy</button></div>
                         <div class="qpc-name">${p.name}</div>
                         <div class="qpc-meta">${p.productCategory || p.cat || ''} | ${modelStr}</div>
                         <div class="qpc-price">${price}</div>
@@ -4482,7 +4527,7 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
                             const subs = SUBSTITUTE_MAP[partCode];
                             if (!subs || !subs.length) return '';
                             const chips = subs.map(s => '<span class=\'substitute-chip\' onclick=\'event.stopPropagation();openSubstitutePart(event,\\\'' + s + '\\\',\\\'' + partCode + '\\\')\'  style=\'font-size:10px;padding:2px 7px\'>🔄 ' + s + '</span>').join('');
-                            return '<div class=\'substitute-section\' style=\'margin:6px 0 0;padding:5px 8px\'><span class=\'substitute-label\'>⚡ Substitute</span><div class=\'substitute-chips\'>' + chips + '</div></div>';
+                            return '<div class=\'substitute-section\' style=\'margin:6px 0 0;padding:5px 8px\'><span class=\'substitute-label\'>' + ic('arrow-left-right') + ' Substitute</span><div class=\'substitute-chips\'>' + chips + '</div></div>';
                         })()}
                     </div>
                     <div style="font-size:18px;color:#ccc;flex-shrink:0;cursor:pointer" onclick="event.stopPropagation(); showCompatibleModels('${partCode}')">&#8250;</div>
@@ -4491,7 +4536,7 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
 
             const codesList = partsData.map(p => p.partNumber || p.code).join(',');
             return `<div class="qa-parts-list">${cards}</div>
-                <button class="qa-gallery-btn" onclick="qaGoGallery('${codesList}')">📚 Lihat di Parts Gallery</button>`;
+                <button class="qa-gallery-btn" onclick="qaGoGallery('${codesList}')">${ic('layout-grid')} Lihat di Parts Gallery</button>`;
         }
 
         async function qaSubmit() {
@@ -4514,7 +4559,7 @@ _Mohon cek kesesuaian antara aktual spare parts dengan foto katalog. Jika sesuai
                 qaMessages.push({ role: 'user', content: text });
                 const p1 = PARTS_DATABASE[validCodes[0]];
                 const p2 = PARTS_DATABASE[validCodes[1]];
-                const colorDots = ['🔴','🔵','🟢','🟠'];
+                const colorDots = ['#161616','#0099C3','#3CB149','#FF4B33'].map(c => '<span class="mx-dot" style="background:' + c + '"></span>');
                 const partLines = validCodes.map((c,i) => {
                     const p = PARTS_DATABASE[c];
                     return colorDots[i] + ' <strong>' + c + '</strong> ' + (p ? p.name : '');
@@ -4824,19 +4869,19 @@ ATURAN PENTING:
                     window._qaWAMsgs = window._qaWAMsgs || {};
                     window._qaWAMsgs[waBtnId] = waPMTMsg;
                     html += '<div class="qa-wa-btns">' +
-                        '<button class="qa-wa-btn" data-waid="' + waBtnId + '" onclick="qaOpenGrupPMT(this)">💬 Grup PMT</button>' +
-                        '<button class="qa-wa-btn personal" data-waid="' + waBtnId + '" onclick="qaOpenPersonalWA(this)">📱 Personal</button>' +
+                        '<button class="qa-wa-btn" data-waid="' + waBtnId + '" onclick="qaOpenGrupPMT(this)">' + ic('users') + ' Grup PMT</button>' +
+                        '<button class="qa-wa-btn personal" data-waid="' + waBtnId + '" onclick="qaOpenPersonalWA(this)">' + ic('message-circle') + ' Personal</button>' +
                         '</div>';
                 }
 
                 // Suggested follow-up questions
                 if (suggestions.length > 0) {
                     html += '<div class="qa-suggestions">' +
-                        suggestions.map(function(q) { return '<button class="qa-suggestion-btn" onclick="qaSendQuick(this.dataset.q)" data-q="' + q.replace(/"/g,'&quot;') + '">↗ ' + q + '</button>'; }).join('') +
+                        suggestions.map(function(q) { return '<button class="qa-suggestion-btn" onclick="qaSendQuick(this.dataset.q)" data-q="' + q.replace(/"/g,'&quot;') + '">' + ic('message-circle') + ' ' + q + '</button>'; }).join('') +
                         '</div>';
                 }
 
-                html += '<div class="qa-disclaimer">ℹ️ Pastikan kesesuaian kode part dengan fisik aktual sebelum digunakan. Jika ragu, hubungi Tim PMT.</div>';
+                html += '<div class="qa-disclaimer">' + ic('info') + ' Pastikan kesesuaian kode part dengan fisik aktual sebelum digunakan. Jika ragu, hubungi Tim PMT.</div>';
 
                 qaAddBubble('ai', html, rawText);
 
@@ -4850,7 +4895,7 @@ ATURAN PENTING:
                 const errMsg = err.message || 'Unknown error';
                 console.error('Q&A Error:', err);
                 qaMessages.push({ role: 'assistant', content: 'Maaf, terjadi kesalahan koneksi.' });
-                qaAddBubble('ai', '<p style="color:#e63946;margin:0">❌ Gagal terhubung ke AI. Silakan coba beberapa saat lagi.</p><p style="color:#999;font-size:11px;margin:4px 0 0">Error: ' + errMsg + '</p>', null);
+                qaAddBubble('ai', '<p style="color:#e63946;margin:0">' + ic('circle-alert') + ' Gagal terhubung ke AI. Silakan coba beberapa saat lagi.</p><p style="color:#999;font-size:11px;margin:4px 0 0">Error: ' + errMsg + '</p>', null);
             }
 
             sendBtn.disabled = false;
@@ -4898,7 +4943,7 @@ ATURAN PENTING:
             let text = '📱 *Q&A MODENA Parts*\n\n';
             bubbles.forEach(b => {
                 const isUser = b.classList.contains('qa-user');
-                const rawText = b.innerText.replace('📋 Copy jawaban', '').trim();
+                const rawText = b.innerText.replace('Copy jawaban', '').trim();
                 if (rawText) text += (isUser ? '👤 ' : '🤖 AI: ') + rawText + '\n\n';
             });
             text += '---\nDari: MODENA AI Parts Recognition\nhttps://modena-ai-parts-recognition.vercel.app/';
@@ -4933,7 +4978,7 @@ ATURAN PENTING:
             panel.id = "qaHistoryPanel";
             panel.style.cssText = "position:absolute;top:50px;right:10px;width:280px;background:#fff;border:1px solid #e0e0e0;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:100;padding:12px;max-height:300px;overflow-y:auto";
             
-            let html = "<div style=\"font-weight:700;font-size:13px;margin-bottom:10px\">🕐 Riwayat Percakapan</div>";
+            let html = "<div style=\"font-weight:700;font-size:13px;margin-bottom:10px\">" + ic('history') + " Riwayat Percakapan</div>";
             qaHistory.forEach(function(h, i) {
                 const d = new Date(h.time);
                 const timeStr = d.toLocaleDateString("id-ID") + " " + d.toLocaleTimeString("id-ID", {hour:"2-digit",minute:"2-digit"});
@@ -5038,7 +5083,7 @@ ATURAN PENTING:
                 tbl += '<button onclick="copyTableTsv(\'' + tblId + '\', this)" ';
                 tbl += 'id="' + tblId + '" ';
                 tbl += 'style="font-size:11px;font-weight:600;padding:4px 10px;border:1.5px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s">';
-                tbl += '📋 Copy Table</button></div>';
+                tbl += ic('copy') + ' Copy Table</button></div>';
                 tbl += '<div style="overflow-x:auto"><table style="width:100%;min-width:300px;border-collapse:collapse;font-size:12px">';
                 validRows.forEach((row, idx) => {
                     const cells = row.trim().split('|').filter((c,i,a)=>i>0&&i<a.length-1);
@@ -5142,8 +5187,8 @@ ATURAN PENTING:
             cmpRenderDetails(orig, sub);
 
             // Copy buttons
-            document.getElementById('cmpBtnO').textContent = '📋 Copy ' + origCode;
-            document.getElementById('cmpBtnS').textContent = '📋 Copy ' + subCode;
+            document.getElementById('cmpBtnO').innerHTML = ic('copy') + ' Copy ' + origCode;
+            document.getElementById('cmpBtnS').innerHTML = ic('copy') + ' Copy ' + subCode;
 
             // AI Conclusion
             cmpGenerateConclusion(orig, sub, origCode, subCode);
@@ -5235,13 +5280,13 @@ ATURAN PENTING:
                     <!-- Copy btn -->
                     <button onclick="navigator.clipboard.writeText('${p.partNumber}').then(()=>showToast('✅ ${p.partNumber} tersalin!'))"
                         style="margin:0 8px 8px;padding:7px;border-radius:7px;background:${col.copyBg};color:#fff;border:none;font-size:10px;font-weight:700;cursor:pointer">
-                        📋 Copy ${p.partNumber}
+                        ${ic('copy')} Copy ${p.partNumber}
                     </button>
                 </div>`;
             });
 
             document.getElementById('c4Grid').innerHTML = cardsHtml;
-            document.getElementById('c4Title').textContent = '⚡ Compare ' + validCodes.length + ' Parts';
+            document.getElementById('c4Title').innerHTML = ic('git-compare-arrows') + ' Compare ' + validCodes.length + ' Parts';
             document.getElementById('c4Subtitle').textContent = validCodes.join(' · ');
 
             // AI Conclusion
@@ -5313,7 +5358,7 @@ ATURAN PENTING:
                 'Format: 3 paragraf pendek dengan emoji. Jangan bullet list. Bahasa natural dan langsung.';
 
             if (window.location.protocol === 'file:') {
-                el.innerHTML = '<div style="padding:10px 16px;font-size:11px;color:#888;background:#f9f9f9;border-radius:8px;margin:8px 12px">💡 Kesimpulan AI aktif saat app di-deploy ke server.</div>';
+                el.innerHTML = '<div style="padding:10px 16px;font-size:11px;color:#888;background:#f9f9f9;border-radius:8px;margin:8px 12px">' + ic('lightbulb') + ' Kesimpulan AI aktif saat app di-deploy ke server.</div>';
                 return;
             }
             try {
@@ -5339,7 +5384,7 @@ ATURAN PENTING:
                     '<span style="font-size:10px;font-weight:800;letter-spacing:1px;color:#999">KESIMPULAN AI</span></div>' +
                     '<div style="background:#f8faff;border-left:3px solid #1e3a8a;border-radius:0 8px 8px 0;padding:12px 14px">' + html + '</div></div>';
             } catch(e) {
-                el.innerHTML = '<div style="padding:10px 16px;font-size:12px;color:#e63946">⚠️ Gagal memuat analisis AI.</div>';
+                el.innerHTML = '<div style="padding:10px 16px;font-size:12px;color:#e63946">' + ic('triangle-alert') + ' Gagal memuat analisis AI.</div>';
             }
         }
 
@@ -5486,7 +5531,7 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
 
             if (window.location.protocol === 'file:') {
                 el.style.display = 'block';
-                el.innerHTML = '<div style="padding:10px 16px;font-size:11px;color:#888;background:#f9f9f9;border-radius:8px;margin:8px 12px">💡 Kesimpulan AI aktif saat app di-deploy ke server.</div>';
+                el.innerHTML = '<div style="padding:10px 16px;font-size:11px;color:#888;background:#f9f9f9;border-radius:8px;margin:8px 12px">' + ic('lightbulb') + ' Kesimpulan AI aktif saat app di-deploy ke server.</div>';
                 return;
             }
             try {
@@ -5520,7 +5565,7 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
                         </div>
                     </div>`;
             } catch(e) {
-                el.innerHTML = `<div style="padding:10px 16px;font-size:12px;color:#e63946">⚠️ Gagal memuat analisis AI.</div>`;
+                el.innerHTML = `<div style="padding:10px 16px;font-size:12px;color:#e63946">${ic('triangle-alert')} Gagal memuat analisis AI.</div>`;
             }
         }
 
@@ -5651,7 +5696,7 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
             const countEl = document.getElementById('cmpBarCount');
             if (codes.length >= 2) {
                 btn.disabled = false;
-                countEl.innerHTML = '<span>' + codes.length + ' SKU</span> siap dibandingkan ⚡';
+                countEl.innerHTML = '<span>' + codes.length + ' SKU</span> siap dibandingkan';
             } else {
                 btn.disabled = true;
                 const need = 2 - codes.length;
@@ -5698,7 +5743,7 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
             if (!tsv) { showToast('Data tabel tidak ditemukan'); return; }
             navigator.clipboard.writeText(tsv).then(() => {
                 const orig = btn.innerHTML;
-                btn.innerHTML = '✅ Tersalin!';
+                btn.innerHTML = ic('check') + ' Tersalin!';
                 btn.style.background = '#27ae60';
                 btn.style.color = '#fff';
                 setTimeout(() => {
@@ -5716,7 +5761,7 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
         <div class="modal-content" style="max-width:700px;width:95vw">
             <div class="modal-header">
                 <button class="modal-close" onclick="closeModal('compareModal')">&times;</button>
-                <h2 class="modal-title">⚡ Compare Parts</h2>
+                <h2 class="modal-title"><span data-ic="git-compare-arrows"></span> Compare Parts</h2>
                 <div class="modal-subtitle" id="compareSubtitle"></div>
             </div>
             <div class="modal-body" style="padding:0">
@@ -5757,8 +5802,8 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
                 <div id="cmpConclusion" style="display:none"></div>
                 <!-- Copy buttons -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px;border-top:1px solid #f0f0f0">
-                    <button id="cmpBtnO" onclick="cmpCopy('o')" style="padding:9px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer">📋 Copy Original</button>
-                    <button id="cmpBtnS" onclick="cmpCopy('s')" style="padding:9px;border-radius:8px;background:#5e35b1;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer">📋 Copy Substitute</button>
+                    <button id="cmpBtnO" onclick="cmpCopy('o')" style="padding:9px;border-radius:8px;background:#1a1a1a;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer"><span data-ic="copy"></span>Copy Original</button>
+                    <button id="cmpBtnS" onclick="cmpCopy('s')" style="padding:9px;border-radius:8px;background:#5e35b1;color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer"><span data-ic="copy"></span>Copy Substitute</button>
                 </div>
             </div>
         </div>
@@ -5769,7 +5814,7 @@ Format output: 3 paragraf pendek dengan emoji yang relevan. Jangan gunakan bulle
         <div class="modal-content" style="max-width:900px;width:97vw">
             <div class="modal-header">
                 <button class="modal-close" onclick="closeModal('compare4Modal')">&times;</button>
-                <h2 class="modal-title" id="c4Title">⚡ Compare Parts</h2>
+                <h2 class="modal-title" id="c4Title"><span data-ic="git-compare-arrows"></span> Compare Parts</h2>
                 <div class="modal-subtitle" id="c4Subtitle"></div>
             </div>
             <div class="modal-body" style="padding:12px 14px">
