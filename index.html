@@ -2305,17 +2305,6 @@
         body.mx .mx-eta-src { display: block; font-size: 11px; color: #626262; margin-top: 2px; }
         body.mx .mx-cust-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #C4C5C4; background: #fff; color: #161616; border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
         body.mx .mx-cust-btn:hover { border-color: #161616; }
-        /* nameplate */
-        body.mx .np-row { margin-top: 10px; }
-        body.mx .np-btn { display: inline-flex; align-items: center; gap: 8px; border: 1px dashed #0099C3; background: #E6F5FA; color: #006E8C; border-radius: 10px; padding: 9px 14px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
-        body.mx .np-btn:hover { background: #d5eef6; }
-        body.mx .np-status:empty { display: none; }
-        body.mx .np-status { margin-top: 8px; font-size: 13px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; background: #F2F2F2; color: #161616; }
-        body.mx .np-status .mxi { vertical-align: -0.2em; }
-        body.mx .np-status.ok .mxi { color: #3CB149; }
-        body.mx .np-status.warn { background: #E6F5FA; }
-        body.mx .np-status.err { background: #FFF1EE; }
-        body.mx .np-status.err .mxi { color: #FF4B33; }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2366,11 +2355,6 @@
                         oninput="filterModelOptions()"
                         onfocus="filterModelOptions()">
                     <div class="model-options" id="modelOptions" style="display:none"></div>
-                    <div class="np-row">
-                        <button type="button" class="np-btn" onclick="document.getElementById('nameplateInput').click()"><span data-ic="scan-text"></span>Foto nameplate, isi model &amp; tahun otomatis</button>
-                        <input type="file" id="nameplateInput" accept="image/*" style="display:none" onchange="readNameplate(this.files[0]); this.value=''">
-                    </div>
-                    <div id="nameplateStatus" class="np-status"></div>
                     <div id="selectedModelChip" class="model-chip-wrap"></div>
                     <div id="variantPicker" class="variant-picker"></div>
                 </div>
@@ -2881,13 +2865,11 @@ let PARTS_DATABASE = {};
             if (chip) chip.innerHTML = `<span class="model-chip">${ic('check')} Model: <b>${model}</b> <a onclick="clearSelectedModel()">change</a></span>`;
             console.log('✅ Model selected:', model);
             window.selectedVariant = null;
-            window.modelFrom = 'manual';
             loadVariants().then(renderVariantPicker);
         }
 
         function clearSelectedModel() {
             window.selectedModel = null;
-            window.nameplateRead = null; window.modelFrom = null; npStatus('');
             window.selectedVariant = null; renderVariantPicker();
             document.getElementById('modelInput').value = '';
             document.getElementById('selectedModelChip').innerHTML = '';
@@ -3341,7 +3323,6 @@ let PARTS_DATABASE = {};
             const fi = document.getElementById('fileInput'); if (fi) fi.value = '';
             window.selectedModel = null;
             window.selectedVariant = null; renderVariantPicker();
-            window.nameplateRead = null; window.modelFrom = null; npStatus('');
             document.getElementById('modelInput').value = '';
             document.getElementById('selectedModelChip').innerHTML = '';
             const opts = document.getElementById('modelOptions'); if (opts) opts.style.display = 'none';
@@ -3583,8 +3564,6 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     scanId: scanTs,
                     model: sel,
                     unitYear: window.selectedVariant ? variantLabel(window.selectedVariant) : '',
-                    modelFrom: window.modelFrom || 'manual',
-                    nameplate: window.nameplateRead || null,
                     stage1,
                     candidatesPresented: candidates.map(c => c.partNumber),
                     top3: predictions,
@@ -3860,14 +3839,14 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             let txt = '', cls = '';
             if (part.etaNote) { cls = 'bad'; txt = ic('package-x') + ' <b>' + part.etaNote + '</b>. Cek substitute atau hubungi Tim PMT.'; }
             else if (pmt === 0) {
-                const head = nat > 0 ? 'Stock pusat kosong' : 'Stock kosong';
+                const head = nat > 0 ? 'Stock PMT kosong' : 'Stock PMT & cabang kosong';
                 cls = nat > 0 ? 'warn' : 'bad';
                 if (part.eta && !etaPast(part.eta)) {
                     txt = ic('calendar-clock') + ` ${head} · Estimasi tersedia <b>${fmtTgl(part.eta)}</b> <span class="mx-eta-src">${part.etaFinal ? 'dikonfirmasi PMT' : 'perkiraan sistem'}${part.etaStatus ? ' · ' + part.etaStatus : ''}</span>`;
                 } else if (part.eta) {
                     txt = ic('calendar-clock') + ` ${head} · ETA sudah lewat (${fmtTgl(part.eta)}), konfirmasi ke Tim PMT`;
-                } else if (nat === 0) {
-                    txt = ic('calendar-clock') + ' Stock kosong · Belum ada jadwal kedatangan, hubungi Tim PMT';
+                } else {
+                    txt = ic('calendar-clock') + ` ${head} · Belum ada ETA kedatangan, hubungi Tim PMT`;
                 }
             }
             return `<div class="mx-avail ${cls}">${txt ? `<div class="mx-avail-txt">${txt}</div>` : ''}
@@ -3904,73 +3883,6 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             showToast('Info untuk konsumen disalin, tinggal paste', 'success');
         }
 
-        // ===== Nameplate: AI baca model & tahun =====
-        const normModel = s => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-        function matchModel(read) {
-            const all = window.allModelOptions || [], r = normModel(read);
-            if (!r) return { exact: null, list: [] };
-            const exact = all.find(m => normModel(m) === r);
-            if (exact) return { exact, list: [exact] };
-            const lcp = (a, b) => { let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++; return i; };
-            const list = all.map(m => { const n = normModel(m); const ok = n.startsWith(r) || r.startsWith(n) || n.includes(r); return ok ? { m, sc: lcp(n, r) - Math.abs(n.length - r.length) * 0.1 } : null; })
-                .filter(Boolean).sort((a, b) => b.sc - a.sc).map(x => x.m);
-            return { exact: null, list: list.slice(0, 10) };
-        }
-        function npStatus(html, cls) { const el = document.getElementById('nameplateStatus'); if (el) { el.className = 'np-status ' + (cls || ''); el.innerHTML = html; } }
-        async function readNameplate(file) {
-            if (!file || !(file.type || '').startsWith('image/')) { showToast('File bukan gambar', 'error'); return; }
-            npStatus(ic('loader-circle', 'mx-spin') + ' AI sedang membaca nameplate...', 'busy');
-            try {
-                const url = URL.createObjectURL(file);
-                const img = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = url; });
-                const b64 = await resizeImageToBase64(img, 1400);
-                URL.revokeObjectURL(url);
-                const raw = await callClaude({
-                    system: 'You read home-appliance nameplates / rating labels. Reply with STRICT JSON only, no prose, no code fences.',
-                    maxTokens: 300, model: VISION_MODEL_STAGE1,
-                    userBlocks: [
-                        { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
-                        { type: 'text', text:
-`This photo should show the nameplate / rating label of a MODENA appliance.
-Return JSON exactly:
-{"isNameplate": true, "model": "model / type exactly as printed, e.g. DD 65 L or BH 1725 LBVF", "year": "4-digit production year ONLY if a production date or year is printed, else empty", "serial": "serial number if printed, else empty", "lot": "lot number if printed, else empty"}
-Do not guess the year from the serial number. If the photo is not a nameplate or the model cannot be read, set "isNameplate": false and "model": "".` }
-                    ]
-                });
-                const np = parseJsonFromResponse(raw) || {};
-                if (!np.isNameplate || !np.model) {
-                    npStatus(ic('circle-alert') + ' Nameplate tidak terbaca. Foto lebih dekat dan terang, atau pilih model manual.', 'err');
-                    return;
-                }
-                const esc = v => String(v || '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
-                window.nameplateRead = { model: np.model, year: np.year || '', serial: np.serial || '', lot: np.lot || '' };
-                const mm = matchModel(np.model);
-                const pick = mm.exact || (mm.list.length === 1 ? mm.list[0] : null);
-                const readTxt = 'Terbaca: Model <b>' + esc(np.model) + '</b>' + (np.year ? ' · Tahun <b>' + esc(np.year) + '</b>' : '') + (np.lot ? ' · Lot ' + esc(np.lot) : '') + (np.serial ? ' · SN ' + esc(np.serial) : '');
-                if (!pick) {
-                    document.getElementById('modelInput').value = np.model;
-                    if (mm.list.length) { renderModelOptions(mm.list); document.getElementById('modelOptions').style.display = 'block'; }
-                    else filterModelOptions();
-                    npStatus(ic('scan-text') + ' ' + readTxt + '<br>' + (mm.list.length ? 'Ada beberapa model mirip, pilih yang sesuai dari daftar.' : 'Model ini belum ada di katalog, pilih model manual.'), 'warn');
-                    return;
-                }
-                selectModel(pick);
-                window.modelFrom = 'nameplate';
-                await loadVariants();
-                const info = (MODEL_VARIANTS || {})[pick];
-                let yrTxt = '', auto = false;
-                if (info && info.vars) {
-                    const idx = info.vars.map((v, i) => v.y === String(np.year) ? i : -1).filter(i => i >= 0);
-                    if (idx.length === 1) { selectVariant(idx[0]); yrTxt = 'Tahun unit dipilih otomatis.'; auto = true; }
-                    else if (idx.length > 1) yrTxt = 'Tahun ' + esc(np.year) + ' punya beberapa varian, pilih salah satu di bawah.';
-                    else yrTxt = np.year ? 'Tahun ' + esc(np.year) + ' tidak ada di katalog model ini, pilih tahun manual.' : 'Tahun tidak tercetak di nameplate, pilih tahun manual.';
-                }
-                npStatus(ic('circle-check') + ' ' + readTxt + (normModel(pick) !== normModel(np.model) ? ' (dicocokkan ke <b>' + esc(pick) + '</b>)' : '') + (yrTxt ? '<br>' + yrTxt : ''), yrTxt && !auto ? 'warn' : 'ok');
-            } catch (e) {
-                console.error('Nameplate read failed', e);
-                npStatus(ic('circle-alert') + ' Gagal membaca nameplate. Coba lagi atau pilih model manual.', 'err');
-            }
-        }
         async function showBranchStock(code) {
             const part = PARTS_DATABASE[code] || { name: '' };
             let modal = document.getElementById('branchStockModal');
