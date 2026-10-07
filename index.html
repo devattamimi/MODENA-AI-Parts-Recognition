@@ -2936,13 +2936,24 @@ let PARTS_DATABASE = {};
             resetCamera();
             const img = document.getElementById('previewImage'); img.removeAttribute('src');
             const fi = document.getElementById('fileInput'); if (fi) fi.value = '';
-            clearSelectedModel();
+            window.selectedModel = null;
+            document.getElementById('modelInput').value = '';
+            document.getElementById('selectedModelChip').innerHTML = '';
             const opts = document.getElementById('modelOptions'); if (opts) opts.style.display = 'none';
             const rb = document.getElementById('resultsBox'); rb.innerHTML = ''; rb.classList.remove('show');
             window.__lastScanTs = null; window.currentPredictions = null;
+            if (document.activeElement) document.activeElement.blur();
             document.getElementById('scannerTab').scrollIntoView({ behavior: 'smooth', block: 'start' });
-            setTimeout(() => document.getElementById('modelInput').focus(), 300);
         }
+
+        // Close the model dropdown when clicking outside it or pressing Esc
+        document.addEventListener('click', e => {
+            const box = document.getElementById('modelOptions');
+            if (box && box.style.display !== 'none' && !e.target.closest('.model-selector')) box.style.display = 'none';
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { const box = document.getElementById('modelOptions'); if (box) box.style.display = 'none'; }
+        });
         window.resetScanner = resetScanner;
 
         // Analyze part
