@@ -2096,33 +2096,154 @@
         .sh-st.no { background: #eceef1; color: #555; }
         .sh-empty { font-size: 13px; color: #888; padding: 10px 0; }
         @media (max-width: 640px) { .sh-num { font-size: 22px; } }
+        
+        /* ===== MODENA design revamp (visual only) ===== */
+        body.mx { --mx-black:#161616; --mx-white:#FAFAFA; --mx-off:#F2F2F2; --mx-metal:#C4C5C4; --mx-char:#626262; --mx-ibiza:#0099C3; --mx-tint:#E6F5FA; --mx-tint-b:#9FD6E6; --mx-tint-t:#006E8C;
+            --black:#161616; --dark-gray:#262626; --gray:#626262; --light-gray:#C4C5C4; --off-white:#F2F2F2;
+            font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--mx-off); color: var(--mx-black); padding: 0 0 32px; -webkit-font-smoothing: antialiased; }
+        body.mx .container { max-width: 1180px; padding: 0 16px; }
+        body.mx .mx-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; background: transparent; border: none; border-bottom: 1px solid var(--mx-metal); border-radius: 0; box-shadow: none; padding: 18px 4px 14px; margin-bottom: 0; text-align: left; }
+        body.mx .mx-brand { display: flex; align-items: center; gap: 14px; }
+        body.mx .mx-word { font-weight: 700; letter-spacing: 5px; font-size: 20px; }
+        body.mx .mx-sep { width: 1px; height: 30px; background: var(--mx-metal); }
+        body.mx .mx-app { font-weight: 600; font-size: 16px; }
+        body.mx .mx-by { font-size: 12px; color: var(--mx-char); margin-top: 2px; }
+        body.mx .mx-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        body.mx .mx-ver { font-size: 12px; color: var(--mx-char); }
+        body.mx .status-badge { display: inline-block; margin: 0; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; background: #fff; color: var(--mx-black); border: 1px solid var(--mx-metal); box-shadow: none; text-transform: none; letter-spacing: 0; }
+        body.mx .status-ready { border-color: var(--mx-tint-b); background: var(--mx-tint); color: var(--mx-tint-t); }
+        body.mx .tabs { gap: 28px; margin: 0 0 18px; padding: 0 4px; border-bottom: 1px solid var(--mx-metal); }
+        body.mx .tab { flex: 0 0 auto; background: none; border: none; border-bottom: 2px solid transparent; border-radius: 0; padding: 14px 0 12px; font-size: 14px; font-weight: 500; color: var(--mx-char); margin-bottom: -1px; }
+        body.mx .tab:hover { color: var(--mx-black); background: none; transform: none; }
+        body.mx .tab.active { background: none; color: var(--mx-black); font-weight: 600; border-bottom-color: var(--mx-black); }
+        body.mx .content { background: var(--mx-white); border: none; border-radius: 14px; box-shadow: none; padding: 28px 28px; }
+        body.mx .section-title { font-size: 28px; font-weight: 600; text-align: left; margin-bottom: 4px; letter-spacing: -0.3px; line-height: 1.1; text-transform: none; }
+        body.mx .mx-lead { font-size: 14px; color: var(--mx-char); margin: 0 0 18px; }
+        body.mx .mx-hero-top { margin-bottom: 18px; }
+        body.mx .mx-hero-top:empty { display: none; }
+        body.mx .btn { border: 1px solid var(--mx-metal); border-radius: 8px; padding: 11px 20px; font-size: 14px; font-weight: 500; background: #fff; color: var(--mx-black); box-shadow: none; transform: none; text-transform: none; }
+        body.mx .btn:hover { border-color: var(--mx-black); background: #fff; transform: none; box-shadow: none; }
+        body.mx .btn-primary { background: var(--mx-black); color: #fff; border-color: var(--mx-black); font-weight: 600; }
+        body.mx .btn-primary:hover { background: #262626; }
+        body.mx .btn:disabled { opacity: .45; }
+        body.mx .buttons { gap: 10px; }
+        body.mx .upload-area { border: 1.5px dashed var(--mx-metal); border-radius: 12px; background: #fff; min-height: 240px; padding: 32px 20px; }
+        body.mx .upload-area.active { border-style: solid; border-color: var(--mx-metal); }
+        body.mx .upload-area h3 { font-weight: 600; font-size: 17px; }
+        body.mx .model-selector { background: #fff; border: 1px solid #E6E6E6; border-radius: 12px; }
+        body.mx .model-selector label { font-size: 13px; }
+        body.mx .model-input, body.mx .search-box { border: 1px solid var(--mx-metal); border-radius: 8px; font-family: inherit; background: #fff; }
+        body.mx .model-input:focus, body.mx .search-box:focus { border-color: var(--mx-black); outline: none; }
+        body.mx .model-chip { background: var(--mx-tint); color: var(--mx-tint-t); }
+        body.mx .model-chip a { color: var(--mx-tint-t); }
+        body.mx .model-opt:hover { background: var(--mx-off); }
+        /* result cards */
+        body.mx .ai-card { border: 1px solid #E6E6E6; border-radius: 12px; background: #fff; }
+        body.mx .ai-card.top { background: #fff; border: 1.5px solid var(--mx-tint-b); box-shadow: 0 0 0 4px var(--mx-tint); }
+        body.mx .ai-rank { background: var(--mx-black); border-radius: 6px; }
+        body.mx .ai-conf.high { background: var(--mx-tint); color: var(--mx-tint-t); }
+        body.mx .ai-conf.medium { background: var(--mx-off); color: var(--mx-black); }
+        body.mx .ai-conf.low { background: var(--mx-off); color: var(--mx-char); }
+        body.mx .ai-card-img { background: #fff; border: 1px solid #EEEEEE; }
+        body.mx .ai-reason { background: var(--mx-off); border-left: 3px solid var(--mx-ibiza); border-radius: 0; color: var(--mx-black); }
+        body.mx .ai-btn { border: 1px solid var(--mx-metal); color: var(--mx-black); border-radius: 8px; font-weight: 500; }
+        body.mx .ai-btn:hover { border-color: var(--mx-black); background: #fff; }
+        body.mx .ai-btn.primary { background: var(--mx-black); border-color: var(--mx-black); color: #fff; font-weight: 600; }
+        body.mx .ai-btn.primary:hover { background: #262626; }
+        body.mx .ai-disclaimer { background: var(--mx-off); color: var(--mx-char); }
+        body.mx .confirm-done { background: var(--mx-tint); color: var(--mx-tint-t); border-radius: 8px; }
+        body.mx .ai-thumbs img.on { border-color: var(--mx-black); }
+        /* gallery + shared part info */
+        body.mx .part-card { border: 1px solid #E6E6E6; border-radius: 12px; box-shadow: none; }
+        body.mx .part-card:hover { border-color: var(--mx-black); transform: none; box-shadow: none; }
+        body.mx .gallery-main, body.mx .part-gallery { background: #fff; }
+        body.mx .part-code-catalog { font-family: 'SFMono-Regular', Consolas, monospace; color: var(--mx-char); }
+        body.mx .part-name-catalog { font-weight: 600; color: var(--mx-black); }
+        body.mx .part-info-label { color: var(--mx-char); font-weight: 500; }
+        body.mx .copy-btn-small, body.mx .copy-btn { border: 1px solid var(--mx-metal); border-radius: 6px; background: #fff; color: var(--mx-black); font-weight: 500; }
+        body.mx .stock-row { background: var(--mx-off); border: none; border-radius: 10px; }
+        body.mx .stock-label { color: var(--mx-char); font-weight: 500; letter-spacing: .3px; }
+        body.mx .stock-ok { color: var(--mx-black); }
+        body.mx .stock-zero { color: var(--mx-metal); }
+        body.mx .part-price { color: var(--mx-black); font-weight: 600; }
+        body.mx .substitute-section { background: #fff; border: 1px solid #E6E6E6; }
+        body.mx .substitute-chip { border: 1px solid var(--mx-metal); color: var(--mx-black); background: #fff; }
+        body.mx .substitute-chip:hover { border-color: var(--mx-black); }
+        body.mx .filter-btn { border: 1px solid var(--mx-metal); border-radius: 20px; font-weight: 500; }
+        body.mx .filter-btn.active { background: var(--mx-black); border-color: var(--mx-black); }
+        body.mx .stf-btn.active { background: var(--mx-black); color: #fff; }
+        body.mx .cmp-bar { border-radius: 12px; }
+        /* modals */
+        body.mx .modal-content { border: none; border-radius: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.18); }
+        body.mx .modal-header { border-bottom: 1px solid #EEEEEE; }
+        body.mx .modal-cat-badge { background: var(--mx-off); color: var(--mx-black); }
+        body.mx .modal-specs-strip { background: var(--mx-off); border: none; }
+        body.mx .model-tag { border: 1px solid var(--mx-metal); background: #fff; }
+        body.mx .bs-title, body.mx .sh-title { color: var(--mx-black); font-weight: 600; }
+        body.mx .bs-table th, body.mx .sh-tbl th { background: var(--mx-off); color: var(--mx-black); font-weight: 600; }
+        /* history + hero numbers */
+        body.mx .sh-hero > div { background: #fff; border: 1px solid #E6E6E6; }
+        body.mx .sh-hero > div.main { background: var(--mx-tint); border: 1px solid var(--mx-tint-b); }
+        body.mx .sh-num { color: var(--mx-black); font-weight: 600; letter-spacing: -0.5px; }
+        body.mx .sh-hero .main .sh-num { color: var(--mx-tint-t); }
+        body.mx .sh-lbl { color: var(--mx-char); }
+        body.mx .sh-hero .main .sh-lbl { color: var(--mx-tint-t); }
+        body.mx .sh-st.ok { background: var(--mx-tint); color: var(--mx-tint-t); }
+        body.mx .sh-st.no { background: var(--mx-off); color: var(--mx-char); }
+        body.mx .sh-wrap { border-top: 1px solid #E6E6E6; }
+        /* Q&A */
+        body.mx .qa-bubble.qa-user { background: var(--mx-black); box-shadow: none; }
+        body.mx .qa-bubble.ai { border: 1px solid #E6E6E6; box-shadow: none; }
+        body.mx .qa-send-btn { background: var(--mx-black); }
+        body.mx .qa-input-wrap { border-radius: 12px; }
+        body.mx .qa-quick, body.mx .qa-suggestion-btn { border-radius: 20px; }
+        body.mx .toast { border-radius: 10px; }
+        @media (max-width: 768px) {
+            body.mx .container { padding: 0 10px; }
+            body.mx .mx-word { font-size: 17px; letter-spacing: 4px; }
+            body.mx .mx-sep { height: 24px; }
+            body.mx .mx-app { font-size: 14px; }
+            body.mx .tabs { gap: 18px; overflow-x: auto; }
+            body.mx .tab { font-size: 13px; white-space: nowrap; }
+            body.mx .content { padding: 20px 14px; border-radius: 12px; }
+            body.mx .section-title { font-size: 22px; }
+        }
         </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="mx">
     <div class="container">
         <!-- Header -->
-        <div class="header">
-            <h1 class="title">MODENA AI PARTS RECOGNITION</h1>
-            <p class="subtitle">Established per 11 January 2026</p>
-            <p class="subtitle version-info"><strong>Version 5.0</strong> (7 October 2026)</p>
-            <p class="subtitle">Created by Parts Management, Customer Care Department</p>
-            <div class="status-badge status-loading" id="statusBadge">
-                ⏳ Loading AI Model...
+        <div class="header mx-header">
+            <div class="mx-brand">
+                <span class="mx-word">MODENA</span>
+                <span class="mx-sep"></span>
+                <div>
+                    <div class="mx-app">AI Parts Recognition</div>
+                    <div class="mx-by">Parts Management · Customer Care Department</div>
+                </div>
+            </div>
+            <div class="mx-meta">
+                <span class="mx-ver">Version 5.0 · 7 October 2026</span>
+                <div class="status-badge status-loading" id="statusBadge">⏳ Loading AI Model...</div>
             </div>
         </div>
         
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('scanner')">📷 AI PARTS SCANNER</button>
-            <button class="tab" onclick="switchTab('catalog')">📚 PARTS GALLERY</button>
-            <button class="tab" onclick="switchTab('qa')">💬 Q&A with AI</button>
+            <button class="tab active" onclick="switchTab('scanner')">AI Parts Scanner</button>
+            <button class="tab" onclick="switchTab('catalog')">Parts Gallery</button>
+            <button class="tab" onclick="switchTab('qa')">Q&amp;A with AI</button>
         </div>
         
         <!-- Content -->
         <div class="content">
             <!-- Scanner Tab -->
             <div id="scannerTab" class="tab-content active">
-                <h2 class="section-title">📸 SCAN PART DENGAN AI</h2>
+                <h2 class="section-title">Scan part dengan AI</h2>
+                <p class="mx-lead">Pilih model unit, foto part, lalu AI mencocokkan dengan foto katalog.</p>
+                <div id="scanHero" class="sh-hero mx-hero-top"></div>
                 <div style="text-align:right;margin:-6px 0 10px"><button class="ai-btn" onclick="resetScanner()">🔄 RESET / SCAN ITEM BARU</button></div>
 
                 <!-- Mandatory Model Unit selector (Claude Vision filter) -->
@@ -2180,7 +2301,7 @@
             <!-- Catalog Tab -->
             <div id="catalogTab" class="tab-content">
                 <div class="catalog-header">
-                    <h2 class="section-title">📚 PARTS GALLERY</h2>
+                    <h2 class="section-title">Parts Gallery</h2>
                     <div class="search-grid-2x2">
                         <input type="text" class="search-box" id="searchBox" placeholder="🔍 Cari part code, nama, keywords..." oninput="searchParts()">
                         <input type="text" class="search-box" id="specSearchBox" placeholder="⚙️ Cari spesifikasi (220V, R600a)..." oninput="searchParts()">
@@ -2762,8 +2883,12 @@ let PARTS_DATABASE = {};
                 return `<tr><td>${fmtT(x.confirmedAt || x.ts)}</td><td>${x.model || '-'}</td><td><span class="sh-st ${ok ? 'ok' : 'no'}">${status}</span></td>
                         <td><b>${code}</b><div class="sh-n">${name(code)}</div></td><td>${ok ? '' : ai1}</td></tr>`;
             }).join('');
+            const top = document.getElementById('scanHero');
+            if (top) top.innerHTML = `<div><div class="sh-num">${s.scanned}</div><div class="sh-lbl">Item di-scan</div></div>
+                <div class="main"><div class="sh-num">${acc}</div><div class="sh-lbl">Akurasi</div></div>
+                <div><div class="sh-num">${s.confirmed}</div><div class="sh-lbl">Terkonfirmasi</div></div>`;
             box.innerHTML = `
-                <div class="sh-title">📊 Riwayat Scan di HP/browser ini</div>
+                <div class="sh-title">Riwayat scan di HP/browser ini</div>
                 <div class="sh-hero">
                     <div><div class="sh-num">${s.scanned}</div><div class="sh-lbl">Item di-scan</div></div>
                     <div class="main"><div class="sh-num">${acc}</div><div class="sh-lbl">Akurasi (benar / terkonfirmasi)</div></div>
@@ -3333,7 +3458,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             const resultsBox = document.getElementById('resultsBox');
             const cards = predictions.slice(0, 3).map((pred, i) => aiResultCard(pred, i)).join('');
             resultsBox.innerHTML = `
-                <h2 class="section-title">🎯 HASIL ANALISIS AI</h2>
+                <h2 class="section-title">Hasil analisis AI</h2>
                 <div id="confirmBanner"></div>
                 <div class="ai-result-list">${cards}</div>
                 <div class="ai-disclaimer">ℹ️ AI bisa membuat kesalahan. Cocokkan part aktual dengan foto katalog. Jika tidak sesuai, hubungi Tim PMT.</div>`;
@@ -3629,13 +3754,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             // Find and activate the clicked tab
             const tabs = document.querySelectorAll('.tab');
             tabs.forEach(tab => {
-                if (tab.textContent.includes('AI PARTS SCANNER') && tabName === 'scanner') {
-                    tab.classList.add('active');
-                } else if (tab.textContent.includes('GALLERY') && tabName === 'catalog') {
-                    tab.classList.add('active');
-                } else if (tab.textContent.includes('Q&A') && tabName === 'qa') {
-                    tab.classList.add('active');
-                }
+                if ((tab.getAttribute('onclick') || '').includes("'" + tabName + "'")) tab.classList.add('active');
             });
             
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
