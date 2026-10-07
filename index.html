@@ -2209,6 +2209,18 @@
             body.mx .content { padding: 20px 14px; border-radius: 12px; }
             body.mx .section-title { font-size: 22px; }
         }
+        
+        body.mx .mx-analyze { width: 100%; margin: 0 0 8px; padding: 13px; font-size: 15px; }
+        body.mx .mx-actions { display: block; margin: 0 0 18px; }
+        body.mx .mx-row { display: grid; gap: 8px; margin-bottom: 8px; }
+        body.mx .mx-row3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        body.mx .mx-row2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        body.mx .mx-actions .btn { width: 100%; padding: 10px 6px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+        body.mx .mx-note { font-size: 11px; color: var(--mx-char); text-align: center; }
+        body.mx .mx-bottom-reset { text-align: center; margin-top: 14px; }
+        body.mx #resultsBox:empty + .mx-bottom-reset { display: none; }
+        body.mx .mx-ic:empty { display: none; }
+        @media (min-width: 769px) { body.mx .mx-actions { max-width: 640px; margin-left: auto; margin-right: auto; } body.mx .mx-analyze { max-width: 640px; display: block; margin-left: auto; margin-right: auto; } }
         </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2245,7 +2257,6 @@
                 <h2 class="section-title">Scan part dengan AI</h2>
                 <p class="mx-lead">Pilih model unit, foto part, lalu AI mencocokkan dengan foto katalog.</p>
                 <div id="scanHero" class="sh-hero mx-hero-top"></div>
-                <div style="text-align:right;margin:-6px 0 10px"><button class="ai-btn" onclick="resetScanner()">🔄 RESET / SCAN ITEM BARU</button></div>
 
                 <!-- Mandatory Model Unit selector (Claude Vision filter) -->
                 <div class="model-selector">
@@ -2275,27 +2286,22 @@
                 
                 <input type="file" id="fileInput" accept="image/*" style="display: none;">
                 
-                <div class="buttons">
-                    <button class="btn" id="uploadBtn" onclick="document.getElementById('fileInput').click()" disabled>
-                        📁 UPLOAD FOTO
-                    </button>
-                    <button class="btn" id="cameraBtn" onclick="startCamera()" disabled>
-                        📸 BUKA KAMERA
-                    </button>
-                    <button class="btn" id="pasteBtn" onclick="pasteImageFromClipboard()" disabled>
-                        📋 PASTE FOTO
-                    </button>
-                    <button class="btn btn-primary" id="analyzeBtn" onclick="analyzePart()" style="display: none;">
-                        🔍 ANALISIS PART
-                    </button>
+                <button class="btn btn-primary mx-analyze" id="analyzeBtn" onclick="analyzePart()" style="display: none;"><span class="mx-ic" data-ic="search"></span>Analisis part</button>
+                <div class="buttons mx-actions">
+                    <div class="mx-row mx-row3">
+                        <button class="btn" id="uploadBtn" onclick="document.getElementById('fileInput').click()" disabled><span class="mx-ic" data-ic="upload"></span>Upload</button>
+                        <button class="btn" id="cameraBtn" onclick="startCamera()" disabled><span class="mx-ic" data-ic="camera"></span><span class="mx-lbl">Kamera</span></button>
+                        <button class="btn" id="pasteBtn" onclick="pasteImageFromClipboard()" disabled><span class="mx-ic" data-ic="paste"></span>Paste</button>
+                    </div>
+                    <div class="mx-row mx-row2">
+                        <button class="btn btn-primary" onclick="resetScanner()"><span class="mx-ic" data-ic="reset"></span>Reset</button>
+                        <button class="btn" onclick="exportScanLog()"><span class="mx-ic" data-ic="download"></span>Log (<span id="scanLogCount">0</span>)</button>
+                    </div>
+                    <div class="mx-note">Log tersimpan di HP/browser ini saja, maks. 200 scan terakhir</div>
                 </div>
-                
+
                 <div class="results-box" id="resultsBox"></div>
-                <div style="text-align:center;margin-top:16px">
-                    <button class="ai-btn primary" onclick="resetScanner()" style="font-size:13px;padding:10px 18px;margin-bottom:10px">🔄 RESET / SCAN ITEM BARU</button><br>
-                    <button class="btn" onclick="exportScanLog()" style="font-size:12px;padding:8px 16px">💾 DOWNLOAD LOG SCAN (<span id="scanLogCount">0</span>)</button>
-                    <div style="font-size:10px;color:#999;margin-top:4px">Log tersimpan di HP/browser ini saja, maks. 200 scan terakhir</div>
-                </div>
+                <div class="mx-bottom-reset"><button class="btn" onclick="resetScanner()"><span class="mx-ic" data-ic="reset"></span>Reset / scan item baru</button></div>
                 <div id="scanHistory" class="sh-wrap"></div>
             </div>
             
@@ -3146,7 +3152,7 @@ let PARTS_DATABASE = {};
             currentImage = canvas;
             
             document.getElementById('analyzeBtn').style.display = 'block';
-            document.getElementById('cameraBtn').textContent = '🔄 FOTO ULANG';
+            document.querySelector('#cameraBtn .mx-lbl').textContent = 'Foto ulang';
             document.getElementById('cameraBtn').onclick = resetCamera;
         }
         
@@ -3156,7 +3162,7 @@ let PARTS_DATABASE = {};
             document.getElementById('webcam').style.display = 'none';
             document.getElementById('uploadPlaceholder').style.display = 'block';
             document.getElementById('analyzeBtn').style.display = 'none';
-            document.getElementById('cameraBtn').textContent = '📸 BUKA KAMERA';
+            document.querySelector('#cameraBtn .mx-lbl').textContent = 'Kamera';
             document.getElementById('cameraBtn').onclick = startCamera;
             document.getElementById('uploadArea').classList.remove('active');
             currentImage = null;
