@@ -2102,7 +2102,10 @@
                 </div>
                 
                 <div class="results-box" id="resultsBox"></div>
-                <div style="text-align:right;font-size:10px;color:#aaa;margin-top:6px">💾 Tip admin: Ctrl+Shift+L untuk export log scan (JSON)</div>
+                <div style="text-align:center;margin-top:16px">
+                    <button class="btn" onclick="exportScanLog()" style="font-size:12px;padding:8px 16px">💾 DOWNLOAD LOG SCAN (<span id="scanLogCount">0</span>)</button>
+                    <div style="font-size:10px;color:#999;margin-top:4px">Log tersimpan di HP/browser ini saja, maks. 200 scan terakhir</div>
+                </div>
             </div>
             
             <!-- Catalog Tab -->
@@ -2406,6 +2409,7 @@ let PARTS_DATABASE = {};
             await loadPartsDatabase();
             initModel();
             renderPartsGrid();
+            refreshScanLogCount();
         };
         
         // Initialize Audio
@@ -2634,6 +2638,14 @@ let PARTS_DATABASE = {};
                 while (list.length > SCAN_LOG_MAX) list.shift();
                 localStorage.setItem(SCAN_LOG_KEY, JSON.stringify(list));
             } catch (e) { console.warn('logScan failed:', e); }
+            refreshScanLogCount();
+        }
+        function refreshScanLogCount() {
+            try {
+                const n = JSON.parse(localStorage.getItem(SCAN_LOG_KEY) || '[]').length;
+                const el = document.getElementById('scanLogCount');
+                if (el) el.textContent = n;
+            } catch (e) { /* ignore */ }
         }
         function updateScanResult(scanId, fields) {
             try {
@@ -2647,6 +2659,7 @@ let PARTS_DATABASE = {};
         }
         function exportScanLog() {
             const list = localStorage.getItem(SCAN_LOG_KEY) || '[]';
+            if (JSON.parse(list).length === 0) { alert('Belum ada log scan di HP/browser ini.'); return; }
             const blob = new Blob([list], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
