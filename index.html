@@ -2085,7 +2085,6 @@
             <h1 class="title">MODENA AI PARTS RECOGNITION</h1>
             <p class="subtitle">Established per 11 January 2026</p>
             <p class="subtitle version-info"><strong>Version 5.0</strong> (7 October 2026)</p>
-            <p class="subtitle" id="dataInfo" style="font-size:12px;color:#888"></p>
             <p class="subtitle">Created by Parts Management, Customer Care Department</p>
             <div class="status-badge status-loading" id="statusBadge">
                 ⏳ Loading AI Model...
@@ -2104,6 +2103,7 @@
             <!-- Scanner Tab -->
             <div id="scannerTab" class="tab-content active">
                 <h2 class="section-title">📸 SCAN PART DENGAN AI</h2>
+                <div style="text-align:right;margin:-6px 0 10px"><button class="ai-btn" onclick="resetScanner()">🔄 RESET / SCAN ITEM BARU</button></div>
 
                 <!-- Mandatory Model Unit selector (Claude Vision filter) -->
                 <div class="model-selector">
@@ -2150,6 +2150,7 @@
                 
                 <div class="results-box" id="resultsBox"></div>
                 <div style="text-align:center;margin-top:16px">
+                    <button class="ai-btn primary" onclick="resetScanner()" style="font-size:13px;padding:10px 18px;margin-bottom:10px">🔄 RESET / SCAN ITEM BARU</button><br>
                     <button class="btn" onclick="exportScanLog()" style="font-size:12px;padding:8px 16px">💾 DOWNLOAD LOG SCAN (<span id="scanLogCount">0</span>)</button>
                     <div style="font-size:10px;color:#999;margin-top:4px">Log tersimpan di HP/browser ini saja, maks. 200 scan terakhir</div>
                 </div>
@@ -2929,6 +2930,21 @@ let PARTS_DATABASE = {};
             currentImage = null;
         }
         
+        // Reset everything to start a new item
+        function resetScanner() {
+            try { if (typeof webcamStream !== 'undefined' && webcamStream) webcamStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+            resetCamera();
+            const img = document.getElementById('previewImage'); img.removeAttribute('src');
+            const fi = document.getElementById('fileInput'); if (fi) fi.value = '';
+            clearSelectedModel();
+            const opts = document.getElementById('modelOptions'); if (opts) opts.style.display = 'none';
+            const rb = document.getElementById('resultsBox'); rb.innerHTML = ''; rb.classList.remove('show');
+            window.__lastScanTs = null; window.currentPredictions = null;
+            document.getElementById('scannerTab').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => document.getElementById('modelInput').focus(), 300);
+        }
+        window.resetScanner = resetScanner;
+
         // Analyze part
         async function analyzePart() {
             if (!currentImage) return;
@@ -3301,13 +3317,13 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                             <div class="part-price">${formatPrice(part.price)}</div>
                             <button class="whatsapp-icon-btn" onclick="event.stopPropagation(); checkStock('${code}', '${nameEsc}', event)" title="Cek stock via WhatsApp">💬</button>
                         </div>
-                    </div>
-                </div>
-                ${pred.aiReason ? `<div class="ai-reason"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
-                <div class="ai-actions">
+                        ${pred.aiReason ? `<div class="ai-reason"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
+                        <div class="ai-actions">
                     <button class="ai-btn primary" onclick="confirmPartChoice('${code}')">✅ ${isTop ? 'KONFIRMASI PART INI BENAR' : 'INI YANG BENAR'}</button>
                     <button class="ai-btn" onclick="showCompatibleModels('${code}')">ⓘ DETAIL</button>
                     <button class="ai-btn" onclick="shareToGroupPMT(decodeURIComponent('${encodeURIComponent(waMsg)}'), 'https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW')">📱 SHARE KE PMT</button>
+                        </div>
+                    </div>
                 </div>
             </div>`;
         }
