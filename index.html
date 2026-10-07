@@ -2284,6 +2284,38 @@
         body.mx .mx-nopart p { color: #626262; margin: 4px auto; max-width: 520px; }
         body.mx .mx-nopart-tip { font-size: 13px; }
         body.mx .mx-nopart .btn { margin-top: 14px; width: auto; display: inline-flex; padding: 10px 20px; }
+    
+        /* cabang saya */
+        body.mx .mx-branch-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #C4C5C4; background: #fff; color: #161616; border-radius: 20px; padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+        body.mx .mx-branch-btn.set { border-color: #0099C3; background: #E6F5FA; color: #006E8C; }
+        body.mx .br-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+        body.mx .br-opt { border: 1px solid #C4C5C4; background: #fff; border-radius: 10px; padding: 10px; font: inherit; font-size: 13px; font-weight: 600; color: #161616; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+        body.mx .br-opt.on { background: #161616; color: #FAFAFA; border-color: #161616; }
+        body.mx .br-clear { margin-top: 12px; border: 0; background: transparent; color: #626262; text-decoration: underline; cursor: pointer; font: inherit; font-size: 13px; }
+        body.mx .bs-table tr.own td { background: #E6F5FA; font-weight: 700; }
+        body.mx .own-tag { font-size: 11px; font-weight: 600; color: #006E8C; background: #fff; border: 1px solid #9FD6E6; border-radius: 10px; padding: 1px 6px; margin-left: 4px; }
+        body.mx .stock-item.mx-own .stock-label { color: #006E8C; }
+        /* ketersediaan / ETA */
+        body.mx .mx-avail { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        body.mx .mx-avail-txt { flex: 1 1 220px; font-size: 13px; line-height: 1.45; color: #161616; padding: 8px 10px; border-radius: 8px; background: #F2F2F2; }
+        body.mx .mx-avail.bad .mx-avail-txt { background: #FFF1EE; }
+        body.mx .mx-avail.bad .mx-avail-txt .mxi { color: #FF4B33; }
+        body.mx .mx-avail.warn .mx-avail-txt { background: #E6F5FA; }
+        body.mx .mx-avail.warn .mx-avail-txt .mxi { color: #0099C3; }
+        body.mx .mx-eta-src { display: block; font-size: 11px; color: #626262; margin-top: 2px; }
+        body.mx .mx-cust-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #C4C5C4; background: #fff; color: #161616; border-radius: 8px; padding: 7px 12px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        body.mx .mx-cust-btn:hover { border-color: #161616; }
+        /* nameplate */
+        body.mx .np-row { margin-top: 10px; }
+        body.mx .np-btn { display: inline-flex; align-items: center; gap: 8px; border: 1px dashed #0099C3; background: #E6F5FA; color: #006E8C; border-radius: 10px; padding: 9px 14px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+        body.mx .np-btn:hover { background: #d5eef6; }
+        body.mx .np-status:empty { display: none; }
+        body.mx .np-status { margin-top: 8px; font-size: 13px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; background: #F2F2F2; color: #161616; }
+        body.mx .np-status .mxi { vertical-align: -0.2em; }
+        body.mx .np-status.ok .mxi { color: #3CB149; }
+        body.mx .np-status.warn { background: #E6F5FA; }
+        body.mx .np-status.err { background: #FFF1EE; }
+        body.mx .np-status.err .mxi { color: #FF4B33; }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2302,6 +2334,7 @@
             </div>
             <div class="mx-meta">
                 <span class="mx-ver">Version 5.0 · 7 October 2026</span>
+                <button type="button" class="mx-branch-btn" id="myBranchBtn" onclick="openBranchPicker()" title="Cabang saya"><span data-ic="map-pin"></span><span id="myBranchLbl">Pilih cabang saya</span></button>
                 <div class="status-badge status-loading" id="statusBadge"><span data-ic="loader-circle" class="mx-spin"></span> Loading AI Model...</div>
             </div>
         </div>
@@ -2333,6 +2366,11 @@
                         oninput="filterModelOptions()"
                         onfocus="filterModelOptions()">
                     <div class="model-options" id="modelOptions" style="display:none"></div>
+                    <div class="np-row">
+                        <button type="button" class="np-btn" onclick="document.getElementById('nameplateInput').click()"><span data-ic="scan-text"></span>Foto nameplate, isi model &amp; tahun otomatis</button>
+                        <input type="file" id="nameplateInput" accept="image/*" style="display:none" onchange="readNameplate(this.files[0]); this.value=''">
+                    </div>
+                    <div id="nameplateStatus" class="np-status"></div>
                     <div id="selectedModelChip" class="model-chip-wrap"></div>
                     <div id="variantPicker" class="variant-picker"></div>
                 </div>
@@ -2602,7 +2640,7 @@
     
     <script>
         // MODENA line icons (Lucide, ISC licence), visual only
-        const MXI = {"calendar": "<path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" />", "upload": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /> <polyline points=\"17 8 12 3 7 8\" /> <line x1=\"12\" x2=\"12\" y1=\"3\" y2=\"15\" />", "camera": "<path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />", "clipboard-paste": "<path d=\"M15 2H9a1 1 0 0 0-1 1v2c0 .6.4 1 1 1h6c.6 0 1-.4 1-1V3c0-.6-.4-1-1-1Z\" /> <path d=\"M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M16 4h2a2 2 0 0 1 2 2v2M11 14h10\" /> <path d=\"m17 10 4 4-4 4\" />", "scan-search": "<path d=\"M3 7V5a2 2 0 0 1 2-2h2\" /> <path d=\"M17 3h2a2 2 0 0 1 2 2v2\" /> <path d=\"M21 17v2a2 2 0 0 1-2 2h-2\" /> <path d=\"M7 21H5a2 2 0 0 1-2-2v-2\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" /> <path d=\"m16 16-1.9-1.9\" />", "rotate-ccw": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /> <path d=\"M3 3v5h5\" />", "download": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /> <polyline points=\"7 10 12 15 17 10\" /> <line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\" />", "copy": "<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\" /> <path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\" />", "info": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 16v-4\" /> <path d=\"M12 8h.01\" />", "share-2": "<circle cx=\"18\" cy=\"5\" r=\"3\" /> <circle cx=\"6\" cy=\"12\" r=\"3\" /> <circle cx=\"18\" cy=\"19\" r=\"3\" /> <line x1=\"8.59\" x2=\"15.42\" y1=\"13.51\" y2=\"17.49\" /> <line x1=\"15.41\" x2=\"8.59\" y1=\"6.51\" y2=\"10.49\" />", "wrench": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\" />", "layout-grid": "<rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\" />", "message-circle": "<path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\" />", "check": "<path d=\"M20 6 9 17l-5-5\" />", "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "x": "<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "circle-x": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m15 9-6 6\" /> <path d=\"m9 9 6 6\" />", "triangle-alert": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "loader-circle": "<path d=\"M21 12a9 9 0 1 1-6.219-8.56\" />", "sparkles": "<path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\" /> <path d=\"M20 3v4\" /> <path d=\"M22 5h-4\" /> <path d=\"M4 17v2\" /> <path d=\"M5 18H3\" />", "search": "<circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "search-x": "<path d=\"m13.5 8.5-5 5\" /> <path d=\"m8.5 8.5 5 5\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "book-open": "<path d=\"M12 7v14\" /> <path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" />", "trash-2": "<path d=\"M3 6h18\" /> <path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\" /> <path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\" /> <line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\" /> <line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\" />", "git-compare-arrows": "<circle cx=\"5\" cy=\"6\" r=\"3\" /> <path d=\"M12 6h5a2 2 0 0 1 2 2v7\" /> <path d=\"m15 9-3-3 3-3\" /> <circle cx=\"19\" cy=\"18\" r=\"3\" /> <path d=\"M12 18H7a2 2 0 0 1-2-2V9\" /> <path d=\"m9 15 3 3-3 3\" />", "arrow-left-right": "<path d=\"M8 3 4 7l4 4\" /> <path d=\"M4 7h16\" /> <path d=\"m16 21 4-4-4-4\" /> <path d=\"M20 17H4\" />", "save": "<path d=\"M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z\" /> <path d=\"M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7\" /> <path d=\"M7 3v4a1 1 0 0 0 1 1h7\" />", "image": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /> <circle cx=\"9\" cy=\"9\" r=\"2\" /> <path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\" />", "lightbulb": "<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />", "history": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /> <path d=\"M3 3v5h5\" /> <path d=\"M12 7v5l4 2\" />", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" /> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />", "flame": "<path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\" />", "droplet": "<path d=\"M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z\" />", "cog": "<path d=\"M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z\" /> <path d=\"M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z\" /> <path d=\"M12 2v2\" /> <path d=\"M12 22v-2\" /> <path d=\"m17 20.66-1-1.73\" /> <path d=\"M11 10.27 7 3.34\" /> <path d=\"m20.66 17-1.73-1\" /> <path d=\"m3.34 7 1.73 1\" /> <path d=\"M14 12h8\" /> <path d=\"M2 12h2\" /> <path d=\"m20.66 7-1.73 1\" /> <path d=\"m3.34 17 1.73-1\" /> <path d=\"m17 3.34-1 1.73\" /> <path d=\"m11 13.73-4 6.93\" />", "banknote": "<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M6 12h.01M18 12h.01\" />", "filter": "<polygon points=\"22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3\" />", "cpu": "<rect width=\"16\" height=\"16\" x=\"4\" y=\"4\" rx=\"2\" /> <rect width=\"6\" height=\"6\" x=\"9\" y=\"9\" rx=\"1\" /> <path d=\"M15 2v2\" /> <path d=\"M15 20v2\" /> <path d=\"M2 15h2\" /> <path d=\"M2 9h2\" /> <path d=\"M20 15h2\" /> <path d=\"M20 9h2\" /> <path d=\"M9 2v2\" /> <path d=\"M9 20v2\" />", "thermometer": "<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />", "package": "<path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <path d=\"m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7\" /> <path d=\"m7.5 4.27 9 5.15\" />", "droplets": "<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />", "circle-alert": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /> <line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" />", "smartphone": "<rect width=\"14\" height=\"20\" x=\"5\" y=\"2\" rx=\"2\" ry=\"2\" /> <path d=\"M12 18h.01\" />", "tag": "<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />", "mic": "<path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z\" /> <path d=\"M19 10v2a7 7 0 0 1-14 0v-2\" /> <line x1=\"12\" x2=\"12\" y1=\"19\" y2=\"22\" />"};
+        const MXI = {"scan-text": "<path d=\"M3 7V5a2 2 0 0 1 2-2h2\" /> <path d=\"M17 3h2a2 2 0 0 1 2 2v2\" /> <path d=\"M21 17v2a2 2 0 0 1-2 2h-2\" /> <path d=\"M7 21H5a2 2 0 0 1-2-2v-2\" /> <path d=\"M7 8h8\" /> <path d=\"M7 12h10\" /> <path d=\"M7 16h6\" />", "map-pin": "<path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\" /> <circle cx=\"12\" cy=\"10\" r=\"3\" />", "clipboard-copy": "<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\" /> <path d=\"M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2\" /> <path d=\"M16 4h2a2 2 0 0 1 2 2v4\" /> <path d=\"M21 14H11\" /> <path d=\"m15 10-4 4 4 4\" />", "package-x": "<path d=\"M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14\" /> <path d=\"m7.5 4.27 9 5.15\" /> <polyline points=\"3.29 7 12 12 20.71 7\" /> <line x1=\"12\" x2=\"12\" y1=\"22\" y2=\"12\" /> <path d=\"m17 13 5 5m-5 0 5-5\" />", "calendar-clock": "<path d=\"M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5\" /> <path d=\"M16 2v4\" /> <path d=\"M8 2v4\" /> <path d=\"M3 10h5\" /> <path d=\"M17.5 17.5 16 16.3V14\" /> <circle cx=\"16\" cy=\"16\" r=\"6\" />", "truck": "<path d=\"M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2\" /> <path d=\"M15 18H9\" /> <path d=\"M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14\" /> <circle cx=\"17\" cy=\"18\" r=\"2\" /> <circle cx=\"7\" cy=\"18\" r=\"2\" />", "calendar": "<path d=\"M8 2v4\" /> <path d=\"M16 2v4\" /> <rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\" /> <path d=\"M3 10h18\" />", "upload": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /> <polyline points=\"17 8 12 3 7 8\" /> <line x1=\"12\" x2=\"12\" y1=\"3\" y2=\"15\" />", "camera": "<path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z\" /> <circle cx=\"12\" cy=\"13\" r=\"3\" />", "clipboard-paste": "<path d=\"M15 2H9a1 1 0 0 0-1 1v2c0 .6.4 1 1 1h6c.6 0 1-.4 1-1V3c0-.6-.4-1-1-1Z\" /> <path d=\"M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2M16 4h2a2 2 0 0 1 2 2v2M11 14h10\" /> <path d=\"m17 10 4 4-4 4\" />", "scan-search": "<path d=\"M3 7V5a2 2 0 0 1 2-2h2\" /> <path d=\"M17 3h2a2 2 0 0 1 2 2v2\" /> <path d=\"M21 17v2a2 2 0 0 1-2 2h-2\" /> <path d=\"M7 21H5a2 2 0 0 1-2-2v-2\" /> <circle cx=\"12\" cy=\"12\" r=\"3\" /> <path d=\"m16 16-1.9-1.9\" />", "rotate-ccw": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /> <path d=\"M3 3v5h5\" />", "download": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /> <polyline points=\"7 10 12 15 17 10\" /> <line x1=\"12\" x2=\"12\" y1=\"15\" y2=\"3\" />", "copy": "<rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\" /> <path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\" />", "info": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"M12 16v-4\" /> <path d=\"M12 8h.01\" />", "share-2": "<circle cx=\"18\" cy=\"5\" r=\"3\" /> <circle cx=\"6\" cy=\"12\" r=\"3\" /> <circle cx=\"18\" cy=\"19\" r=\"3\" /> <line x1=\"8.59\" x2=\"15.42\" y1=\"13.51\" y2=\"17.49\" /> <line x1=\"15.41\" x2=\"8.59\" y1=\"6.51\" y2=\"10.49\" />", "wrench": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\" />", "layout-grid": "<rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\" /> <rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\" />", "message-circle": "<path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\" />", "check": "<path d=\"M20 6 9 17l-5-5\" />", "circle-check": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m9 12 2 2 4-4\" />", "x": "<path d=\"M18 6 6 18\" /> <path d=\"m6 6 12 12\" />", "circle-x": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <path d=\"m15 9-6 6\" /> <path d=\"m9 9 6 6\" />", "triangle-alert": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /> <path d=\"M12 9v4\" /> <path d=\"M12 17h.01\" />", "loader-circle": "<path d=\"M21 12a9 9 0 1 1-6.219-8.56\" />", "sparkles": "<path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\" /> <path d=\"M20 3v4\" /> <path d=\"M22 5h-4\" /> <path d=\"M4 17v2\" /> <path d=\"M5 18H3\" />", "search": "<circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "search-x": "<path d=\"m13.5 8.5-5 5\" /> <path d=\"m8.5 8.5 5 5\" /> <circle cx=\"11\" cy=\"11\" r=\"8\" /> <path d=\"m21 21-4.3-4.3\" />", "book-open": "<path d=\"M12 7v14\" /> <path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" />", "trash-2": "<path d=\"M3 6h18\" /> <path d=\"M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6\" /> <path d=\"M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2\" /> <line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\" /> <line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\" />", "git-compare-arrows": "<circle cx=\"5\" cy=\"6\" r=\"3\" /> <path d=\"M12 6h5a2 2 0 0 1 2 2v7\" /> <path d=\"m15 9-3-3 3-3\" /> <circle cx=\"19\" cy=\"18\" r=\"3\" /> <path d=\"M12 18H7a2 2 0 0 1-2-2V9\" /> <path d=\"m9 15 3 3-3 3\" />", "arrow-left-right": "<path d=\"M8 3 4 7l4 4\" /> <path d=\"M4 7h16\" /> <path d=\"m16 21 4-4-4-4\" /> <path d=\"M20 17H4\" />", "save": "<path d=\"M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z\" /> <path d=\"M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7\" /> <path d=\"M7 3v4a1 1 0 0 0 1 1h7\" />", "image": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" ry=\"2\" /> <circle cx=\"9\" cy=\"9\" r=\"2\" /> <path d=\"m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21\" />", "lightbulb": "<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /> <path d=\"M9 18h6\" /> <path d=\"M10 22h4\" />", "history": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /> <path d=\"M3 3v5h5\" /> <path d=\"M12 7v5l4 2\" />", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /> <circle cx=\"9\" cy=\"7\" r=\"4\" /> <path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /> <path d=\"M16 3.13a4 4 0 0 1 0 7.75\" />", "flame": "<path d=\"M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z\" />", "droplet": "<path d=\"M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z\" />", "cog": "<path d=\"M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z\" /> <path d=\"M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z\" /> <path d=\"M12 2v2\" /> <path d=\"M12 22v-2\" /> <path d=\"m17 20.66-1-1.73\" /> <path d=\"M11 10.27 7 3.34\" /> <path d=\"m20.66 17-1.73-1\" /> <path d=\"m3.34 7 1.73 1\" /> <path d=\"M14 12h8\" /> <path d=\"M2 12h2\" /> <path d=\"m20.66 7-1.73 1\" /> <path d=\"m3.34 17 1.73-1\" /> <path d=\"m17 3.34-1 1.73\" /> <path d=\"m11 13.73-4 6.93\" />", "banknote": "<rect width=\"20\" height=\"12\" x=\"2\" y=\"6\" rx=\"2\" /> <circle cx=\"12\" cy=\"12\" r=\"2\" /> <path d=\"M6 12h.01M18 12h.01\" />", "filter": "<polygon points=\"22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3\" />", "cpu": "<rect width=\"16\" height=\"16\" x=\"4\" y=\"4\" rx=\"2\" /> <rect width=\"6\" height=\"6\" x=\"9\" y=\"9\" rx=\"1\" /> <path d=\"M15 2v2\" /> <path d=\"M15 20v2\" /> <path d=\"M2 15h2\" /> <path d=\"M2 9h2\" /> <path d=\"M20 15h2\" /> <path d=\"M20 9h2\" /> <path d=\"M9 2v2\" /> <path d=\"M9 20v2\" />", "thermometer": "<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />", "package": "<path d=\"M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z\" /> <path d=\"M12 22V12\" /> <path d=\"m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7\" /> <path d=\"m7.5 4.27 9 5.15\" />", "droplets": "<path d=\"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z\" /> <path d=\"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97\" />", "circle-alert": "<circle cx=\"12\" cy=\"12\" r=\"10\" /> <line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\" /> <line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\" />", "smartphone": "<rect width=\"14\" height=\"20\" x=\"5\" y=\"2\" rx=\"2\" ry=\"2\" /> <path d=\"M12 18h.01\" />", "tag": "<path d=\"M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z\" /> <circle cx=\"7.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />", "mic": "<path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z\" /> <path d=\"M19 10v2a7 7 0 0 1-14 0v-2\" /> <line x1=\"12\" x2=\"12\" y1=\"19\" y2=\"22\" />"};
 
         function ic(n, cls) { return '<svg class="mxi' + (cls ? ' ' + cls : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (MXI[n] || '') + '</svg>'; }
         function mxFillIcons(root) { (root || document).querySelectorAll('[data-ic]').forEach(el => { if (!el.innerHTML.trim()) el.innerHTML = ic(el.dataset.ic); }); }
@@ -2708,6 +2746,8 @@ let PARTS_DATABASE = {};
             initAudio();
             await loadPartsDatabase();
             loadVariants();
+            updateMyBranchLabel();
+            loadBranchStock().then(() => fillOwnStock());
             initModel();
             renderPartsGrid();
             refreshScanLogCount();
@@ -2841,11 +2881,13 @@ let PARTS_DATABASE = {};
             if (chip) chip.innerHTML = `<span class="model-chip">${ic('check')} Model: <b>${model}</b> <a onclick="clearSelectedModel()">change</a></span>`;
             console.log('✅ Model selected:', model);
             window.selectedVariant = null;
+            window.modelFrom = 'manual';
             loadVariants().then(renderVariantPicker);
         }
 
         function clearSelectedModel() {
             window.selectedModel = null;
+            window.nameplateRead = null; window.modelFrom = null; npStatus('');
             window.selectedVariant = null; renderVariantPicker();
             document.getElementById('modelInput').value = '';
             document.getElementById('selectedModelChip').innerHTML = '';
@@ -3299,6 +3341,7 @@ let PARTS_DATABASE = {};
             const fi = document.getElementById('fileInput'); if (fi) fi.value = '';
             window.selectedModel = null;
             window.selectedVariant = null; renderVariantPicker();
+            window.nameplateRead = null; window.modelFrom = null; npStatus('');
             document.getElementById('modelInput').value = '';
             document.getElementById('selectedModelChip').innerHTML = '';
             const opts = document.getElementById('modelOptions'); if (opts) opts.style.display = 'none';
@@ -3540,6 +3583,8 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     scanId: scanTs,
                     model: sel,
                     unitYear: window.selectedVariant ? variantLabel(window.selectedVariant) : '',
+                    modelFrom: window.modelFrom || 'manual',
+                    nameplate: window.nameplateRead || null,
                     stage1,
                     candidatesPresented: candidates.map(c => c.partNumber),
                     top3: predictions,
@@ -3720,11 +3765,13 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                                 <span class="stock-label">Stock PMT</span>
                                 <span class="stock-value-lg ${(part.stockPMT || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockPMT || 0}</span>
                             </div>
+                            <div class="stock-item mx-own" data-own="${code}" style="display:none"><span class="stock-label">Cabang saya</span><span class="stock-value-lg">…</span></div>
                             <div class="stock-item stock-click" onclick="event.stopPropagation(); showBranchStock('${code}')" title="Lihat stock per cabang">
                                 <span class="stock-label">Stock Cabang ›</span>
                                 <span class="stock-value-lg ${(part.stockNational || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockNational || 0}</span>
                             </div>
                         </div>
+                        ${availHTML(part)}
                         <div class="part-price-row">
                             <div class="part-price">${formatPrice(part.price)}</div>
                             <button class="whatsapp-icon-btn" onclick="event.stopPropagation(); checkStock('${code}', '${nameEsc}', event)" title="Cek stock via WhatsApp">${ic('message-circle')}</button>
@@ -3740,6 +3787,11 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             </div>`;
         }
 
+        // fill "Cabang saya" cells whenever result / gallery cards are rendered
+        let _ownT = null;
+        new MutationObserver(() => { if (!getMyBranch() || _ownT) return; _ownT = setTimeout(() => { _ownT = null; fillOwnStock(); }, 50); })
+            .observe(document.documentElement, { childList: true, subtree: true });
+
         function aiSwapPhoto(i, el) {
             const main = document.getElementById('aimg-' + i);
             if (main) main.src = el.src;
@@ -3747,8 +3799,178 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
         }
         window.aiSwapPhoto = aiSwapPhoto;
 
-        // Stock per branch popup (data/branch_stock.json, loaded on first use)
-        let BRANCH_STOCK = null;
+        // Stock per branch popup (data/branch_stock.json, preloaded in background)
+        let BRANCH_STOCK = null, _branchP = null;
+        function loadBranchStock() {
+            if (!_branchP) _branchP = fetch('/data/branch_stock.json', { cache: 'no-cache' })
+                .then(r => r.ok ? r.json() : {}).then(j => (BRANCH_STOCK = j || {})).catch(() => (BRANCH_STOCK = {}));
+            return _branchP;
+        }
+
+        // ===== Cabang saya (saved on this device) =====
+        const MY_BRANCH_KEY = 'modena_my_branch';
+        function getMyBranch() { try { return localStorage.getItem(MY_BRANCH_KEY) || ''; } catch (e) { return ''; } }
+        function branchList() {
+            const set = new Set();
+            Object.values(BRANCH_STOCK || {}).forEach(rows => rows.forEach(r => set.add(r[0])));
+            return [...set].filter(b => b && b !== 'JATAKE' && b !== 'DISPLAY' && !b.startsWith('WH-')).sort();
+        }
+        function ownQty(code, br) { br = br || getMyBranch(); if (!br || !BRANCH_STOCK) return 0; return (BRANCH_STOCK[code] || []).filter(r => r[0] === br).reduce((s, r) => s + r[2], 0); }
+        function updateMyBranchLabel() {
+            const b = getMyBranch(), el = document.getElementById('myBranchLbl');
+            if (el) el.textContent = b ? 'Cabang: ' + b : 'Pilih cabang saya';
+            const btn = document.getElementById('myBranchBtn'); if (btn) btn.classList.toggle('set', !!b);
+        }
+        function fillOwnStock(root) {
+            const b = getMyBranch();
+            (root || document).querySelectorAll('[data-own]').forEach(el => {
+                if (!b) { if (el.style.display !== 'none') el.style.display = 'none'; return; }
+                const q = BRANCH_STOCK ? ownQty(el.dataset.own, b) : null;
+                const lbl = 'Cabang ' + b, val = q == null ? '…' : String(q), cls = 'stock-value-lg ' + (q > 0 ? 'stock-ok' : 'stock-zero');
+                const L = el.querySelector('.stock-label'), V = el.querySelector('.stock-value-lg');
+                if (el.style.display === 'none') el.style.display = '';
+                if (L.textContent !== lbl) L.textContent = lbl;
+                if (V.textContent !== val) V.textContent = val;
+                if (V.className !== cls) V.className = cls;
+            });
+        }
+        async function openBranchPicker() {
+            let m = document.getElementById('myBranchModal');
+            if (!m) { m = document.createElement('div'); m.id = 'myBranchModal'; m.className = 'bs-overlay'; m.onclick = e => { if (e.target === m) m.style.display = 'none'; }; document.body.appendChild(m); }
+            m.style.display = 'flex';
+            m.innerHTML = `<div class="bs-box"><div class="bs-head"><div><div class="bs-title">Pilih cabang saya</div><div class="bs-sub">Stock cabang ini tampil paling atas. Tersimpan di HP/browser ini.</div></div><button class="bs-x" onclick="document.getElementById('myBranchModal').style.display='none'">×</button></div><div class="bs-body">${ic('loader-circle','mx-spin')} Memuat daftar cabang...</div></div>`;
+            await loadBranchStock();
+            const cur = getMyBranch();
+            m.querySelector('.bs-body').innerHTML = '<div class="br-grid">' + branchList().map(b =>
+                `<button type="button" class="br-opt ${b === cur ? 'on' : ''}" onclick="setMyBranch('${b.replace(/'/g, "\\'")}')">${b === cur ? ic('check') + ' ' : ''}${b}</button>`).join('') +
+                `</div>${cur ? '<button type="button" class="br-clear" onclick="setMyBranch(\'\')">Hapus pilihan cabang</button>' : ''}`;
+        }
+        function setMyBranch(b) {
+            try { b ? localStorage.setItem(MY_BRANCH_KEY, b) : localStorage.removeItem(MY_BRANCH_KEY); } catch (e) {}
+            const m = document.getElementById('myBranchModal'); if (m) m.style.display = 'none';
+            updateMyBranchLabel(); fillOwnStock();
+            showToast(b ? 'Cabang saya: ' + b : 'Pilihan cabang dihapus');
+        }
+
+        // ===== Ketersediaan, ETA dan info untuk konsumen =====
+        function fmtTgl(iso, long) { const d = new Date(iso + 'T00:00:00'); return isNaN(d) ? iso : d.toLocaleDateString('id-ID', { day: 'numeric', month: long ? 'long' : 'short', year: 'numeric' }); }
+        function etaPast(iso) { const t = new Date(); t.setHours(0, 0, 0, 0); return new Date(iso + 'T00:00:00') < t; }
+        function availHTML(part) {
+            const pmt = part.stockPMT || 0, nat = part.stockNational || 0, code = part.partNumber;
+            let txt = '', cls = '';
+            if (part.etaNote) { cls = 'bad'; txt = ic('package-x') + ' <b>' + part.etaNote + '</b>. Cek substitute atau hubungi Tim PMT.'; }
+            else if (pmt === 0) {
+                const head = nat > 0 ? 'Stock pusat kosong' : 'Stock kosong';
+                cls = nat > 0 ? 'warn' : 'bad';
+                if (part.eta && !etaPast(part.eta)) {
+                    txt = ic('calendar-clock') + ` ${head} · Estimasi tersedia <b>${fmtTgl(part.eta)}</b> <span class="mx-eta-src">${part.etaFinal ? 'dikonfirmasi PMT' : 'perkiraan sistem'}${part.etaStatus ? ' · ' + part.etaStatus : ''}</span>`;
+                } else if (part.eta) {
+                    txt = ic('calendar-clock') + ` ${head} · ETA sudah lewat (${fmtTgl(part.eta)}), konfirmasi ke Tim PMT`;
+                } else if (nat === 0) {
+                    txt = ic('calendar-clock') + ' Stock kosong · Belum ada jadwal kedatangan, hubungi Tim PMT';
+                }
+            }
+            return `<div class="mx-avail ${cls}">${txt ? `<div class="mx-avail-txt">${txt}</div>` : ''}
+                <button type="button" class="mx-cust-btn" onclick="event.stopPropagation(); copyCustomerInfo('${code}')" title="Salin info siap kirim ke konsumen">${ic('clipboard-copy')} Info konsumen</button></div>`;
+        }
+        function customerInfoText(code) {
+            const p = PARTS_DATABASE[code]; if (!p) return '';
+            const br = getMyBranch(), own = ownQty(code, br);
+            const pmt = p.stockPMT || 0, nat = p.stockNational || 0;
+            const ms = p.compatibleModels || [];
+            const model = window.selectedModel && ms.includes(window.selectedModel) ? window.selectedModel : ms.slice(0, 3).join(', ');
+            let avail;
+            if (p.etaNote) {
+                const sub = (SUBSTITUTE_MAP[code] || [])[0];
+                avail = 'Part ini sudah tidak tersedia' + (sub ? '. Part pengganti: ' + sub + (PARTS_DATABASE[sub] ? ' (' + PARTS_DATABASE[sub].name + ')' : '') : '');
+            } else if (br && own > 0) avail = 'Tersedia di cabang MODENA ' + br;
+            else if (pmt > 0) avail = 'Tersedia, dikirim dari gudang pusat MODENA';
+            else if (nat > 0) avail = 'Tersedia, dikirim dari cabang MODENA lain';
+            else if (p.eta && !etaPast(p.eta)) avail = 'Sedang kosong, estimasi tersedia sekitar ' + fmtTgl(p.eta, true);
+            else avail = 'Sedang kosong, jadwal ketersediaan akan kami informasikan kembali';
+            return 'Informasi Spare Part MODENA\n' +
+                'Nama part: ' + p.name + '\n' +
+                'Kode part: ' + code + '\n' +
+                (model ? 'Model unit: ' + model + '\n' : '') +
+                'Harga: ' + (p.price > 0 ? 'Rp ' + Number(p.price).toLocaleString('id-ID') : 'akan kami konfirmasi') + '\n' +
+                'Ketersediaan: ' + avail + '\n\n' +
+                'Harga dan estimasi dapat berubah sewaktu-waktu.';
+        }
+        async function copyCustomerInfo(code) {
+            await loadBranchStock();
+            const text = customerInfoText(code); if (!text) return;
+            try { await navigator.clipboard.writeText(text); }
+            catch (e) { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (_) {} t.remove(); }
+            showToast('Info untuk konsumen disalin, tinggal paste', 'success');
+        }
+
+        // ===== Nameplate: AI baca model & tahun =====
+        const normModel = s => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        function matchModel(read) {
+            const all = window.allModelOptions || [], r = normModel(read);
+            if (!r) return { exact: null, list: [] };
+            const exact = all.find(m => normModel(m) === r);
+            if (exact) return { exact, list: [exact] };
+            const lcp = (a, b) => { let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++; return i; };
+            const list = all.map(m => { const n = normModel(m); const ok = n.startsWith(r) || r.startsWith(n) || n.includes(r); return ok ? { m, sc: lcp(n, r) - Math.abs(n.length - r.length) * 0.1 } : null; })
+                .filter(Boolean).sort((a, b) => b.sc - a.sc).map(x => x.m);
+            return { exact: null, list: list.slice(0, 10) };
+        }
+        function npStatus(html, cls) { const el = document.getElementById('nameplateStatus'); if (el) { el.className = 'np-status ' + (cls || ''); el.innerHTML = html; } }
+        async function readNameplate(file) {
+            if (!file || !(file.type || '').startsWith('image/')) { showToast('File bukan gambar', 'error'); return; }
+            npStatus(ic('loader-circle', 'mx-spin') + ' AI sedang membaca nameplate...', 'busy');
+            try {
+                const url = URL.createObjectURL(file);
+                const img = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = url; });
+                const b64 = await resizeImageToBase64(img, 1400);
+                URL.revokeObjectURL(url);
+                const raw = await callClaude({
+                    system: 'You read home-appliance nameplates / rating labels. Reply with STRICT JSON only, no prose, no code fences.',
+                    maxTokens: 300, model: VISION_MODEL_STAGE1,
+                    userBlocks: [
+                        { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
+                        { type: 'text', text:
+`This photo should show the nameplate / rating label of a MODENA appliance.
+Return JSON exactly:
+{"isNameplate": true, "model": "model / type exactly as printed, e.g. DD 65 L or BH 1725 LBVF", "year": "4-digit production year ONLY if a production date or year is printed, else empty", "serial": "serial number if printed, else empty", "lot": "lot number if printed, else empty"}
+Do not guess the year from the serial number. If the photo is not a nameplate or the model cannot be read, set "isNameplate": false and "model": "".` }
+                    ]
+                });
+                const np = parseJsonFromResponse(raw) || {};
+                if (!np.isNameplate || !np.model) {
+                    npStatus(ic('circle-alert') + ' Nameplate tidak terbaca. Foto lebih dekat dan terang, atau pilih model manual.', 'err');
+                    return;
+                }
+                const esc = v => String(v || '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+                window.nameplateRead = { model: np.model, year: np.year || '', serial: np.serial || '', lot: np.lot || '' };
+                const mm = matchModel(np.model);
+                const pick = mm.exact || (mm.list.length === 1 ? mm.list[0] : null);
+                const readTxt = 'Terbaca: Model <b>' + esc(np.model) + '</b>' + (np.year ? ' · Tahun <b>' + esc(np.year) + '</b>' : '') + (np.lot ? ' · Lot ' + esc(np.lot) : '') + (np.serial ? ' · SN ' + esc(np.serial) : '');
+                if (!pick) {
+                    document.getElementById('modelInput').value = np.model;
+                    if (mm.list.length) { renderModelOptions(mm.list); document.getElementById('modelOptions').style.display = 'block'; }
+                    else filterModelOptions();
+                    npStatus(ic('scan-text') + ' ' + readTxt + '<br>' + (mm.list.length ? 'Ada beberapa model mirip, pilih yang sesuai dari daftar.' : 'Model ini belum ada di katalog, pilih model manual.'), 'warn');
+                    return;
+                }
+                selectModel(pick);
+                window.modelFrom = 'nameplate';
+                await loadVariants();
+                const info = (MODEL_VARIANTS || {})[pick];
+                let yrTxt = '', auto = false;
+                if (info && info.vars) {
+                    const idx = info.vars.map((v, i) => v.y === String(np.year) ? i : -1).filter(i => i >= 0);
+                    if (idx.length === 1) { selectVariant(idx[0]); yrTxt = 'Tahun unit dipilih otomatis.'; auto = true; }
+                    else if (idx.length > 1) yrTxt = 'Tahun ' + esc(np.year) + ' punya beberapa varian, pilih salah satu di bawah.';
+                    else yrTxt = np.year ? 'Tahun ' + esc(np.year) + ' tidak ada di katalog model ini, pilih tahun manual.' : 'Tahun tidak tercetak di nameplate, pilih tahun manual.';
+                }
+                npStatus(ic('circle-check') + ' ' + readTxt + (normModel(pick) !== normModel(np.model) ? ' (dicocokkan ke <b>' + esc(pick) + '</b>)' : '') + (yrTxt ? '<br>' + yrTxt : ''), yrTxt && !auto ? 'warn' : 'ok');
+            } catch (e) {
+                console.error('Nameplate read failed', e);
+                npStatus(ic('circle-alert') + ' Gagal membaca nameplate. Coba lagi atau pilih model manual.', 'err');
+            }
+        }
         async function showBranchStock(code) {
             const part = PARTS_DATABASE[code] || { name: '' };
             let modal = document.getElementById('branchStockModal');
@@ -3761,14 +3983,17 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             }
             modal.style.display = 'flex';
             modal.innerHTML = `<div class="bs-box"><div class="bs-head"><div><div class="bs-title">Stock per Cabang</div><div class="bs-sub">${code} · ${part.name}</div></div><button class="bs-x" onclick="document.getElementById('branchStockModal').style.display='none'">×</button></div><div class="bs-body">${ic('loader-circle','mx-spin')} Memuat data stock...</div></div>`;
-            try {
-                if (!BRANCH_STOCK) BRANCH_STOCK = await (await fetch('/data/branch_stock.json', { cache: 'no-cache' })).json();
-            } catch (e) { BRANCH_STOCK = {}; }
-            const rows = BRANCH_STOCK[code] || [];
+            await loadBranchStock();
+            const myB = getMyBranch();
+            let rows = (BRANCH_STOCK[code] || []).slice();
+            if (myB) {
+                const mine = rows.filter(r => r[0] === myB);
+                rows = (mine.length ? mine : [[myB, '-', 0]]).concat(rows.filter(r => r[0] !== myB));
+            }
             const total = rows.reduce((s, r) => s + r[2], 0);
             const body = rows.length
                 ? `<table class="bs-table"><thead><tr><th>Cabang</th><th>Gudang</th><th style="text-align:right">Qty</th></tr></thead><tbody>` +
-                  rows.map(r => `<tr><td>${r[0] === 'JATAKE' ? 'JATAKE (PMT)' : r[0]}</td><td>${r[1]}</td><td style="text-align:right"><b>${r[2]}</b></td></tr>`).join('') +
+                  rows.map(r => `<tr class="${r[0] === myB ? 'own' : ''}"><td>${r[0] === 'JATAKE' ? 'JATAKE (PMT)' : r[0]}${r[0] === myB ? ' <span class="own-tag">cabang saya</span>' : ''}</td><td>${r[1]}</td><td style="text-align:right"><b>${r[2]}</b></td></tr>`).join('') +
                   `</tbody><tfoot><tr><td colspan="2">Total semua gudang</td><td style="text-align:right">${total}</td></tr></tfoot></table>`
                 : '<div style="padding:16px 0;color:#666">Tidak ada stock tersedia di cabang mana pun.</div>';
             modal.querySelector('.bs-body').innerHTML = body;
@@ -4087,17 +4312,16 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                                 <span class="stock-label">Stock PMT</span>
                                 <span class="stock-value-lg ${(part.stockPMT || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockPMT || 0}</span>
                             </div>
+                            <div class="stock-item mx-own" data-own="${part.partNumber}" style="display:none"><span class="stock-label">Cabang saya</span><span class="stock-value-lg">…</span></div>
                             <div class="stock-item stock-click" onclick="event.stopPropagation(); showBranchStock('${part.partNumber}')" title="Lihat stock per cabang">
                                 <span class="stock-label">Stock Cabang ›</span>
                                 <span class="stock-value-lg ${(part.stockNational || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockNational || 0}</span>
                             </div>
                         </div>
+                        ${availHTML(part)}
                         <div class="part-price-row">
                             <div class="part-price">${formatPrice(part.price)}</div>
-                            <button class="whatsapp-icon-btn" onclick="event.stopPropagation(); checkStock('${part.partNumber}', '${part.name.replace(/'/g, "\\'")}', event)" title="Cek stock via WhatsApp">
-                                <svg viewBox="0 0 24 24" width="24" height="24" fill="#25D366">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                                </svg>
+                            <button class="whatsapp-icon-btn" onclick="event.stopPropagation(); checkStock('${part.partNumber}', '${part.name.replace(/'/g, "\\'")}', event)" title="Cek stock via WhatsApp">${ic('message-circle')}
                             </button>
                         </div>
                     </div>
