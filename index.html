@@ -2032,6 +2032,46 @@
             margin: 10px 0;
             text-align: center;
         }
+        
+        /* v5 result cards — soft, single-tone */
+        .ai-result-list { display: grid; gap: 14px; margin-top: 10px; }
+        .ai-card { background: #fff; border: 1px solid #dfe6f0; border-radius: 12px; padding: 14px 16px; }
+        .ai-card.top { background: #eef4fc; border: 1.5px solid #9dbbe6; }
+        .ai-card-head { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+        .ai-rank { background: #1e3a6e; color: #fff; font-weight: 700; font-size: 12px; border-radius: 6px; padding: 3px 9px; }
+        .ai-conf { font-size: 12px; font-weight: 700; border-radius: 20px; padding: 3px 11px; }
+        .ai-conf.high { background: #1e5aa8; color: #fff; }
+        .ai-conf.medium { background: #d6e4f6; color: #1e3a6e; }
+        .ai-conf.low { background: #eceef1; color: #555; }
+        .ai-card-grid { display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: start; }
+        .ai-card-img { background: #fff; border: 1px solid #e3e8ef; border-radius: 10px; height: 180px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .ai-card-img img { max-width: 100%; max-height: 100%; object-fit: contain; cursor: zoom-in; }
+        .ai-noimg { color: #8a94a6; font-size: 12px; text-align: center; padding: 8px; }
+        .ai-card .stock-row { margin-top: 8px; }
+        .ai-reason { background: #fff; border-left: 3px solid #1e5aa8; border-radius: 6px; padding: 8px 12px; margin-top: 12px; font-size: 13px; color: #333; line-height: 1.45; }
+        .ai-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .ai-btn { border: 1px solid #c5d3e8; background: #fff; color: #1e3a6e; font-weight: 700; font-size: 12px; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+        .ai-btn:hover { background: #f2f6fc; }
+        .ai-btn.primary { background: #1e5aa8; border-color: #1e5aa8; color: #fff; }
+        .ai-btn.primary:hover { background: #184a8c; }
+        .ai-disclaimer { margin-top: 12px; font-size: 12px; color: #667; background: #f6f8fb; border-radius: 8px; padding: 8px 12px; }
+        .stock-click { cursor: pointer; }
+        .stock-click:hover { outline: 1.5px solid #9dbbe6; border-radius: 8px; }
+        .upload-area.drag-over { border-color: #1e5aa8 !important; background: #eef4fc !important; }
+        .bs-overlay { position: fixed; inset: 0; background: rgba(15,25,45,.45); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; }
+        .bs-box { background: #fff; border-radius: 12px; width: 100%; max-width: 460px; max-height: 80vh; overflow: auto; padding: 16px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
+        .bs-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+        .bs-title { font-weight: 800; font-size: 17px; color: #1e3a6e; }
+        .bs-sub { font-size: 12px; color: #667; margin-top: 2px; }
+        .bs-x { border: none; background: none; font-size: 24px; cursor: pointer; color: #667; line-height: 1; }
+        .bs-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .bs-table th { text-align: left; background: #eef4fc; color: #1e3a6e; padding: 7px 8px; }
+        .bs-table td { padding: 6px 8px; border-bottom: 1px solid #eef0f3; }
+        .bs-table tfoot td { font-weight: 800; background: #f6f8fb; }
+        @media (max-width: 640px) {
+            .ai-card-grid { grid-template-columns: 1fr; }
+            .ai-card-img { height: 200px; }
+        }
         </style>
 </head>
 <body>
@@ -2040,7 +2080,7 @@
         <div class="header">
             <h1 class="title">MODENA AI PARTS RECOGNITION</h1>
             <p class="subtitle">Established per 11 January 2026</p>
-            <p class="subtitle version-info"><strong>Version 5.0</strong> (6 October 2026)</p>
+            <p class="subtitle version-info"><strong>Version 5.0</strong> (7 October 2026)</p>
             <p class="subtitle" id="dataInfo" style="font-size:12px;color:#888"></p>
             <p class="subtitle">Created by Parts Management, Customer Care Department</p>
             <div class="status-badge status-loading" id="statusBadge">
@@ -2080,7 +2120,7 @@
                     <div id="uploadPlaceholder">
                         <div class="upload-placeholder">📷</div>
                         <h3>Upload Foto Part</h3>
-                        <p style="color: var(--gray); margin-top: 8px;">Atau ambil foto menggunakan kamera</p>
+                        <p style="color: var(--gray); margin-top: 8px;">Ambil foto dengan kamera, <b>paste (Ctrl+V)</b>, atau <b>drag &amp; drop</b> foto ke kotak ini</p>
                     </div>
                     <img id="previewImage">
                     <video id="webcam" autoplay playsinline></video>
@@ -2095,6 +2135,9 @@
                     </button>
                     <button class="btn" id="cameraBtn" onclick="startCamera()" disabled>
                         📸 BUKA KAMERA
+                    </button>
+                    <button class="btn" id="pasteBtn" onclick="pasteImageFromClipboard()" disabled>
+                        📋 PASTE FOTO
                     </button>
                     <button class="btn btn-primary" id="analyzeBtn" onclick="analyzePart()" style="display: none;">
                         🔍 ANALISIS PART
@@ -2680,6 +2723,7 @@ let PARTS_DATABASE = {};
         function enableButtons() {
             document.getElementById('uploadBtn').disabled = false;
             document.getElementById('cameraBtn').disabled = false;
+            const pb = document.getElementById('pasteBtn'); if (pb) pb.disabled = false;
         }
         
         // Convert image element to base64 string (legacy helper, still used by getBase64FromImage)
@@ -2703,6 +2747,65 @@ let PARTS_DATABASE = {};
             return canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
         }
         
+        // Load an image File/Blob into the scanner (used by upload, paste and drag & drop)
+        function loadImageFile(file) {
+            if (!file || !(file.type || '').startsWith('image/')) { showToast('❌ File bukan gambar', 'error'); return; }
+            if (document.getElementById('uploadBtn').disabled) { showToast('⏳ Tunggu AI siap dulu', 'error'); return; }
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = document.getElementById('previewImage');
+                img.src = event.target.result;
+                img.style.display = 'block';
+                currentImage = img;
+                document.getElementById('uploadPlaceholder').style.display = 'none';
+                document.getElementById('webcam').style.display = 'none';
+                document.getElementById('canvas').style.display = 'none';
+                document.getElementById('analyzeBtn').style.display = 'block';
+                document.getElementById('uploadArea').classList.add('active');
+            };
+            reader.readAsDataURL(file);
+        }
+        window.loadImageFile = loadImageFile;
+
+        // Paste with Ctrl+V anywhere on the scanner tab
+        document.addEventListener('paste', (e) => {
+            const tab = document.getElementById('scannerTab');
+            if (!tab || !tab.classList.contains('active')) return;
+            const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+            const items = (e.clipboardData && e.clipboardData.items) || [];
+            for (const it of items) {
+                if (it.type && it.type.startsWith('image/')) { e.preventDefault(); loadImageFile(it.getAsFile()); return; }
+            }
+        });
+
+        // Paste button (phones / no keyboard)
+        async function pasteImageFromClipboard() {
+            try {
+                if (!navigator.clipboard || !navigator.clipboard.read) throw new Error('unsupported');
+                const items = await navigator.clipboard.read();
+                for (const it of items) {
+                    const type = it.types.find(tp => tp.startsWith('image/'));
+                    if (type) { const blob = await it.getType(type); loadImageFile(new File([blob], 'paste.png', { type })); return; }
+                }
+                showToast('📋 Tidak ada gambar di clipboard. Copy gambar dulu.', 'error');
+            } catch (e) {
+                showToast('📋 Browser ini tidak mengizinkan paste lewat tombol. Tekan Ctrl+V di halaman ini.', 'error');
+            }
+        }
+        window.pasteImageFromClipboard = pasteImageFromClipboard;
+
+        // Drag & drop onto the upload area
+        (function () {
+            const area = document.getElementById('uploadArea');
+            if (!area) return;
+            ['dragenter', 'dragover'].forEach(ev => area.addEventListener(ev, e => { e.preventDefault(); area.classList.add('drag-over'); }));
+            ['dragleave', 'drop'].forEach(ev => area.addEventListener(ev, e => { e.preventDefault(); area.classList.remove('drag-over'); }));
+            area.addEventListener('drop', e => {
+                const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+                if (f) loadImageFile(f);
+            });
+        })();
+
         // File input
         document.getElementById('fileInput').addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -3115,530 +3218,125 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
         
         // Display predictions with smart filtering
         function displayPredictions(predictions) {
-            console.log('🎯 displayPredictions called with:', predictions);
-            
-            if (!predictions || predictions.length === 0) {
-                console.error('❌ No predictions!');
-                return;
-            }
-            
+            if (!predictions || predictions.length === 0) return;
             const topConfidence = predictions[0].probability * 100;
-            
-            // Always show top 5, regardless of confidence
-            // Only show "not found" if top confidence < 10% (truly unrecognized)
             if (topConfidence < 10) {
-                console.log('❌ Very low confidence (<10%): Showing not found popup');
                 playBuzzBuzz();
                 showModal('notFoundModal');
                 document.getElementById('resultsBox').classList.remove('show');
                 return;
             }
-            
-            let resultsToShow = predictions.slice(0, 5);
-            let expandable = false;
-
-            
             playDingDing();
-            
-            const resultsBox = document.getElementById('resultsBox');
-            resultsBox.innerHTML = '<h2 class="section-title">🎯 HASIL ANALISIS AI</h2><div id="confirmBanner"></div><div class="predictions-grid" id="predictions"></div>';
-            
-            // Store predictions for reference
             window.currentPredictions = predictions;
-            
-            const predictionsDiv = document.getElementById('predictions');
-            predictionsDiv.innerHTML = resultsToShow.map((pred, index) => {
-                const confidence = (pred.probability * 100).toFixed(1);
-                const isTop = index === 0;
-                const part = PARTS_DATABASE[pred.className];
-                
-                if (!part) {
-                    return `
-                        <div class="prediction-card ${isTop ? 'top' : ''}">
-                            <div class="prediction-header">
-                                <div class="part-code-wrapper">
-                                    <div class="part-code">${isTop ? '✅ ' : ''}${pred.className}</div>
-                                    <button class="copy-btn" onclick="event.stopPropagation(); copyPartNumber('${pred.className}')">📋 COPY</button>
-                                </div>
-                                <div class="confidence-badge">${confidence}%</div>
-                            </div>
-                            <div class="confidence-bar-container">
-                                <div class="confidence-bar" style="width: ${confidence}%"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                // Determine confidence level
-                let confidenceLevel = 'high';
-                let confidenceText = 'High Confidence';
-                let confidenceIcon = '✅';
-                let confidenceClass = 'confidence-high';
-                let barClass = 'high';
-                let showWarning = true; // Always show warning now
-                let warningType = 'info';
-                let warningMessage = '';
-                
-                if (confidence >= 70) {
-                    confidenceLevel = 'high';
-                    confidenceText = 'High Confidence';
-                    confidenceIcon = '✅';
-                    confidenceClass = 'confidence-high';
-                    barClass = 'high';
-                    warningType = 'info';
-                    warningMessage = 'AI bisa membuat kesalahan, pastikan kembali kesesuaian antara aktual spare parts dengan foto katalog pada halaman ini. Jika tidak sesuai, silahkan hubungi Team PMT';
-                } else if (confidence >= 50) {
-                    confidenceLevel = 'medium';
-                    confidenceText = 'Medium Confidence';
-                    confidenceIcon = '⚠️';
-                    confidenceClass = 'confidence-medium';
-                    barClass = 'medium';
-                    warningType = 'medium';
-                    warningMessage = 'Confidence level sedang. Mohon pastikan kesesuaian aktual barang dengan foto yang tampil dari katalog di halaman ini. Jika masih belum yakin, please contact Team PMT untuk verifikasi kode parts yang akurat.';
-                } else {
-                    confidenceLevel = 'low';
-                    confidenceText = 'Low Confidence';
-                    confidenceIcon = '🔴';
-                    confidenceClass = 'confidence-low';
-                    barClass = 'low';
-                    warningType = 'low';
-                    warningMessage = 'Confidence level rendah. Mohon pastikan kesesuaian aktual barang dengan foto yang tampil dari katalog di halaman ini. Jika masih belum yakin, please contact Team PMT untuk verifikasi kode parts yang akurat.';
-                }
-                
-                const modelsDisplay = formatModels(part.compatibleModels, pred.className);
-                
-                // Create warning icon based on type
-                const warningIconMap = {
-                    'info': 'ℹ️',
-                    'medium': '⚠️',
-                    'low': '🔴'
-                };
-                
-                const warningHTML = `
-                    <div class="warning-message ${warningType}">
-                        <span class="warning-message-icon">${warningIconMap[warningType]}</span>
-                        <span class="warning-message-text">${warningMessage}</span>
-                    </div>
-                `;
-                
-                // Create WhatsApp share buttons
-                const whatsappMessage = createWhatsAppMessage(part, confidence, confidenceText);
-                const whatsappGroupLink = `https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW`;
-                const whatsappGenericLink = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
-                
-                const shareButtons = `
-                    <div class="share-buttons">
-                        <button class="share-btn" onclick="shareToGroupPMT(\`${whatsappMessage.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, '${whatsappGroupLink}')">
-                            📱 Share ke Grup E-Catalog PMT
-                        </button>
-                        <a href="${whatsappGenericLink}" target="_blank" class="share-btn secondary">
-                            💬 Share ke Kontak Lain
-                        </a>
-                    </div>
-                `;
-                
-                return `
-                    <div class="prediction-card ${isTop ? 'top' : ''}">
-                        <div class="prediction-header">
-                            <div class="part-code-wrapper">
-                                <div class="part-code">${isTop ? confidenceIcon + ' ' : ''}${pred.className}</div>
-                                <button class="copy-btn" 
-                                        onclick="event.stopPropagation(); event.preventDefault(); copyPartNumber('${pred.className}'); return false;"
-                                        ontouchstart="event.stopPropagation(); event.preventDefault(); copyPartNumber('${pred.className}'); return false;">
-                                    📋 COPY
-                                </button>
-                                <div class="confidence-badge ${confidenceLevel}">
-                                    ${confidenceIcon} ${confidence}% - ${confidenceText}
-                                </div>
-                            </div>
-                        </div>
-                        <img src="${part.image}" 
-                             class="part-image-result" 
-                             alt="${part.name}"
-                             onclick="showImageModal('${pred.className}')"
-                             onerror="this.style.display='none'">
-                        <div class="part-name">${part.name}</div>
-                        ${pred.aiReason ? `<div class="ai-reason-block"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
-                        <button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">${isTop ? '✅ KONFIRMASI PART INI BENAR' : '✅ INI YANG BENAR'}</button>
-                        <div class="part-details">
-                            <strong>Compatible:</strong> ${modelsDisplay}
-                        </div>
-                        <div class="part-details">
-                            <strong>Price:</strong> ${formatPrice(part.price)}
-                        </div>
-                        ${warningHTML}
-                        ${shareButtons}
-                        <div class="confidence-bar-container">
-                            <div class="confidence-bar ${barClass}" style="width: ${confidence}%"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            // No "Show More" needed - always showing top 5
-            
-            console.log('✅ Predictions displayed successfully');
-            resultsBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-        
-        // Show more results function
-        function showMoreResults() {
-            if (!window.currentPredictions || !window.currentTotalAvailable) return;
-            
-            const predictions = window.currentPredictions;
-            const totalAvailable = window.currentTotalAvailable;
             const resultsBox = document.getElementById('resultsBox');
-            
-            // CLEAR old buttons first!
-            const oldButtons = resultsBox.querySelectorAll('.expandable-button-container');
-            oldButtons.forEach(btn => btn.remove());
-            
-            // Get all results up to totalAvailable
-            const resultsToShow = predictions.slice(0, totalAvailable);
-            
-            const predictionsDiv = document.getElementById('predictions');
-            predictionsDiv.innerHTML = resultsToShow.map((pred, index) => {
-                const confidence = (pred.probability * 100).toFixed(1);
-                const isTop = index === 0;
-                const part = PARTS_DATABASE[pred.className];
-                
-                if (!part) {
-                    return `
-                        <div class="prediction-card ${isTop ? 'top' : ''}">
-                            <div class="prediction-header">
-                                <div class="part-code-wrapper">
-                                    <div class="part-code">${isTop ? '✅ ' : ''}${pred.className}</div>
-                                    <button class="copy-btn" onclick="event.stopPropagation(); copyPartNumber('${pred.className}')">📋 COPY</button>
-                                </div>
-                                <div class="confidence-badge">${confidence}%</div>
-                            </div>
-                            <div class="confidence-bar-container">
-                                <div class="confidence-bar" style="width: ${confidence}%"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                // Determine confidence level
-                let confidenceLevel = 'high';
-                let confidenceText = 'High Confidence';
-                let confidenceIcon = '✅';
-                let confidenceClass = 'confidence-high';
-                let barClass = 'high';
-                let warningType = 'info';
-                let warningMessage = '';
-                
-                if (confidence >= 70) {
-                    confidenceLevel = 'high';
-                    confidenceText = 'High Confidence';
-                    confidenceIcon = '✅';
-                    barClass = 'high';
-                    warningType = 'info';
-                    warningMessage = 'AI bisa membuat kesalahan, pastikan kembali kesesuaian antara aktual spare parts dengan foto katalog pada halaman ini. Jika tidak sesuai, silahkan hubungi Team PMT';
-                } else if (confidence >= 50) {
-                    confidenceLevel = 'medium';
-                    confidenceText = 'Medium Confidence';
-                    confidenceIcon = '⚠️';
-                    barClass = 'medium';
-                    warningType = 'medium';
-                    warningMessage = 'Confidence level sedang. Mohon pastikan kesesuaian aktual barang dengan foto yang tampil dari katalog di halaman ini. Jika masih belum yakin, please contact Team PMT untuk verifikasi kode parts yang akurat.';
-                } else {
-                    confidenceLevel = 'low';
-                    confidenceText = 'Low Confidence';
-                    confidenceIcon = '🔴';
-                    barClass = 'low';
-                    warningType = 'low';
-                    warningMessage = 'Confidence level rendah. Mohon pastikan kesesuaian aktual barang dengan foto yang tampil dari katalog di halaman ini. Jika masih belum yakin, please contact Team PMT untuk verifikasi kode parts yang akurat.';
-                }
-                
-                const modelsDisplay = formatModels(part.compatibleModels, pred.className);
-                
-                const warningIconMap = {
-                    'info': 'ℹ️',
-                    'medium': '⚠️',
-                    'low': '🔴'
-                };
-                
-                const warningHTML = `
-                    <div class="warning-message ${warningType}">
-                        <span class="warning-message-icon">${warningIconMap[warningType]}</span>
-                        <span class="warning-message-text">${warningMessage}</span>
-                    </div>
-                `;
-                
-                const whatsappMessage = createWhatsAppMessage(part, confidence, confidenceText);
-                const whatsappGroupLink = `https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW`;
-                const whatsappGenericLink = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
-                
-                const shareButtons = `
-                    <div class="share-buttons">
-                        <button class="share-btn" onclick="shareToGroupPMT(\`${whatsappMessage.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, '${whatsappGroupLink}')">
-                            📱 Share ke Grup E-Catalog PMT
-                        </button>
-                        <a href="${whatsappGenericLink}" target="_blank" class="share-btn secondary">
-                            💬 Share ke Kontak Lain
-                        </a>
-                    </div>
-                `;
-                
-                return `
-                    <div class="prediction-card ${isTop ? 'top' : ''}">
-                        <div class="prediction-header">
-                            <div class="part-code-wrapper">
-                                <div class="part-code">${isTop ? confidenceIcon + ' ' : ''}${pred.className}</div>
-                                <button class="copy-btn" 
-                                        onclick="event.stopPropagation(); event.preventDefault(); copyPartNumber('${pred.className}'); return false;"
-                                        ontouchstart="event.stopPropagation(); event.preventDefault(); copyPartNumber('${pred.className}'); return false;">
-                                    📋 COPY
-                                </button>
-                                <div class="confidence-badge ${confidenceLevel}">
-                                    ${confidenceIcon} ${confidence}% - ${confidenceText}
-                                </div>
-                            </div>
-                        </div>
-                        <img src="${part.image}" 
-                             class="part-image-result" 
-                             alt="${part.name}"
-                             onclick="showImageModal('${pred.className}')"
-                             onerror="this.style.display='none'">
-                        <div class="part-name">${part.name}</div>
-                        ${pred.aiReason ? `<div class="ai-reason-block"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
-                        <button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">${isTop ? '✅ KONFIRMASI PART INI BENAR' : '✅ INI YANG BENAR'}</button>
-                        <div class="part-details">
-                            <strong>Compatible:</strong> ${modelsDisplay}
-                        </div>
-                        <div class="part-details">
-                            <strong>Price:</strong> ${formatPrice(part.price)}
-                        </div>
-                        ${warningHTML}
-                        ${shareButtons}
-                        <div class="confidence-bar-container">
-                            <div class="confidence-bar ${barClass}" style="width: ${confidence}%"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            // Add "Show Less" button - SAME STYLE as Show More!
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'expandable-button-container'; // Add class for easy removal
-            buttonContainer.style.textAlign = 'center';
-            buttonContainer.style.marginTop = '30px';
-            buttonContainer.style.padding = '20px';
-            buttonContainer.style.backgroundColor = '#f0f0f0';
-            
-            const button = document.createElement('button');
-            // Same style as Show More
-            button.style.padding = '20px 40px';
-            button.style.fontSize = '18px';
-            button.style.fontWeight = 'bold';
-            button.style.color = '#000000';  // BLACK text
-            button.style.backgroundColor = '#FFD700';  // GOLD background
-            button.style.border = '3px solid #000000';
-            button.style.borderRadius = '8px';
-            button.style.cursor = 'pointer';
-            button.style.display = 'inline-block';
-            
-            // Set text MULTIPLE ways
-            button.textContent = 'SHOW LESS (Back to ' + window.currentResultsShown + ')';
-            button.innerHTML = 'SHOW LESS (Back to ' + window.currentResultsShown + ')';
-            button.innerText = 'SHOW LESS (Back to ' + window.currentResultsShown + ')';
-            
-            button.onclick = showLessResults;
-            
-            buttonContainer.appendChild(button);
-            resultsBox.appendChild(buttonContainer);
-            
-            console.log('Show Less button created!');
-            console.log('Expanded to ' + resultsToShow.length + ' results');
+            const cards = predictions.slice(0, 3).map((pred, i) => aiResultCard(pred, i)).join('');
+            resultsBox.innerHTML = `
+                <h2 class="section-title">🎯 HASIL ANALISIS AI</h2>
+                <div id="confirmBanner"></div>
+                <div class="ai-result-list">${cards}</div>
+                <div class="ai-disclaimer">ℹ️ AI bisa membuat kesalahan. Cocokkan part aktual dengan foto katalog. Jika tidak sesuai, hubungi Tim PMT.</div>`;
         }
-        
-        // Show less results function  
-        function showLessResults() {
-            if (!window.currentPredictions || !window.currentResultsShown) return;
-            
-            const predictions = window.currentPredictions;
-            const initialCount = window.currentResultsShown;
-            const resultsBox = document.getElementById('resultsBox');
-            
-            // CLEAR old buttons first!
-            const oldButtons = resultsBox.querySelectorAll('.expandable-button-container');
-            oldButtons.forEach(btn => btn.remove());
-            
-            // Re-render with initial count
-            const resultsToShow = predictions.slice(0, initialCount);
-            const topConfidence = predictions[0].probability * 100;
-            
-            let totalAvailable = 0;
-            let expandable = false;
-            
-            if (topConfidence >= 70) {
-                totalAvailable = Math.min(10, predictions.length);
-                expandable = predictions.length > 3;
-            } else if (topConfidence >= 50) {
-                totalAvailable = Math.min(15, predictions.length);
-                expandable = predictions.length > 7;
-            } else if (topConfidence >= 30) {
-                totalAvailable = Math.min(20, predictions.length);
-                expandable = predictions.length > 10;
-            }
-            
-            const predictionsDiv = document.getElementById('predictions');
-            predictionsDiv.innerHTML = resultsToShow.map((pred, index) => {
-                const confidence = (pred.probability * 100).toFixed(1);
-                const isTop = index === 0;
-                const part = PARTS_DATABASE[pred.className];
-                
-                if (!part) {
-                    return `
-                        <div class="prediction-card ${isTop ? 'top' : ''}">
-                            <div class="prediction-header">
-                                <div class="part-code-wrapper">
-                                    <div class="part-code">${isTop ? '✅ ' : ''}${pred.className}</div>
-                                    <button class="copy-btn" onclick="event.stopPropagation(); copyPartNumber('${pred.className}')">📋 COPY</button>
-                                </div>
-                                <div class="confidence-badge">${confidence}%</div>
-                            </div>
-                            <div class="confidence-bar-container">
-                                <div class="confidence-bar" style="width: ${confidence}%"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                // Determine confidence level
-                let confidenceLevel = 'high';
-                let confidenceText = 'High Confidence';
-                let confidenceIcon = '✅';
-                let barClass = 'high';
-                let warningType = 'info';
-                let warningMessage = '';
-                
-                if (confidence >= 70) {
-                    confidenceLevel = 'high';
-                    confidenceText = 'High Confidence';
-                    confidenceIcon = '✅';
-                    barClass = 'high';
-                    warningType = 'info';
-                    warningMessage = 'AI bisa membuat kesalahan, pastikan kembali kesesuaian antara aktual spare parts dengan foto katalog pada halaman ini. Jika tidak sesuai, silahkan hubungi Team PMT';
-                } else if (confidence >= 50) {
-                    confidenceLevel = 'medium';
-                    confidenceText = 'Medium Confidence';
-                    confidenceIcon = '⚠️';
-                    barClass = 'medium';
-                    warningType = 'medium';
-                    warningMessage = 'Confidence level sedang. Mohon pastikan kesesuaian aktual barang dengan foto yang tampil dari katalog di halaman ini. Jika masih belum yakin, please contact Team PMT untuk verifikasi kode parts yang akurat.';
-                } else {
-                    confidenceLevel = 'low';
-                    confidenceText = 'Low Confidence';
-                    confidenceIcon = '🔴';
-                    barClass = 'low';
-                    warningType = 'low';
-                    warningMessage = 'Confidence level rendah. Mohon pastikan kesesuaian aktual barang dengan foto yang tampil dari katalog di halaman ini. Jika masih belum yakin, please contact Team PMT untuk verifikasi kode parts yang akurat.';
-                }
-                
-                const modelsDisplay = formatModels(part.compatibleModels, pred.className);
-                
-                const warningIconMap = {
-                    'info': 'ℹ️',
-                    'medium': '⚠️',
-                    'low': '🔴'
-                };
-                
-                const warningHTML = `
-                    <div class="warning-message ${warningType}">
-                        <span class="warning-message-icon">${warningIconMap[warningType]}</span>
-                        <span class="warning-message-text">${warningMessage}</span>
-                    </div>
-                `;
-                
-                const whatsappMessage = createWhatsAppMessage(part, confidence, confidenceText);
-                const whatsappGroupLink = `https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW`;
-                const whatsappGenericLink = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
-                
-                const shareButtons = `
-                    <div class="share-buttons">
-                        <button class="share-btn" onclick="shareToGroupPMT(\`${whatsappMessage.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`, '${whatsappGroupLink}')">
-                            📱 Share ke Grup E-Catalog PMT
-                        </button>
-                        <a href="${whatsappGenericLink}" target="_blank" class="share-btn secondary">
-                            💬 Share ke Kontak Lain
-                        </a>
-                    </div>
-                `;
-                
-                return `
-                    <div class="prediction-card ${isTop ? 'top' : ''}">
-                        <div class="prediction-header">
-                            <div class="part-code-wrapper">
-                                <div class="part-code">${isTop ? confidenceIcon + ' ' : ''}${pred.className}</div>
-                                <button class="copy-btn" 
-                                        onclick="event.stopPropagation(); event.preventDefault(); copyPartNumber('${pred.className}'); return false;"
-                                        ontouchstart="event.stopPropagation(); event.preventDefault(); copyPartNumber('${pred.className}'); return false;">
-                                    📋 COPY
-                                </button>
-                                <div class="confidence-badge ${confidenceLevel}">
-                                    ${confidenceIcon} ${confidence}% - ${confidenceText}
-                                </div>
-                            </div>
-                        </div>
-                        <img src="${part.image}" 
-                             class="part-image-result" 
-                             alt="${part.name}"
-                             onclick="showImageModal('${pred.className}')"
-                             onerror="this.style.display='none'">
-                        <div class="part-name">${part.name}</div>
-                        ${pred.aiReason ? `<div class="ai-reason-block"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
-                        <button class="confirm-btn" onclick="event.stopPropagation(); confirmPartChoice('${pred.className}')">${isTop ? '✅ KONFIRMASI PART INI BENAR' : '✅ INI YANG BENAR'}</button>
-                        <div class="part-details">
-                            <strong>Compatible:</strong> ${modelsDisplay}
-                        </div>
-                        <div class="part-details">
-                            <strong>Price:</strong> ${formatPrice(part.price)}
-                        </div>
-                        ${warningHTML}
-                        ${shareButtons}
-                        <div class="confidence-bar-container">
-                            <div class="confidence-bar ${barClass}" style="width: ${confidence}%"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            // Add "Show More" button if expandable - SAME GOLD/BLACK STYLE!
-            if (expandable) {
-                const remaining = totalAvailable - resultsToShow.length;
-                
-                const buttonContainer = document.createElement('div');
-                buttonContainer.className = 'expandable-button-container'; // Add class for easy removal
-                buttonContainer.style.textAlign = 'center';
-                buttonContainer.style.marginTop = '30px';
-                buttonContainer.style.padding = '20px';
-                buttonContainer.style.backgroundColor = '#f0f0f0';
-                
-                const button = document.createElement('button');
-                button.style.padding = '20px 40px';
-                button.style.fontSize = '18px';
-                button.style.fontWeight = 'bold';
-                button.style.color = '#000000';
-                button.style.backgroundColor = '#FFD700';
-                button.style.border = '3px solid #000000';
-                button.style.borderRadius = '8px';
-                button.style.cursor = 'pointer';
-                button.style.display = 'inline-block';
-                
-                button.textContent = 'SHOW MORE (' + remaining + ' more)';
-                button.innerHTML = 'SHOW MORE (' + remaining + ' more)';
-                button.innerText = 'SHOW MORE (' + remaining + ' more)';
-                button.onclick = showMoreResults;
-                
-                buttonContainer.appendChild(button);
-                resultsBox.appendChild(buttonContainer);
-            }
-            
-            console.log('Collapsed back to ' + resultsToShow.length + ' results');
+
+        function aiConfLabel(prob) {
+            const c = Math.round(prob * 100);
+            if (c >= 70) return { cls: 'high', txt: `High · ${c}%` };
+            if (c >= 50) return { cls: 'medium', txt: `Medium · ${c}%` };
+            return { cls: 'low', txt: `Low · ${c}%` };
         }
-        
+
+        function aiResultCard(pred, i) {
+            const code = pred.className;
+            const part = PARTS_DATABASE[code];
+            const conf = aiConfLabel(pred.probability);
+            const isTop = i === 0;
+            if (!part) {
+                return `<div class="ai-card"><div class="ai-card-head"><span class="ai-rank">#${i+1}</span><span class="ai-conf ${conf.cls}">${conf.txt}</span></div>
+                        <div class="part-code-catalog">${code}</div></div>`;
+            }
+            const models = part.compatibleModels || [];
+            const modelsDisplay = models.length <= 3 ? models.join(', ') : models.slice(0, 3).join(', ') + ` ... +${models.length - 3}`;
+            const subs = SUBSTITUTE_MAP[code] || [];
+            const subsHTML = subs.length ? `<div class="substitute-section"><span class="substitute-label">⚡ Substitute Parts</span><div class="substitute-chips">` +
+                subs.map(s => `<span class="substitute-chip" onclick="openSubstitutePart(event,'${s}','${code}')">🔄 ${s}</span>`).join('') + `</div></div>` : '';
+            const img = (part.images && part.images[0]) || part.image;
+            const nameEsc = part.name.replace(/'/g, "\\'");
+            const waMsg = createWhatsAppMessage(part, Math.round(pred.probability * 100), conf.txt);
+            return `
+            <div class="ai-card ${isTop ? 'top' : ''}">
+                <div class="ai-card-head">
+                    <span class="ai-rank">#${i+1}</span>
+                    <span class="ai-conf ${conf.cls}">${conf.txt}</span>
+                    ${part.discontinued ? '<span class="ai-conf low">Discontinued</span>' : ''}
+                </div>
+                <div class="ai-card-grid">
+                    <div class="ai-card-img">${img ? `<img src="${img}" alt="${part.name}" onclick="showImageModal('${code}')" onerror="this.parentElement.innerHTML='<span class=&quot;ai-noimg&quot;>Foto katalog belum ada</span>'">` : '<span class="ai-noimg">Foto katalog belum ada</span>'}</div>
+                    <div class="ai-card-body">
+                        <div class="part-code-catalog">
+                            ${code}
+                            <button class="copy-btn-small" onclick="event.stopPropagation(); copyPartNumber('${code}')">📋 COPY</button>
+                        </div>
+                        <div class="part-name-catalog">${part.name}</div>
+                        <div class="part-info-row"><span class="part-info-label">Material:</span><span>${part.material || '-'}</span></div>
+                        <div class="part-info-row"><span class="part-info-label">Specification:</span><span>${(part.specification || '-').replace(/\n/g, ' · ')}</span></div>
+                        ${subsHTML}
+                        <div class="part-info-row"><span class="part-info-label">Applied Model:</span><span>${modelsDisplay || '-'}</span></div>
+                        <div class="stock-row">
+                            <div class="stock-item">
+                                <span class="stock-label">Stock PMT</span>
+                                <span class="stock-value-lg ${(part.stockPMT || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockPMT || 0}</span>
+                            </div>
+                            <div class="stock-item stock-click" onclick="event.stopPropagation(); showBranchStock('${code}')" title="Lihat stock per cabang">
+                                <span class="stock-label">Stock Cabang ›</span>
+                                <span class="stock-value-lg ${(part.stockNational || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockNational || 0}</span>
+                            </div>
+                        </div>
+                        <div class="part-price-row">
+                            <div class="part-price">${formatPrice(part.price)}</div>
+                            <button class="whatsapp-icon-btn" onclick="event.stopPropagation(); checkStock('${code}', '${nameEsc}', event)" title="Cek stock via WhatsApp">💬</button>
+                        </div>
+                    </div>
+                </div>
+                ${pred.aiReason ? `<div class="ai-reason"><b>🧠 Alasan AI:</b> ${pred.aiReason}</div>` : ''}
+                <div class="ai-actions">
+                    <button class="ai-btn primary" onclick="confirmPartChoice('${code}')">✅ ${isTop ? 'KONFIRMASI PART INI BENAR' : 'INI YANG BENAR'}</button>
+                    <button class="ai-btn" onclick="showCompatibleModels('${code}')">ⓘ DETAIL</button>
+                    <button class="ai-btn" onclick="shareToGroupPMT(decodeURIComponent('${encodeURIComponent(waMsg)}'), 'https://chat.whatsapp.com/HNxVByY2MNTGT0VetNoMSW')">📱 SHARE KE PMT</button>
+                </div>
+            </div>`;
+        }
+
+        // Stock per branch popup (data/branch_stock.json, loaded on first use)
+        let BRANCH_STOCK = null;
+        async function showBranchStock(code) {
+            const part = PARTS_DATABASE[code] || { name: '' };
+            let modal = document.getElementById('branchStockModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'branchStockModal';
+                modal.className = 'bs-overlay';
+                modal.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+                document.body.appendChild(modal);
+            }
+            modal.style.display = 'flex';
+            modal.innerHTML = `<div class="bs-box"><div class="bs-head"><div><div class="bs-title">Stock per Cabang</div><div class="bs-sub">${code} · ${part.name}</div></div><button class="bs-x" onclick="document.getElementById('branchStockModal').style.display='none'">×</button></div><div class="bs-body">⏳ Memuat data stock...</div></div>`;
+            try {
+                if (!BRANCH_STOCK) BRANCH_STOCK = await (await fetch('/data/branch_stock.json', { cache: 'no-cache' })).json();
+            } catch (e) { BRANCH_STOCK = {}; }
+            const rows = BRANCH_STOCK[code] || [];
+            const total = rows.reduce((s, r) => s + r[2], 0);
+            const body = rows.length
+                ? `<table class="bs-table"><thead><tr><th>Cabang</th><th>Gudang</th><th style="text-align:right">Qty</th></tr></thead><tbody>` +
+                  rows.map(r => `<tr><td>${r[0] === 'JATAKE' ? 'JATAKE (PMT)' : r[0]}</td><td>${r[1]}</td><td style="text-align:right"><b>${r[2]}</b></td></tr>`).join('') +
+                  `</tbody><tfoot><tr><td colspan="2">Total semua gudang</td><td style="text-align:right">${total}</td></tr></tfoot></table>`
+                : '<div style="padding:16px 0;color:#666">Tidak ada stock tersedia di cabang mana pun.</div>';
+            modal.querySelector('.bs-body').innerHTML = body;
+        }
+        window.showBranchStock = showBranchStock;
+
+        // kept for backward compatibility (old expandable results)
+        function showMoreResults() {}
+        function showLessResults() {}
+
         // Format models display
         function formatModels(models, partCode) {
             if (!models || models.length === 0) return 'N/A';
@@ -3782,8 +3480,8 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     <span class="spec-cell-label">Stock PMT</span>
                     <span class="spec-cell-val ${pmt > 0 ? 'stock-ok' : 'stock-zero'}">${pmt} pcs</span>
                 </div>
-                <div class="spec-cell">
-                    <span class="spec-cell-label">Stock National</span>
+                <div class="spec-cell stock-click" onclick="showBranchStock('${partCode}')" title="Lihat stock per cabang">
+                    <span class="spec-cell-label">Stock Cabang ›</span>
                     <span class="spec-cell-val ${nat > 0 ? 'stock-ok' : 'stock-zero'}">${nat} pcs</span>
                 </div>
             `;
@@ -3953,8 +3651,8 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                                 <span class="stock-label">Stock PMT</span>
                                 <span class="stock-value-lg ${(part.stockPMT || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockPMT || 0}</span>
                             </div>
-                            <div class="stock-item">
-                                <span class="stock-label">Stock National</span>
+                            <div class="stock-item stock-click" onclick="event.stopPropagation(); showBranchStock('${part.partNumber}')" title="Lihat stock per cabang">
+                                <span class="stock-label">Stock Cabang ›</span>
                                 <span class="stock-value-lg ${(part.stockNational || 0) > 0 ? 'stock-ok' : 'stock-zero'}">${part.stockNational || 0}</span>
                             </div>
                         </div>
