@@ -2973,12 +2973,47 @@ let PARTS_DATABASE = {};
         document.addEventListener('paste', (e) => {
             const tab = document.getElementById('scannerTab');
             if (!tab || !tab.classList.contains('active')) return;
-            const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
-            const items = (e.clipboardData && e.clipboardData.items) || [];
-            for (const it of items) {
-                if (it.type && it.type.startsWith('image/')) { e.preventDefault(); loadImageFile(it.getAsFile()); return; }
-            }
+            const t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.id === 'pasteTarget')) return;
+            const f = imageFromClipboardEvent(e);
+            if (f) { e.preventDefault(); closePasteBox(); loadImageFile(f); }
         });
+
+        // Get an image File from a paste event: works for copied images AND copied image files (Explorer / Files app)
+        function imageFromClipboardEvent(e) {
+            const cd = e.clipboardData; if (!cd) return null;
+            for (const f of (cd.files || [])) { if ((f.type || '').startsWith('image/')) return f; }
+            for (const it of (cd.items || [])) {
+                if (it.kind === 'file' && (it.type || '').startsWith('image/')) { const f = it.getAsFile(); if (f) return f; }
+            }
+            return null;
+        }
+
+        // Fallback paste box: some sources (a file copied in Explorer, some phones) cannot be read by the button
+        function openPasteBox() {
+            let box = document.getElementById('pasteBox');
+            if (!box) {
+                box = document.createElement('div');
+                box.id = 'pasteBox'; box.className = 'bs-overlay';
+                box.innerHTML = `<div class="bs-box" style="max-width:420px;text-align:center">
+                    <div class="bs-head"><div class="bs-title">Paste foto di sini</div><button class="bs-x" onclick="closePasteBox()">×</button></div>
+                    <div id="pasteTarget" contenteditable="true" style="border:1.5px dashed #C4C5C4;border-radius:10px;padding:28px 12px;color:#626262;font-size:14px;outline:none;caret-color:transparent">
+                        Tekan <b>Ctrl+V</b> (PC) atau <b>tekan lama → Tempel/Paste</b> (HP) di kotak ini</div></div>`;
+                box.onclick = ev => { if (ev.target === box) closePasteBox(); };
+                document.body.appendChild(box);
+                const t = box.querySelector('#pasteTarget');
+                t.addEventListener('paste', ev => {
+                    const f = imageFromClipboardEvent(ev);
+                    ev.preventDefault();
+                    if (f) { closePasteBox(); loadImageFile(f); }
+                    else showToast('📋 Yang di-copy bukan gambar. Copy foto/gambarnya dulu.', 'error');
+                });
+                t.addEventListener('input', () => { t.innerHTML = 'Tekan <b>Ctrl+V</b> (PC) atau <b>tekan lama → Tempel/Paste</b> (HP) di kotak ini'; });
+            }
+            box.style.display = 'flex';
+            setTimeout(() => box.querySelector('#pasteTarget').focus(), 50);
+        }
+        function closePasteBox() { const b = document.getElementById('pasteBox'); if (b) b.style.display = 'none'; }
+        window.openPasteBox = openPasteBox; window.closePasteBox = closePasteBox;
 
         // Paste button (phones / no keyboard)
         async function pasteImageFromClipboard() {
@@ -2989,9 +3024,9 @@ let PARTS_DATABASE = {};
                     const type = it.types.find(tp => tp.startsWith('image/'));
                     if (type) { const blob = await it.getType(type); loadImageFile(new File([blob], 'paste.png', { type })); return; }
                 }
-                showToast('📋 Tidak ada gambar di clipboard. Copy gambar dulu.', 'error');
+                openPasteBox();
             } catch (e) {
-                showToast('📋 Browser ini tidak mengizinkan paste lewat tombol. Tekan Ctrl+V di halaman ini.', 'error');
+                openPasteBox();
             }
         }
         window.pasteImageFromClipboard = pasteImageFromClipboard;
