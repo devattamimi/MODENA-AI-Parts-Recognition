@@ -2076,6 +2076,26 @@
             .ai-card-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
             .ai-card-img { aspect-ratio: 4 / 3; max-height: none; }
         }
+        
+        .sh-wrap { margin-top: 22px; border-top: 1px solid #e3e8ef; padding-top: 16px; }
+        .sh-title { font-weight: 800; color: #1e3a6e; font-size: 15px; margin-bottom: 10px; }
+        .sh-hero { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .sh-hero > div { background: #f6f8fb; border-radius: 10px; padding: 12px 14px; }
+        .sh-hero > div.main { background: #eef4fc; border: 1.5px solid #9dbbe6; }
+        .sh-num { font-size: 28px; font-weight: 800; color: #1e3a6e; line-height: 1.1; }
+        .sh-hero .main .sh-num { color: #1e5aa8; }
+        .sh-lbl { font-size: 12px; color: #667; margin-top: 4px; }
+        .sh-break { font-size: 12px; color: #556; margin: 10px 0; }
+        .sh-tbl-wrap { overflow-x: auto; }
+        .sh-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .sh-tbl th { text-align: left; background: #eef4fc; color: #1e3a6e; padding: 7px 8px; white-space: nowrap; }
+        .sh-tbl td { padding: 7px 8px; border-bottom: 1px solid #eef0f3; vertical-align: top; }
+        .sh-n { font-size: 11px; color: #667; }
+        .sh-st { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; white-space: nowrap; }
+        .sh-st.ok { background: #d6e4f6; color: #1e3a6e; }
+        .sh-st.no { background: #eceef1; color: #555; }
+        .sh-empty { font-size: 13px; color: #888; padding: 10px 0; }
+        @media (max-width: 640px) { .sh-num { font-size: 22px; } }
         </style>
 </head>
 <body>
@@ -2154,6 +2174,7 @@
                     <button class="btn" onclick="exportScanLog()" style="font-size:12px;padding:8px 16px">💾 DOWNLOAD LOG SCAN (<span id="scanLogCount">0</span>)</button>
                     <div style="font-size:10px;color:#999;margin-top:4px">Log tersimpan di HP/browser ini saja, maks. 200 scan terakhir</div>
                 </div>
+                <div id="scanHistory" class="sh-wrap"></div>
             </div>
             
             <!-- Catalog Tab -->
@@ -2693,6 +2714,7 @@ let PARTS_DATABASE = {};
                 const n = JSON.parse(localStorage.getItem(SCAN_LOG_KEY) || '[]').length;
                 const el = document.getElementById('scanLogCount');
                 if (el) el.textContent = n;
+                renderScanHistory();
             } catch (e) { /* ignore */ }
         }
         function updateScanResult(scanId, fields) {
@@ -2703,11 +2725,60 @@ let PARTS_DATABASE = {};
                     Object.assign(list[idx], fields, { confirmed: true, confirmedAt: new Date().toISOString() });
                     localStorage.setItem(SCAN_LOG_KEY, JSON.stringify(list));
                 }
+                refreshScanLogCount();
             } catch (e) { console.warn('updateScanResult failed:', e); }
         }
+        function scanSummary(list) {
+            const s = { scanned: list.length, confirmed: 0, correctTop1: 0, correctOther: 0, wrong: 0, unconfirmed: 0 };
+            list.forEach(x => {
+                const v = x.verdict || '';
+                if (!x.confirmed) s.unconfirmed++;
+                else if (v === 'benar_top1') { s.confirmed++; s.correctTop1++; }
+                else if (v.startsWith('benar')) { s.confirmed++; s.correctOther++; }
+                else if (v === 'salah') { s.confirmed++; s.wrong++; }
+                else s.unconfirmed++;
+            });
+            const pct = (a, b) => b ? Math.round(a / b * 1000) / 10 : null;
+            s.accuracyPct = pct(s.correctTop1 + s.correctOther, s.confirmed);
+            s.top1AccuracyPct = pct(s.correctTop1, s.confirmed);
+            return s;
+        }
+        function renderScanHistory() {
+            const box = document.getElementById('scanHistory'); if (!box) return;
+            let list = [];
+            try { list = JSON.parse(localStorage.getItem(SCAN_LOG_KEY) || '[]'); } catch (e) {}
+            const s = scanSummary(list);
+            const acc = s.accuracyPct == null ? '-' : s.accuracyPct.toLocaleString('id-ID') + '%';
+            const top1 = s.top1AccuracyPct == null ? '-' : s.top1AccuracyPct.toLocaleString('id-ID') + '%';
+            const done = list.filter(x => x.confirmed).slice().reverse();
+            const fmtT = t => { const d = new Date(t); return isNaN(d) ? '' : d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }); };
+            const name = c => (PARTS_DATABASE[c] && PARTS_DATABASE[c].name) || '';
+            const rows = done.map(x => {
+                const ai1 = (x.top3 && x.top3[0] && x.top3[0].className) || '-';
+                const v = x.verdict || '';
+                const ok = v.startsWith('benar');
+                const status = v === 'benar_top1' ? 'Benar (#1)' : ok ? 'Benar (#' + v.split('_').pop() + ')' : 'Salah';
+                const code = ok ? (x.userChoice || ai1) : (x.correctCode || '-');
+                return `<tr><td>${fmtT(x.confirmedAt || x.ts)}</td><td>${x.model || '-'}</td><td><span class="sh-st ${ok ? 'ok' : 'no'}">${status}</span></td>
+                        <td><b>${code}</b><div class="sh-n">${name(code)}</div></td><td>${ok ? '' : ai1}</td></tr>`;
+            }).join('');
+            box.innerHTML = `
+                <div class="sh-title">📊 Riwayat Scan di HP/browser ini</div>
+                <div class="sh-hero">
+                    <div><div class="sh-num">${s.scanned}</div><div class="sh-lbl">Item di-scan</div></div>
+                    <div class="main"><div class="sh-num">${acc}</div><div class="sh-lbl">Akurasi (benar / terkonfirmasi)</div></div>
+                    <div><div class="sh-num">${s.confirmed}</div><div class="sh-lbl">Terkonfirmasi</div></div>
+                </div>
+                <div class="sh-break">Benar #1: <b>${s.correctTop1}</b> · Benar #2/#3: <b>${s.correctOther}</b> · Semua salah: <b>${s.wrong}</b> · Belum dikonfirmasi: <b>${s.unconfirmed}</b> · Akurasi #1: <b>${top1}</b></div>
+                ${done.length ? `<div class="sh-tbl-wrap"><table class="sh-tbl"><thead><tr><th>Waktu</th><th>Model</th><th>Status</th><th>Kode benar</th><th>Hasil AI #1 (jika salah)</th></tr></thead><tbody>${rows}</tbody></table></div>`
+                              : '<div class="sh-empty">Belum ada item yang dikonfirmasi.</div>'}`;
+        }
+        window.renderScanHistory = renderScanHistory;
+
         function exportScanLog() {
-            const list = localStorage.getItem(SCAN_LOG_KEY) || '[]';
-            if (JSON.parse(list).length === 0) { alert('Belum ada log scan di HP/browser ini.'); return; }
+            const raw = JSON.parse(localStorage.getItem(SCAN_LOG_KEY) || '[]');
+            if (raw.length === 0) { alert('Belum ada log scan di HP/browser ini.'); return; }
+            const list = JSON.stringify({ exportedAt: new Date().toISOString(), summary: scanSummary(raw), scans: raw }, null, 1);
             const blob = new Blob([list], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
