@@ -2264,6 +2264,12 @@
         body.mx .vp-chip:hover { border-color: #161616; }
         body.mx .vp-chip.on { background: #161616; color: #FAFAFA; border-color: #161616; }
         body.mx .vp-info { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #626262; }
+    
+        /* top reset next to the title */
+        body.mx .mx-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        body.mx .mx-title-row .section-title { margin-bottom: 0; }
+        body.mx .mx-top-reset { width: auto; flex: 0 0 auto; padding: 8px 16px; min-height: 0; font-size: 14px; background: #161616; color: #FAFAFA; border-color: #161616; }
+        body.mx .mx-top-reset:hover { background: #262626; }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2297,7 +2303,7 @@
         <div class="content">
             <!-- Scanner Tab -->
             <div id="scannerTab" class="tab-content active">
-                <h2 class="section-title">Scan part dengan AI</h2>
+                <div class="mx-title-row"><h2 class="section-title">Scan part dengan AI</h2><button class="btn mx-top-reset" onclick="resetScanner()"><span data-ic="rotate-ccw"></span>Reset</button></div>
                 <p class="mx-lead">Pilih model unit, foto part, lalu AI mencocokkan dengan foto katalog.</p>
                 <div id="scanHero" class="sh-hero mx-hero-top"></div>
 
