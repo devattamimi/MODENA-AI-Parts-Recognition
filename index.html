@@ -2733,7 +2733,7 @@ let PARTS_DATABASE = {};
         function catLinksHTML(cls) {
             const L = catLinks(); if (!L) return '';
             return `<a class="${cls || 'cat-link'}" href="${L.ecat}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${ic('book-open')} E-Catalog ${ic('external-link')}</a>` +
-                   `<a class="${cls || 'cat-link'}" href="${L.exploded}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="${L.hasImg ? 'Gambar exploded view' : 'Exploded view ada di halaman E-Catalog'}">${ic('layers')} Exploded View ${ic('external-link')}</a>`;
+                   (!L.hasImg ? '' : `<a class="${cls || 'cat-link'}" href="${L.exploded}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="${L.hasImg ? 'Gambar exploded view' : 'Exploded view ada di halaman E-Catalog'}">${ic('layers')} Exploded View ${ic('external-link')}</a>`);
         }
         function renderCatLinks() { const el = document.getElementById('catLinks'); if (el) el.innerHTML = catLinksHTML(); }
         function selectVariant(i) {
