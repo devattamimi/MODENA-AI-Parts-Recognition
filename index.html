@@ -2043,9 +2043,13 @@
         .ai-conf.high { background: #1e5aa8; color: #fff; }
         .ai-conf.medium { background: #d6e4f6; color: #1e3a6e; }
         .ai-conf.low { background: #eceef1; color: #555; }
-        .ai-card-grid { display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: start; }
-        .ai-card-img { background: #fff; border: 1px solid #e3e8ef; border-radius: 10px; height: 180px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .ai-card-img img { max-width: 100%; max-height: 100%; object-fit: contain; cursor: zoom-in; }
+        .ai-card-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+        .ai-card-photo { display: flex; flex-direction: column; gap: 8px; }
+        .ai-card-img { background: #fff; border: 1px solid #e3e8ef; border-radius: 10px; aspect-ratio: 1 / 1; max-height: 420px; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .ai-card-img img { width: 100%; height: 100%; object-fit: contain; cursor: zoom-in; }
+        .ai-thumbs { display: flex; gap: 6px; flex-wrap: wrap; }
+        .ai-thumbs img { width: 52px; height: 52px; object-fit: contain; background: #fff; border: 1px solid #dfe6f0; border-radius: 6px; cursor: pointer; }
+        .ai-thumbs img.on { border: 2px solid #1e5aa8; }
         .ai-noimg { color: #8a94a6; font-size: 12px; text-align: center; padding: 8px; }
         .ai-card .stock-row { margin-top: 8px; }
         .ai-reason { background: #fff; border-left: 3px solid #1e5aa8; border-radius: 6px; padding: 8px 12px; margin-top: 12px; font-size: 13px; color: #333; line-height: 1.45; }
@@ -2069,8 +2073,8 @@
         .bs-table td { padding: 6px 8px; border-bottom: 1px solid #eef0f3; }
         .bs-table tfoot td { font-weight: 800; background: #f6f8fb; }
         @media (max-width: 640px) {
-            .ai-card-grid { grid-template-columns: 1fr; }
-            .ai-card-img { height: 200px; }
+            .ai-card-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+            .ai-card-img { aspect-ratio: 4 / 3; max-height: none; }
         }
         </style>
 </head>
@@ -3269,7 +3273,10 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     ${part.discontinued ? '<span class="ai-conf low">Discontinued</span>' : ''}
                 </div>
                 <div class="ai-card-grid">
-                    <div class="ai-card-img">${img ? `<img src="${img}" alt="${part.name}" onclick="showImageModal('${code}')" onerror="this.parentElement.innerHTML='<span class=&quot;ai-noimg&quot;>Foto katalog belum ada</span>'">` : '<span class="ai-noimg">Foto katalog belum ada</span>'}</div>
+                    <div class="ai-card-photo">
+                        <div class="ai-card-img">${img ? `<img id="aimg-${i}" src="${img}" alt="${part.name}" onclick="showImageModal('${code}')" onerror="this.parentElement.innerHTML='<span class=&quot;ai-noimg&quot;>Foto katalog belum ada</span>'">` : '<span class="ai-noimg">Foto katalog belum ada</span>'}</div>
+                        ${(part.images && part.images.length > 1) ? `<div class="ai-thumbs">${part.images.map((u, k) => `<img src="${u}" class="${k === 0 ? 'on' : ''}" alt="foto ${k+1}" onclick="aiSwapPhoto(${i}, this)" onerror="this.style.display='none'">`).join('')}</div>` : ''}
+                    </div>
                     <div class="ai-card-body">
                         <div class="part-code-catalog">
                             ${code}
@@ -3304,6 +3311,13 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 </div>
             </div>`;
         }
+
+        function aiSwapPhoto(i, el) {
+            const main = document.getElementById('aimg-' + i);
+            if (main) main.src = el.src;
+            el.parentElement.querySelectorAll('img').forEach(x => x.classList.toggle('on', x === el));
+        }
+        window.aiSwapPhoto = aiSwapPhoto;
 
         // Stock per branch popup (data/branch_stock.json, loaded on first use)
         let BRANCH_STOCK = null;
