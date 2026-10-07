@@ -2330,6 +2330,12 @@
         /* official MODENA logo (MDN_Logo-B.svg) */
         body.mx .mx-logo { display: block; height: 22px; width: auto; flex-shrink: 0; }
         @media (max-width: 600px) { body.mx .mx-logo { height: 17px; } }
+    
+        /* scanner page header */
+        body.mx .mx-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 2px; color: #0099C3; margin-bottom: 6px; }
+        body.mx .mx-hero-title { font-size: 36px; font-weight: 700; letter-spacing: -0.6px; line-height: 1.1; color: #161616; }
+        body.mx .mx-title-row + .mx-lead { font-size: 15px; margin-top: 8px; }
+        @media (max-width: 600px) { body.mx .mx-hero-title { font-size: 26px; } body.mx .mx-eyebrow { font-size: 11px; letter-spacing: 1.5px; } }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2364,8 +2370,8 @@
         <div class="content">
             <!-- Scanner Tab -->
             <div id="scannerTab" class="tab-content active">
-                <div class="mx-title-row"><h2 class="section-title">Scan part dengan AI</h2><button class="btn mx-top-reset" onclick="resetScanner()"><span data-ic="rotate-ccw"></span>Reset</button></div>
-                <p class="mx-lead">Pilih model unit, foto part, lalu AI mencocokkan dengan foto katalog.</p>
+                <div class="mx-title-row"><div><div class="mx-eyebrow">POWERED BY CLAUDE VISION</div><h2 class="section-title mx-hero-title">Smart Parts Identification</h2></div><button class="btn mx-top-reset" onclick="resetScanner()"><span data-ic="rotate-ccw"></span>Reset</button></div>
+                <p class="mx-lead">Pilih model unit, ambil foto part, dan dapatkan kode part yang tepat beserta stock dan harga.</p>
                 <div id="scanHero" class="sh-hero mx-hero-top"></div>
 
                 <!-- Mandatory Model Unit selector (Claude Vision filter) -->
