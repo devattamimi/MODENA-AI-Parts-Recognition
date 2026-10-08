@@ -3569,7 +3569,7 @@ Return JSON exactly in this shape:
                             <h3 style="color:var(--error);margin-bottom:10px;font-weight:800">Tidak ada kandidat untuk model ${sel}</h3>
                             <p style="color:var(--gray)">Model ini mungkin belum tersedia di database. Silakan hubungi Tim PMT.</p>
                         </div>`;
-                    logScan({ model: sel, stage1, candidates: [], top3: [], note: 'no candidates' });
+                    logScan({ scanId: scanTs, model: sel, unitYear: window.selectedVariant ? variantLabel(window.selectedVariant) : '', stage1, candidates: [], top3: [], note: 'no candidates' });
                     return;
                 }
 
