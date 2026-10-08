@@ -2369,7 +2369,7 @@
             </div>
             <div class="mx-meta">
                 <span class="mx-ver">Version 5.0 · 8 October 2026</span>
-                <button type="button" class="mx-branch-btn" id="myBranchBtn" onclick="openBranchPicker()" title="Nama teknisi dan cabang"><span data-ic="user-round"></span><span id="myBranchLbl">Isi nama &amp; cabang</span></button>
+                <button type="button" class="mx-branch-btn" id="myBranchBtn" onclick="openBranchPicker()" title="Nama user dan cabang"><span data-ic="user-round"></span><span id="myBranchLbl">Isi nama &amp; cabang</span></button>
                 <div class="status-badge status-loading" id="statusBadge"><span data-ic="loader-circle" class="mx-spin"></span> Loading AI Model...</div>
             </div>
         </div>
@@ -3898,9 +3898,10 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
         function branchList() {
             const set = new Set();
             Object.values(BRANCH_STOCK || {}).forEach(rows => rows.forEach(r => set.add(r[0])));
-            return [...set].filter(b => b && b !== 'JATAKE' && b !== 'DISPLAY' && !b.startsWith('WH-')).sort();
+            return ['PMT'].concat([...set].filter(b => b && b !== 'JATAKE' && b !== 'DISPLAY' && !b.startsWith('WH-')).sort());
         }
-        function ownQty(code, br) { br = br || getMyBranch(); if (!br || !BRANCH_STOCK) return 0; return (BRANCH_STOCK[code] || []).filter(r => r[0] === br).reduce((s, r) => s + r[2], 0); }
+        const brWh = b => b === 'PMT' ? 'JATAKE' : b;   // PMT = gudang pusat JATAKE
+        function ownQty(code, br) { br = br || getMyBranch(); if (!br || !BRANCH_STOCK) return 0; return (BRANCH_STOCK[code] || []).filter(r => r[0] === brWh(br)).reduce((s, r) => s + r[2], 0); }
         const TECH_NAME_KEY = 'modena_tech_name';
         function getTechName() { try { return localStorage.getItem(TECH_NAME_KEY) || ''; } catch (e) { return ''; } }
         function updateMyBranchLabel() {
@@ -3911,7 +3912,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
         function fillOwnStock(root) {
             const b = getMyBranch();
             (root || document).querySelectorAll('[data-own]').forEach(el => {
-                if (!b) { if (el.style.display !== 'none') el.style.display = 'none'; return; }
+                if (!b || b === 'PMT') { if (el.style.display !== 'none') el.style.display = 'none'; return; }   // PMT = sama dengan kolom Stock PMT
                 const q = BRANCH_STOCK ? ownQty(el.dataset.own, b) : null;
                 const lbl = 'Cabang ' + b, val = q == null ? '…' : String(q), cls = 'stock-value-lg ' + (q > 0 ? 'stock-ok' : 'stock-zero');
                 const L = el.querySelector('.stock-label'), V = el.querySelector('.stock-value-lg');
@@ -3926,12 +3927,12 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             let m = document.getElementById('myBranchModal');
             if (!m) { m = document.createElement('div'); m.id = 'myBranchModal'; m.className = 'bs-overlay'; m.onclick = e => { if (e.target === m) m.style.display = 'none'; }; document.body.appendChild(m); }
             m.style.display = 'flex';
-            m.innerHTML = `<div class="bs-box"><div class="bs-head"><div><div class="bs-title">Profil teknisi</div><div class="bs-sub">${reason || 'Diisi sekali, tersimpan di HP/browser ini. Dipakai untuk stock cabang dan log scan.'}</div></div><button class="bs-x" onclick="document.getElementById('myBranchModal').style.display='none'">×</button></div><div class="bs-body">${ic('loader-circle','mx-spin')} Memuat daftar cabang...</div></div>`;
+            m.innerHTML = `<div class="bs-box"><div class="bs-head"><div><div class="bs-title">Profil user</div><div class="bs-sub">${reason || 'Diisi sekali, tersimpan di HP/browser ini. Dipakai untuk stock cabang dan log scan.'}</div></div><button class="bs-x" onclick="document.getElementById('myBranchModal').style.display='none'">×</button></div><div class="bs-body">${ic('loader-circle','mx-spin')} Memuat daftar cabang...</div></div>`;
             await loadBranchStock();
             _pfBranch = getMyBranch();
             const esc = v => String(v || '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
             m.querySelector('.bs-body').innerHTML =
-                `<label class="pf-lbl" for="pfName">Nama teknisi</label>
+                `<label class="pf-lbl" for="pfName">Nama user</label>
                  <input id="pfName" class="pf-input" type="text" maxlength="60" autocomplete="name" placeholder="Nama lengkap" value="${esc(getTechName())}">
                  <div class="pf-lbl">Cabang</div>
                  <div class="br-grid">` + branchList().map(b =>
@@ -3947,7 +3948,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
         function saveProfile() {
             const name = (document.getElementById('pfName').value || '').trim().replace(/\s+/g, ' ');
             const err = document.getElementById('pfErr');
-            if (!name) { err.textContent = 'Isi nama teknisi dulu.'; return; }
+            if (!name) { err.textContent = 'Isi nama user dulu.'; return; }
             if (!_pfBranch) { err.textContent = 'Pilih cabang dulu.'; return; }
             try { localStorage.setItem(TECH_NAME_KEY, name); localStorage.setItem(MY_BRANCH_KEY, _pfBranch); } catch (e) {}
             document.getElementById('myBranchModal').style.display = 'none';
@@ -3990,7 +3991,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             if (p.etaNote) {
                 const sub = (SUBSTITUTE_MAP[code] || [])[0];
                 avail = 'Part ini sudah tidak tersedia' + (sub ? '. Part pengganti: ' + sub + (PARTS_DATABASE[sub] ? ' (' + PARTS_DATABASE[sub].name + ')' : '') : '');
-            } else if (br && own > 0) avail = 'Tersedia di cabang MODENA ' + br;
+            } else if (br && own > 0) avail = br === 'PMT' ? 'Tersedia, dikirim dari gudang pusat MODENA' : 'Tersedia di cabang MODENA ' + br;
             else if (pmt > 0) avail = 'Tersedia, dikirim dari gudang pusat MODENA';
             else if (nat > 0) avail = 'Tersedia, dikirim dari cabang MODENA lain';
             else if (p.eta && !etaPast(p.eta)) avail = 'Sedang kosong, estimasi tersedia sekitar ' + fmtTgl(p.eta, true);
@@ -4024,7 +4025,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             modal.style.display = 'flex';
             modal.innerHTML = `<div class="bs-box"><div class="bs-head"><div><div class="bs-title">Stock per Cabang</div><div class="bs-sub">${code} · ${part.name}</div></div><button class="bs-x" onclick="document.getElementById('branchStockModal').style.display='none'">×</button></div><div class="bs-body">${ic('loader-circle','mx-spin')} Memuat data stock...</div></div>`;
             await loadBranchStock();
-            const myB = getMyBranch();
+            const myB = brWh(getMyBranch());
             let rows = (BRANCH_STOCK[code] || []).slice();
             if (myB) {
                 const mine = rows.filter(r => r[0] === myB);
