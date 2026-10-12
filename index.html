@@ -2351,6 +2351,13 @@
         body.mx .pf-input:focus { outline: none; border-color: #0099C3; box-shadow: 0 0 0 3px #E6F5FA; }
         body.mx .pf-err { color: #FF4B33; font-size: 13px; min-height: 18px; margin-top: 10px; }
         body.mx .pf-save { width: 100%; margin-top: 6px; }
+    
+        /* accuracy v2: unsure banner, no-photo chip, photo tip */
+        body.mx .mx-unsure { display: flex; gap: 10px; align-items: flex-start; background: #FFF1EE; border: 1px solid #FFC9BF; border-radius: 10px; padding: 12px 14px; margin: 4px 0 14px; font-size: 13px; line-height: 1.5; color: #161616; }
+        body.mx .mx-unsure > .mxi { color: #FF4B33; width: 20px; height: 20px; margin-top: 1px; }
+        body.mx .mx-unsure ul { margin: 6px 0 0 18px; padding: 0; color: #626262; }
+        body.mx .ai-conf.noimg { background: #626262; color: #fff; }
+        body.mx .mx-photo-tip { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; color: #006E8C; background: #E6F5FA; border-radius: 20px; padding: 5px 12px; }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2411,6 +2418,7 @@
                         <div class="upload-placeholder" data-ic="camera"></div>
                         <h3>Upload Foto Part</h3>
                         <p style="color: var(--gray); margin-top: 8px;">Ambil foto dengan kamera, <b>paste (Ctrl+V)</b>, atau <b>drag &amp; drop</b> foto ke kotak ini</p>
+                        <p class="mx-photo-tip"><span data-ic="lightbulb"></span> Buka plastik pembungkus, latar polos, satu part per foto</p>
                     </div>
                     <img id="previewImage">
                     <video id="webcam" autoplay playsinline></video>
@@ -3046,7 +3054,9 @@ let PARTS_DATABASE = {};
                 ai2: (t[1] && t[1].className) || '', ai2Conf: pct(t[1]),
                 ai3: (t[2] && t[2].className) || '', ai3Conf: pct(t[2]),
                 status: e.note === 'no spare part in photo' ? 'Tidak ada part di foto' : e.note === 'no candidates' ? 'Tidak ada kandidat' : 'Belum dikonfirmasi',
-                note: e.note || '', device: isTouchPhone() ? 'HP' : 'PC'
+                note: e.note || '', device: isTouchPhone() ? 'HP' : 'PC',
+                round: e.round2 ? 2 : 1,
+                r1Top1: e.round2 && e.round2.round1Top3 && e.round2.round1Top3[0] ? e.round2.round1Top3[0].className : ''
             };
         }
         function logScan(entry) {
@@ -3583,85 +3593,136 @@ Return JSON exactly in this shape:
                     </div>
                 `;
 
-                // Fetch & resize catalog images in parallel
-                const catImgs = await Promise.all(
-                    candidates.map(c => c.image ? urlToResizedBase64(c.image, CATALOG_IMAGE_PX) : Promise.resolve(null))
-                );
+                // ===== Stage 2 (photo ranking) as a reusable step, used by round 1 and round 2 =====
+                const rankCandidates = async (candidates) => {
+                    // Fetch & resize catalog images in parallel
+                    const catImgs = await Promise.all(
+                        candidates.map(c => c.image ? urlToResizedBase64(c.image, CATALOG_IMAGE_PX) : Promise.resolve(null))
+                    );
 
-                // Build Stage 2 message: tech photo first, then each candidate photo labeled by index
-                const stage2Blocks = [
-                    { type: 'text', text:
-`You are a MODENA spare-part visual comparison expert.
+                    // Build Stage 2 message: tech photo first, then each candidate photo labeled by index
+                    const stage2Blocks = [
+                        { type: 'text', text:
+    `You are a MODENA spare-part visual comparison expert.
 
-The TECHNICIAN'S photo is shown first.
-Then there are ${candidates.length} CANDIDATE catalog photos, each preceded by a label line "CANDIDATE [n] — PARTNUMBER — NAME".
+    The TECHNICIAN'S photo is shown first.
+    Then there are ${candidates.length} CANDIDATE catalog photos, each preceded by a label line "CANDIDATE [n] — PARTNUMBER — NAME".
 
-Technician's model unit: ${window.selectedModel}
-Stage-1 observation (may be imperfect, do not trust blindly): ${JSON.stringify(stage1)}
+    Technician's model unit: ${window.selectedModel}
+    Stage-1 observation (may be imperfect, do not trust blindly): ${JSON.stringify(stage1)}
 
-Your task: rank the TOP 3 best matches (fewer if confidence is too low) by comparing the technician's photo to each candidate photo.
-Rules:
-- Judge primarily by the PHOTOS. First make sure the part FUNCTION matches (e.g. burner head vs pan support vs burner cap vs knob are different parts even if all are round). Then compare shape, flame ports/holes, ribs, material (aluminium vs cast iron vs enamel), color, size cues and printed text.
-- Color can differ due to lighting; structure and function matter more.
-- Always return your best 1-3 candidates, even if unsure. Use confidence "low" when the match is uncertain. Never return an empty list.
-- If two candidates are very similar (e.g. burner head vs burner basement), compare the specific details visible in the technician photo and explain the deciding detail in the reason.
+    Your task: rank the TOP 3 best matches (fewer if confidence is too low) by comparing the technician's photo to each candidate photo.
+    Rules:
+    - Judge primarily by the PHOTOS. First make sure the part FUNCTION matches (e.g. burner head vs pan support vs burner cap vs knob are different parts even if all are round). Then compare shape, flame ports/holes, ribs, material (aluminium vs cast iron vs enamel), color, size cues and printed text.
+    - Color can differ due to lighting; structure and function matter more.
+    - Always return your best 1-3 candidates, even if unsure. Use confidence "low" when the match is uncertain. Never return an empty list.
+    - If two candidates are very similar (e.g. burner head vs burner basement), compare the specific details visible in the technician photo and explain the deciding detail in the reason.
 
-Reply with STRICT JSON only (no prose, no fences):
-{
-  "ranked": [
-    { "partNumber": "exact PARTNUMBER from the label line", "candidateIndex": <n from the label>, "confidence": "high|medium|low", "reason": "one short sentence (max 25 words) in Bahasa Indonesia explaining why" }
-  ]
-}
-Include at most 3 entries. Omit candidates whose visual match is clearly wrong.` },
-                    { type: 'text', text: 'TECHNICIAN PHOTO:' },
-                    { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: techB64 } }
-                ];
-                for (let i = 0; i < candidates.length; i++) {
-                    const c = candidates[i];
-                    stage2Blocks.push({ type: 'text', text: `CANDIDATE [${i+1}] — ${c.partNumber} — ${c.name}` });
-                    if (catImgs[i]) {
-                        stage2Blocks.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: catImgs[i] } });
-                    } else {
-                        stage2Blocks.push({ type: 'text', text: '(no catalog photo available for this candidate)' });
-                    }
-                }
-
-                const stage2Raw = await callClaude({
-                    system: 'You are a MODENA spare-part visual comparison expert. Reply with strict JSON only.',
-                    userBlocks: stage2Blocks,
-                    maxTokens: 1200,
-                    model: VISION_MODEL_STAGE2
-                });
-                const stage2 = parseJsonFromResponse(stage2Raw) || { ranked: [] };
-                console.log('Stage 2 result:', stage2);
-
-                // Map ranked -> predictions shape expected by displayPredictions
-                const confMap = { high: 0.90, medium: 0.65, low: 0.35 };
-                let predictions = (stage2.ranked || [])
-                    .map(r => {
-                        // Prefer exact part number (robust), fall back to index
-                        let part = candidates.find(c => c.partNumber === String(r.partNumber || '').trim());
-                        if (!part) {
-                            const idx = parseInt(r.candidateIndex, 10) - 1;
-                            if (isNaN(idx) || idx < 0 || idx >= candidates.length) return null;
-                            part = candidates[idx];
+    Reply with STRICT JSON only (no prose, no fences):
+    {
+      "ranked": [
+        { "partNumber": "exact PARTNUMBER from the label line", "candidateIndex": <n from the label>, "confidence": "high|medium|low", "reason": "one short sentence (max 25 words) in Bahasa Indonesia explaining why" }
+      ]
+    }
+    Include at most 3 entries. Omit candidates whose visual match is clearly wrong.` },
+                        { type: 'text', text: 'TECHNICIAN PHOTO:' },
+                        { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: techB64 } }
+                    ];
+                    for (let i = 0; i < candidates.length; i++) {
+                        const c = candidates[i];
+                        stage2Blocks.push({ type: 'text', text: `CANDIDATE [${i+1}] — ${c.partNumber} — ${c.name}` });
+                        if (catImgs[i]) {
+                            stage2Blocks.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: catImgs[i] } });
+                        } else {
+                            stage2Blocks.push({ type: 'text', text: '(no catalog photo available for this candidate)' });
                         }
-                        return {
-                            className: part.partNumber,
-                            probability: confMap[(r.confidence || 'medium').toLowerCase()] || 0.50,
-                            aiReason: r.reason || ''
-                        };
-                    })
-                    .filter(Boolean)
-                    .slice(0, 3);
+                    }
 
-                // Safety fallback: if Stage 2 returned nothing usable, show candidates ranked by stage 1 keyword overlap
-                if (predictions.length === 0) {
-                    predictions = candidates.slice(0, 3).map((p, i) => ({
-                        className: p.partNumber,
-                        probability: 0.4 - i * 0.05,
-                        aiReason: 'AI belum bisa memberi ranking yang jelas, ini urutan dari daftar kandidat. Mohon verifikasi manual.'
-                    }));
+                    const stage2Raw = await callClaude({
+                        system: 'You are a MODENA spare-part visual comparison expert. Reply with strict JSON only.',
+                        userBlocks: stage2Blocks,
+                        maxTokens: 1200,
+                        model: VISION_MODEL_STAGE2
+                    });
+                    const stage2 = parseJsonFromResponse(stage2Raw) || { ranked: [] };
+                    console.log('Stage 2 result:', stage2);
+
+                    // Map ranked -> predictions shape expected by displayPredictions
+                    const confMap = { high: 0.90, medium: 0.65, low: 0.35 };
+                    let predictions = (stage2.ranked || [])
+                        .map(r => {
+                            // Prefer exact part number (robust), fall back to index
+                            let part = candidates.find(c => c.partNumber === String(r.partNumber || '').trim());
+                            if (!part) {
+                                const idx = parseInt(r.candidateIndex, 10) - 1;
+                                if (isNaN(idx) || idx < 0 || idx >= candidates.length) return null;
+                                part = candidates[idx];
+                            }
+                            return {
+                                className: part.partNumber,
+                                probability: confMap[(r.confidence || 'medium').toLowerCase()] || 0.50,
+                                aiReason: r.reason || ''
+                            };
+                        })
+                        .filter(Boolean)
+                        .slice(0, 3);
+
+                    // Safety fallback: if Stage 2 returned nothing usable, show candidates ranked by stage 1 keyword overlap
+                    if (predictions.length === 0) {
+                        predictions = candidates.slice(0, 3).map((p, i) => ({
+                            className: p.partNumber,
+                            probability: 0.4 - i * 0.05,
+                            aiReason: 'AI belum bisa memberi ranking yang jelas, ini urutan dari daftar kandidat. Mohon verifikasi manual.'
+                        }));
+                    }
+                    return { predictions, stage2Raw, catImgs };
+                };
+                const usedCodes = new Set(candidates.map(c => c.partNumber));
+                let { predictions, stage2Raw, catImgs } = await rankCandidates(candidates);
+
+                // ===== Round 2: every candidate scored low -> look for OTHER candidates, keep round-1 top 3 in the race =====
+                let round2 = null;
+                const allLow = predictions.length > 0 && predictions.every(p => p.probability < 0.5);
+                if (allLow && pool.length > usedCodes.size) {
+                    resultsBox.innerHTML = `
+                        <div class="loading mx-think">
+                            <div class="mx-think-ic">${ic('sparkles')}</div>
+                            <div class="mx-steps"><span class="mx-step done"><b>${ic('check')}</b>Putaran 1</span><span class="mx-step-line"></span><span class="mx-step on"><b>2</b>Cari kandidat lain</span></div>
+                            <p class="loading-text">Belum ada yang cocok, AI mencari kandidat lain...</p>
+                            <p class="loading-subtext">Hasil putaran 1 tetap ikut dibandingkan</p>
+                        </div>`;
+                    try {
+                        const prevNums = candidates.map(c => pool.indexOf(c) + 1).filter(n => n > 0);
+                        const r2Raw = await callClaude({
+                            system: stage1Sys, maxTokens: 500, model: VISION_MODEL_STAGE1,
+                            userBlocks: [
+                                { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: techB64 } },
+                                { type: 'text', text:
+`A technician photographed ONE spare part from a MODENA unit, model: ${sel}.
+Below is the complete list of spare parts registered for this model (numbered):
+${partList}
+
+A first attempt compared list numbers ${prevNums.join(', ')} (first guess of the part type: "${stage1.partType || ''}") and NONE of them matched the photo well.
+Look at the photo again with fresh eyes. The part may be a different type than first assumed: packaging, plastic wrap, angle or lighting can mislead.
+Shortlist up to ${MAX_CANDIDATES - 3} OTHER list numbers (not the ones above) that could plausibly be this part, most likely first.
+
+Return JSON exactly in this shape:
+{ "partType": "short label", "shortlist": [list numbers, most likely first] }` }
+                            ]
+                        });
+                        const r2 = parseJsonFromResponse(r2Raw) || {};
+                        const fresh = [];
+                        (r2.shortlist || []).forEach(n => { const p = pool[parseInt(n, 10) - 1]; if (p && !usedCodes.has(p.partNumber) && !fresh.includes(p)) fresh.push(p); });
+                        if (fresh.length) {
+                            const keep = predictions.map(p => candidates.find(c => c.partNumber === p.className)).filter(Boolean);
+                            const cand2 = keep.concat(fresh).slice(0, MAX_CANDIDATES + 2);
+                            const sub = resultsBox.querySelector('.loading-text'); if (sub) sub.textContent = 'AI membandingkan ' + cand2.length + ' kandidat (putaran 2)...';
+                            const res2 = await rankCandidates(cand2);
+                            round2 = { partType: r2.partType || '', candidates: cand2.map(c => c.partNumber), round1Top3: predictions, top3: res2.predictions };
+                            fresh.forEach(p => usedCodes.add(p.partNumber));
+                            if (res2.predictions.length) { predictions = res2.predictions; stage2Raw = res2.stage2Raw; catImgs = res2.catImgs; candidates = cand2; }
+                        }
+                    } catch (e) { console.warn('Round 2 failed, keeping round 1 result', e); }
                 }
 
                 // Log the scan
@@ -3670,8 +3731,9 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                     model: sel,
                     unitYear: window.selectedVariant ? variantLabel(window.selectedVariant) : '',
                     stage1,
-                    candidatesPresented: candidates.map(c => c.partNumber),
+                    candidatesPresented: [...usedCodes],
                     top3: predictions,
+                    round2,
                     stage2Raw: (stage2Raw || '').slice(0, 2000),
                     confirmed: false
                 });
@@ -3680,7 +3742,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
                 displayPredictions(predictions);
 
                 // "None of these is correct" button + form
-                window.__lastCandidates = candidates.map(c => c.partNumber);
+                window.__lastCandidates = [...usedCodes];
                 try {
                     const wrong = document.createElement('div');
                     wrong.id = 'wrongBox';
@@ -3754,9 +3816,29 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             const f = document.getElementById('wrongForm');
             if (f) { f.style.display = 'block'; document.getElementById('wrongCodeInput').focus(); }
         }
+        // closest existing code for a mistyped one (edit distance <= 2), parts of the chosen model first
+        function editDist(a, b) {
+            if (Math.abs(a.length - b.length) > 2) return 9;
+            const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+            for (let j = 1; j <= b.length; j++) d[0][j] = j;
+            for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+                d[i][j] = Math.min(d[i-1][j] + 1, d[i][j-1] + 1, d[i-1][j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+            return d[a.length][b.length];
+        }
+        function suggestCode(code) {
+            const m = window.selectedModel, best = { c: null, d: 3 };
+            const scan = list => list.forEach(c => { const k = editDist(code, c); if (k < best.d) { best.c = c; best.d = k; } });
+            scan(Object.values(PARTS_DATABASE).filter(p => (p.compatibleModels || []).includes(m)).map(p => p.partNumber));
+            if (!best.c) scan(Object.keys(PARTS_DATABASE));
+            return best.c;
+        }
         function submitWrongResult() {
             const input = document.getElementById('wrongCodeInput');
-            const code = (input.value || '').trim().toUpperCase();
+            let code = (input.value || '').trim().toUpperCase().replace(/[\s-]/g, '');
+            if (code && !PARTS_DATABASE[code]) {
+                const sug = suggestCode(code);
+                if (sug && confirm('Kode ' + code + ' tidak ada di database.\n\nMaksud Anda ' + sug + ' (' + PARTS_DATABASE[sug].name + ')?\n\nOK = pakai ' + sug + ', Cancel = tetap pakai kode yang diketik')) { code = sug; input.value = sug; }
+            }
             const inDb = code && PARTS_DATABASE[code];
             const presented = (window.__lastCandidates || []);
             if (window.__lastScanTs) {
@@ -3791,9 +3873,14 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             window.currentPredictions = predictions;
             const resultsBox = document.getElementById('resultsBox');
             const cards = predictions.slice(0, 3).map((pred, i) => aiResultCard(pred, i)).join('');
+            const top = PARTS_DATABASE[predictions[0].className] || {};
+            const unsure = predictions[0].probability < 0.5 && top.image
+                ? `<div class="mx-unsure">${ic('triangle-alert')}<div><b>AI belum yakin dengan hasil ini.</b> Cocokkan fisik part dengan foto katalog sebelum dipakai.
+                   <ul><li>Buka plastik atau bubble wrap pembungkus</li><li>Foto dari dekat, latar polos, cahaya cukup, satu part per foto</li><li>Cek gambar di E-Catalog atau tanya Tim PMT</li></ul></div></div>` : '';
             resultsBox.innerHTML = `
                 <h2 class="section-title">Hasil analisis AI</h2>
                 <div id="confirmBanner"></div>
+                ${unsure}
                 <div class="ai-result-list">${cards}</div>
                 <div class="ai-disclaimer">${ic('info')} AI bisa membuat kesalahan. Cocokkan part aktual dengan foto katalog. Jika tidak sesuai, hubungi Tim PMT.</div>`;
         }
@@ -3826,7 +3913,7 @@ Include at most 3 entries. Omit candidates whose visual match is clearly wrong.`
             <div class="ai-card ${isTop ? 'top' : ''}">
                 <div class="ai-card-head">
                     <span class="ai-rank">#${i+1}</span>
-                    <span class="ai-conf ${conf.cls}">${conf.txt}</span>
+                    ${(!img && pred.probability < 0.5) ? '<span class="ai-conf noimg">Dicocokkan dari nama · foto katalog belum ada</span>' : `<span class="ai-conf ${conf.cls}">${conf.txt}</span>`}
                     ${part.discontinued ? '<span class="ai-conf low">Discontinued</span>' : ''}
                 </div>
                 <div class="ai-card-grid">
